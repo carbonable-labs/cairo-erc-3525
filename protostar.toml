@@ -1,0 +1,10 @@
+["protostar.config"]
+protostar_version = "0.6.0"
+
+["protostar.project"]
+libs_path = "lib"
+
+["protostar.contracts"]
+erc3525 = [
+    "src/carbonable/erc3525/erc3525.cairo",
+]
