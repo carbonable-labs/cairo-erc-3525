@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// Carbonable Contracts for Cairo v0.0.1 (carbonable/erc3525/library.cairo)
 
 %lang starknet
 
