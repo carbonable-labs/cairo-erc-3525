@@ -1,3 +1,4 @@
 [submodule "cairo_contracts"]
 	path = lib/cairo_contracts
-	url = https://github.com/OpenZeppelin/cairo-contracts@v0.5.0
+	url = https://github.com/OpenZeppelin/cairo-contracts
+	branch = refs/heads/v0.5.0
