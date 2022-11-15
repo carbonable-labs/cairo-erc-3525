@@ -18,3 +18,4 @@ build
 *logs.json
 
 .DS_Store
+lint.sarif
