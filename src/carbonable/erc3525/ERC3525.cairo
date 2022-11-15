@@ -5,8 +5,8 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
-from openzeppelin.access.ownable.library import Ownable
 from openzeppelin.introspection.erc165.library import ERC165
+from openzeppelin.token.erc721.enumerable.library import ERC721Enumerable
 from openzeppelin.token.erc721.library import ERC721
 
 from carbonable.erc3525.library import ERC3525
@@ -19,8 +19,9 @@ from carbonable.erc3525.library import ERC3525
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     name: felt, symbol: felt, decimals: felt, owner: felt
 ) {
-    Ownable.initializer(owner);
-    ERC3525.initializer(name, symbol, decimals);
+    ERC721.initializer(name, symbol);
+    ERC721Enumerable.initializer();
+    ERC3525.initializer(decimals);
     return ();
 }
 
@@ -80,15 +81,6 @@ func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 }
 
 //
-// Ownable
-//
-
-@view
-func owner{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (owner: felt) {
-    return Ownable.owner();
-}
-
-//
 // ERC165
 //
 
@@ -104,7 +96,7 @@ func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 //
 
 @view
-func valueDecimals3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+func valueDecimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
     decimals: felt
 ) {
     return ERC3525.value_decimals();
@@ -118,14 +110,14 @@ func balanceOf3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 }
 
 @view
-func slotOf3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    tokenId: Uint256
-) -> (slot: Uint256) {
+func slotOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(tokenId: Uint256) -> (
+    slot: Uint256
+) {
     return ERC3525.slot_of(tokenId);
 }
 
 @view
-func allowance3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256, operator: felt
 ) -> (amount: Uint256) {
     return ERC3525.allowance(tokenId, operator);
@@ -172,24 +164,6 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 }
 
 //
-// Ownable
-//
-
-@external
-func transferOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    newOwner: felt
-) {
-    Ownable.transfer_ownership(newOwner);
-    return ();
-}
-
-@external
-func renounceOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    Ownable.renounce_ownership();
-    return ();
-}
-
-//
 // ERC3525
 //
 
@@ -202,18 +176,11 @@ func approve3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }
 
 @external
-func transferFromTo3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    fromTokenId: Uint256, to: felt, value: Uint256
+func transferFrom3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    fromTokenId: Uint256, toTokenId: Uint256, to: felt, value: Uint256
 ) -> (newTokenId: Uint256) {
-    let (new_token_id: Uint256) = ERC3525.transfer_from_to(fromTokenId, to, value);
+    let (new_token_id: Uint256) = ERC3525.transfer_from(fromTokenId, toTokenId, to, value);
     return (newTokenId=new_token_id);
-}
-
-@external
-func transferFromToTokenId3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    fromTokenId: Uint256, toTokenId: Uint256, value: Uint256
-) {
-    return ERC3525.transfer_from_token_id(fromTokenId, toTokenId, value);
 }
 
 //
@@ -222,17 +189,9 @@ func transferFromToTokenId3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, r
 
 @external
 func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    to: felt, tokenId: Uint256
+    to: felt, tokenId: Uint256, slot: Uint256, value: Uint256
 ) {
-    Ownable.assert_only_owner();
-    ERC721._mint(to, tokenId);
-    return ();
-}
-
-@external
-func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(tokenId: Uint256) {
-    ERC721.assert_only_token_owner(tokenId);
-    ERC721._burn(tokenId);
+    ERC3525._mint(to, tokenId, slot, value);
     return ();
 }
 
@@ -240,7 +199,6 @@ func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token
 func setTokenURI{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     tokenId: Uint256, tokenURI: felt
 ) {
-    Ownable.assert_only_owner();
     ERC721._set_token_uri(tokenId, tokenURI);
     return ();
 }
