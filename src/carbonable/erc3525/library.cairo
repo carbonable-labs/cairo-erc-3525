@@ -5,6 +5,7 @@
 from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.math import assert_le, assert_not_zero, assert_not_equal
+from starkware.cairo.common.math_cmp import is_not_zero
 from starkware.cairo.common.uint256 import Uint256, uint256_check, uint256_not, uint256_eq
 from starkware.starknet.common.syscalls import get_caller_address
 
@@ -64,18 +65,14 @@ namespace ERC3525 {
     //
 
     func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        name: felt, symbol: felt, decimals: felt
+        decimals: felt
     ) {
         with_attr error_message("ERC3525: decimals exceed 2^8") {
             assert_le(decimals, UINT8_MAX);
         }
         ERC3525_value_decimals.write(decimals);
-
-        ERC721.initializer(name, symbol);
-        ERC721Enumerable.initializer();
-
         ERC165.register_interface(IERC3525_ID);
-        ERC165.register_interface(IERC3525_METADATA_ID);
+        // ERC165.register_interface(IERC3525_METADATA_ID);
 
         return ();
     }
@@ -90,7 +87,7 @@ namespace ERC3525 {
         token_id: Uint256
     ) -> (balance: Uint256) {
         let exists = ERC721._exists(token_id);
-        with_attr error_message("ER3525: balance query for nonexistent token") {
+        with_attr error_message("ERC3525: balance query for nonexistent token") {
             assert exists = TRUE;
         }
         let (balance: Uint256) = ERC3525_values.read(token_id);
@@ -101,27 +98,26 @@ namespace ERC3525 {
         token_id: Uint256
     ) -> (slot: Uint256) {
         let exists = ERC721._exists(token_id);
-        with_attr error_message("ER3525: slot query for nonexistent token") {
+        with_attr error_message("ERC3525: slot query for nonexistent token") {
             assert exists = TRUE;
         }
-
         return ERC3525_slots.read(token_id);
     }
 
     func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         token_id: Uint256, to: felt, value: Uint256
     ) {
-        with_attr error_mesage("ER3525: token_id is not a valid Uint256") {
+        with_attr error_message("ERC3525: token_id is not a valid Uint256") {
             uint256_check(token_id);
         }
 
         let (caller) = get_caller_address();
-        with_attr error_message("ER3525: cannot approve from the zero address") {
+        with_attr error_message("ERC3525: cannot approve from the zero address") {
             assert_not_zero(caller);
         }
 
         let (owner) = ERC721.owner_of(token_id);
-        with_attr error_message("ER3525: approval to current owner") {
+        with_attr error_message("ERC3525: approval to current owner") {
             assert_not_equal(owner, to);
         }
 
@@ -140,6 +136,36 @@ namespace ERC3525 {
         return (amount=value);
     }
 
+    func transfer_from{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        from_token_id: Uint256, to_token_id: Uint256, to: felt, value: Uint256
+    ) -> (to_token_id: Uint256) {
+        alloc_locals;
+        // Disambiguate function call:
+        // only one of `to_token_id` and `̀to` must be set
+
+        local to_set = is_not_zero(to);
+        let (token_id_not_set) = uint256_eq(to_token_id, Uint256(0, 0));
+        let arg_set = to_set + 1 - token_id_not_set;
+
+        with_attr error_message("ERC3525: cannot transfer token zero or to zero address") {
+            if (arg_set == 0) {
+                assert 0 = 1;
+            }
+        }
+
+        // Disambiguation consistency check
+        with_attr error_message("ERC3525: cannot set both token_id and to") {
+            assert 1 = arg_set;
+        }
+
+        if (to_set == TRUE) {
+            return transfer_from_to(from_token_id, to, value);
+        } else {
+            // token_id_set == TRUE
+            return transfer_from_token_id(from_token_id, to_token_id, value);
+        }
+    }
+
     func transfer_from_to{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         from_token_id: Uint256, to: felt, value: Uint256
     ) -> (to_token_id: Uint256) {
@@ -147,9 +173,9 @@ namespace ERC3525 {
         let (caller) = get_caller_address();
         _spend_allowance(caller, from_token_id, value);
 
-        let (local new_token_id) = _get_new_token_id(from_token_id);
+        let (local new_token_id) = _get_new_token_id();
         let (slot) = slot_of(from_token_id);
-        _mint(to, new_token_id, slot);
+        _mint(to, new_token_id, slot, Uint256(0, 0));
         _transfer_value(from_token_id, new_token_id, value);
 
         return (to_token_id=new_token_id);
@@ -157,12 +183,12 @@ namespace ERC3525 {
 
     func transfer_from_token_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         from_token_id: Uint256, to_token_id: Uint256, value: Uint256
-    ) {
+    ) -> (to_token_id: Uint256) {
         let (caller) = get_caller_address();
         _spend_allowance(caller, from_token_id, value);
         _transfer_value(from_token_id, to_token_id, value);
 
-        return ();
+        return (to_token_id=to_token_id);
     }
 
     //
@@ -202,21 +228,29 @@ namespace ERC3525 {
         return ();
     }
 
-    func _get_new_token_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        from_token_id: Uint256
-    ) -> (new_token_id: Uint256) {
-        let (supply: Uint256) = ERC721Enumerable.total_supply();
-        let (new_supply: Uint256) = SafeUint256.add(supply, Uint256(1, 0));
-        return (new_token_id=new_supply);
-    }
-
     func _mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        to: felt, token_id: Uint256, slot: Uint256
+        to: felt, token_id: Uint256, slot: Uint256, value: Uint256
     ) {
         ERC721Enumerable._mint(to, token_id);
         ERC3525_slots.write(token_id, slot);
+        _mint_value(token_id, value);
         SlotChanged.emit(token_id, Uint256(0, 0), slot);
         return ();
+    }
+
+    func _mint_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        token_id: Uint256, value: Uint256
+    ) {
+        ERC3525_values.write(token_id, value);
+        TransferValue.emit(Uint256(0, 0), token_id, value);
+        return ();
+    }
+    func _get_new_token_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+        new_token_id: Uint256
+    ) {
+        let (supply: Uint256) = ERC721Enumerable.total_supply();
+        let (new_supply: Uint256) = SafeUint256.add(supply, Uint256(1, 0));
+        return (new_token_id=new_supply);
     }
 
     func _transfer_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -231,14 +265,14 @@ namespace ERC3525 {
         let (from_slot) = ERC3525_slots.read(from_token_id);
         let (to_slot) = ERC3525_slots.read(to_token_id);
 
-        with_attr error_mesage("ERC3525: transfer slot mismatch") {
+        with_attr error_message("ERC3525: transfer slot mismatch") {
             assert from_slot = to_slot;
         }
 
         let (from_balance) = ERC3525_values.read(from_token_id);
         let (to_balance) = ERC3525_values.read(to_token_id);
 
-        with_attr error_mesage("ERC3525: transfer amount exceeds balance") {
+        with_attr error_message("ERC3525: transfer amount exceeds balance") {
             let (new_from_balance: Uint256) = SafeUint256.sub_le(from_balance, value);
         }
         let (new_to_balance: Uint256) = SafeUint256.add(to_balance, value);
@@ -250,6 +284,7 @@ namespace ERC3525 {
         return ();
     }
 }
+
 func _check_on_erc3525_received{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_token_id: Uint256, to_token_id: Uint256, value: Uint256, data_len: felt, data: felt*
 ) {
@@ -275,14 +310,14 @@ namespace assert_erc3525 {
         token_id: Uint256
     ) {
         let exists = ERC721._exists(token_id);
-        with_attr error_message("ER3525: query for nonexistent token") {
+        with_attr error_message("ERC3525: query for nonexistent token") {
             assert exists = TRUE;
         }
         return ();
     }
 
     func uint256{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(value: Uint256) {
-        with_attr error_mesage("ER3525: value is not a valid Uint256") {
+        with_attr error_message("ERC3525: value is not a valid Uint256") {
             uint256_check(value);
         }
         return ();
