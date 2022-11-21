@@ -6,7 +6,7 @@ libs_path = "lib"
 
 ["protostar.contracts"]
 erc3525 = [
-    "./src/carbonable/erc3525/ERC3525.cairo",
+    "./src/carbonable/erc3525/ERC3525Example.cairo",
 ]
 
 ["protostar.shared_command_configs"]
