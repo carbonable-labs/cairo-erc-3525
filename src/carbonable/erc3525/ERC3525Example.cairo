@@ -17,7 +17,7 @@ from carbonable.erc3525.library import ERC3525
 
 @constructor
 func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    name: felt, symbol: felt, decimals: felt, owner: felt
+    name: felt, symbol: felt, decimals: felt
 ) {
     ERC721.initializer(name, symbol);
     ERC721Enumerable.initializer();
@@ -189,9 +189,31 @@ func transferFrom3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 
 @external
 func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    to: felt, tokenId: Uint256, slot: Uint256, value: Uint256
+    to: felt, slot: Uint256, value: Uint256
+) -> (token_id: Uint256) {
+    let (token_id) = ERC3525._mint_new(to, slot, value);
+    return (token_id=token_id);
+}
+
+@external
+func mintValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    token_id: Uint256, value: Uint256
 ) {
-    ERC3525._mint(to, tokenId, slot, value);
+    ERC3525._mint_value(token_id, value);
+    return ();
+}
+
+@external
+func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token_id: Uint256) {
+    ERC3525._burn(token_id);
+    return ();
+}
+
+@external
+func burnValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    token_id: Uint256, value: Uint256
+) {
+    ERC3525._burn_value(token_id, value);
     return ();
 }
 
