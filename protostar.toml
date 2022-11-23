@@ -1,16 +1,13 @@
-["protostar.config"]
-protostar_version = "0.6.0"
-
-["protostar.project"]
+[project]
+protostar-version = "0.7.0"
 libs_path = "lib"
-
-["protostar.contracts"]
-erc3525 = [
-    "./src/carbonable/erc3525/ERC3525Example.cairo",
+cairo-path = [
+    "./lib/cairo_contracts/src",
+    "src",
+    "tests",
 ]
 
-["protostar.shared_command_configs"]
-cairo_path = [
-    "./lib/cairo_contracts/src",
-    "src"
+[contracts]
+ERC3525Example = [
+    "./src/carbonable/erc3525/ERC3525Example.cairo",
 ]
