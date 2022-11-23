@@ -152,7 +152,6 @@ func test_can_burn_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
     let value = Uint256(10, 0);
 
     %{ expect_events({"name": "Transfer"}, {"name": "TransferValue"},{"name": "SlotChanged"}) %}
-    // %{ expect_events({"name": "TransferValue"}) %}
     ERC3525._burn_value(token_id, value);
 
     return ();
