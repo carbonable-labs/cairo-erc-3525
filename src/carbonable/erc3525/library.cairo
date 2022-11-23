@@ -21,6 +21,7 @@ from carbonable.erc3525.utils.constants.library import (
     IERC3525_ID,
     IERC3525_METADATA_ID,
     IERC3525_RECEIVER_ID,
+    IACCOUNT_ID,
 )
 
 //
@@ -335,6 +336,16 @@ namespace ERC3525 {
         ERC3525_values.write(to_token_id, new_to_balance);
 
         TransferValue.emit(from_token_id, to_token_id, value);
+
+        let (to) = ERC721.owner_of(to_token_id);
+        let (_) = _check_on_erc3525_received(
+            from_token_id, to_token_id, to, value, 0, cast(0, felt*)
+        );
+        // Implementers should decide whether they can transfer to non-account addresses
+        // with_attr error_message("ERC3525: transfer to non ERC3525Receiver implementer") {
+        // assert_not_zero(success);
+        // }
+
         return ();
     }
 
@@ -372,22 +383,27 @@ namespace ERC3525 {
 }
 
 func _check_on_erc3525_received{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    from_token_id: Uint256, to_token_id: Uint256, value: Uint256, data_len: felt, data: felt*
-) {
-    let (to) = ERC721.owner_of(to_token_id);
+    from_token_id: Uint256,
+    to_token_id: Uint256,
+    to: felt,
+    value: Uint256,
+    data_len: felt,
+    data: felt*,
+) -> (success: felt) {
     let (caller) = get_caller_address();
     let (is_supported) = IERC165.supportsInterface(to, IERC3525_RECEIVER_ID);
     if (is_supported == TRUE) {
         let (selector) = IERC3525Receiver.onERC3525Received(
-            caller, from_token_id, to_token_id, value, data_len, data
+            to, caller, from_token_id, to_token_id, value, data_len, data
         );
 
         with_attr error_message("ERC3525: ERC3525Receiver rejected tokens") {
             assert selector = IERC3525_RECEIVER_ID;
         }
-        return ();
+        return (success=TRUE);
     }
-    return ();
+    let (is_account) = IERC165.supportsInterface(to, IACCOUNT_ID);
+    return (success=is_account);
 }
 
 // Assert helpers
