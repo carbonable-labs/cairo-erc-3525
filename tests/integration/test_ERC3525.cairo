@@ -88,21 +88,32 @@ func test_supports_interfaces{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ra
 func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
     let (local instance) = contract_access.deployed();
-    let user = USER1;
     let slot1 = Uint256(SLOT1, 0);
     let slot2 = Uint256(SLOT2, 0);
     let value = Uint256(10, 0);
+    local account1;
+    local account2;
+    local account3;
+    local account4;
+
+    // Create users accounts
+    %{
+        ids.account1 = deploy_contract("./lib/cairo_contracts/src/openzeppelin/account/presets/Account.cairo", [ids.USER1]).contract_address 
+        ids.account2 = deploy_contract("./lib/cairo_contracts/src/openzeppelin/account/presets/Account.cairo", [ids.USER2]).contract_address 
+        ids.account3 = deploy_contract("./lib/cairo_contracts/src/openzeppelin/account/presets/Account.cairo", [ids.USER3]).contract_address 
+        ids.account4 = deploy_contract("./lib/cairo_contracts/src/openzeppelin/account/presets/Account.cairo", [ids.USER4]).contract_address
+    %}
 
     // Mint some tokens
-    let (_) = IERC3525.mint(instance, USER1, slot1, value);  // #01
-    let (_) = IERC3525.mint(instance, USER1, slot1, value);  // #02
-    let (_) = IERC3525.mint(instance, USER2, slot1, value);  // #03
-    let (_) = IERC3525.mint(instance, USER3, slot1, value);  // #04
-    let (_) = IERC3525.mint(instance, USER4, slot1, value);  // #05
-    let (_) = IERC3525.mint(instance, USER1, slot2, value);  // #06
-    let (_) = IERC3525.mint(instance, USER2, slot2, value);  // #07
-    let (_) = IERC3525.mint(instance, USER2, slot2, value);  // #08
-    let (_) = IERC3525.mint(instance, USER3, slot2, value);  // #09
+    let (_) = IERC3525.mint(instance, account1, slot1, value);  // #01
+    let (_) = IERC3525.mint(instance, account1, slot1, value);  // #02
+    let (_) = IERC3525.mint(instance, account2, slot1, value);  // #03
+    let (_) = IERC3525.mint(instance, account3, slot1, value);  // #04
+    let (_) = IERC3525.mint(instance, account4, slot1, value);  // #05
+    let (_) = IERC3525.mint(instance, account1, slot2, value);  // #06
+    let (_) = IERC3525.mint(instance, account2, slot2, value);  // #07
+    let (_) = IERC3525.mint(instance, account2, slot2, value);  // #08
+    let (_) = IERC3525.mint(instance, account3, slot2, value);  // #09
 
     // Mint more value
     IERC3525.mintValue(instance, Uint256(1, 0), value);
@@ -110,19 +121,19 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
     with instance {
         assert_that.ERC3525_balance_of_is(1, 20);
-        assert_that.owner_is(1, USER1);
+        assert_that.owner_is(1, account1);
     }
 
-    // approve tokens
-    %{ stop_prank = start_prank(caller_address=ids.USER1, target_contract_address=ids.instance) %}
-    IERC3525.approve3525(instance, Uint256(1, 0), USER3, Uint256(5, 0));
-    IERC3525.approve3525(instance, Uint256(2, 0), USER3, Uint256(5, 0));
-    IERC3525.approve3525(instance, Uint256(6, 0), USER3, Uint256(5, 0));
+    // approve USER3 tokens
+    %{ stop_prank = start_prank(caller_address=ids.account1, target_contract_address=ids.instance) %}
+    IERC3525.approve3525(instance, Uint256(1, 0), account3, Uint256(5, 0));
+    IERC3525.approve3525(instance, Uint256(2, 0), account3, Uint256(5, 0));
+    IERC3525.approve3525(instance, Uint256(6, 0), account3, Uint256(5, 0));
     %{ stop_prank() %}
 
     // / Transfer tokens
     // 1 -> 3
-    %{ stop_prank = start_prank(caller_address=ids.USER3, target_contract_address=ids.instance) %}
+    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
     let (_) = IERC3525.transferFrom3525(
         contract_address=instance,
         fromTokenId=Uint256(1, 0),
@@ -133,7 +144,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     %{ stop_prank() %}
 
     // 2 -> 3
-    %{ stop_prank = start_prank(caller_address=ids.USER3, target_contract_address=ids.instance) %}
+    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
     let (_) = IERC3525.transferFrom3525(
         contract_address=instance,
         fromTokenId=Uint256(2, 0),
@@ -144,7 +155,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     %{ stop_prank() %}
 
     // 6 -> 7
-    %{ stop_prank = start_prank(caller_address=ids.USER3, target_contract_address=ids.instance) %}
+    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
     let (_) = IERC3525.transferFrom3525(
         contract_address=instance,
         fromTokenId=Uint256(6, 0),
@@ -155,12 +166,12 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     %{ stop_prank() %}
 
     // 1 -> 10 (new)
-    %{ stop_prank = start_prank(caller_address=ids.USER3, target_contract_address=ids.instance) %}
+    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
     let (token_id) = IERC3525.transferFrom3525(
         contract_address=instance,
         fromTokenId=Uint256(1, 0),
         toTokenId=Uint256(0, 0),
-        to=USER4,
+        to=account4,
         value=Uint256(1, 0),
     );
     %{ stop_prank() %}
@@ -168,7 +179,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     assert 10 = token_10;
 
     with instance {
-        assert_that.allowance_is(1, USER3, 3);
+        assert_that.allowance_is(1, account3, 3);
         assert_that.ERC3525_balance_of_is(1, 18);
     }
 
@@ -178,7 +189,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     IERC3525.burnValue(instance, Uint256(9, 0), Uint256(1, 0));
 
     with instance {
-        assert_that.allowance_is(1, USER3, 3);
+        assert_that.allowance_is(1, account3, 3);
         assert_that.ERC3525_balance_of_is(1, 15);
     }
 

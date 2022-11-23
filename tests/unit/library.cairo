@@ -12,6 +12,7 @@ from openzeppelin.security.safemath.library import SafeUint256
 from openzeppelin.token.erc721.library import ERC721
 
 from carbonable.erc3525.library import ERC3525
+from carbonable.erc3525.utils.constants.library import IERC3525_RECEIVER_ID
 
 namespace assert_that {
     func ERC721_balance_of_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -77,6 +78,8 @@ namespace it {
 
         %{
             stop_prank = start_prank(ids.caller) 
+            mock_call(ids.to, "onERC3525Received", [ids.IERC3525_RECEIVER_ID])
+            mock_call(ids.to, "supportsInterface", [1])
             expect_events({"name": "TransferValue"})
         %}
         let (new_token_id) = ERC3525.transfer_from(from_token_id, Uint256(0, 0), to, value);
@@ -114,7 +117,9 @@ namespace it {
         let (local old_slot) = ERC3525.slot_of(from_token_id);
 
         %{
-            stop_prank = start_prank(ids.caller) 
+            stop_prank = start_prank(ids.caller)
+            mock_call(ids.to, "onERC3525Received", [ids.IERC3525_RECEIVER_ID])
+            mock_call(ids.to, "supportsInterface", [1])
             expect_events({"name": "TransferValue"})
         %}
         let (new_token_id) = ERC3525.transfer_from(from_token_id, Uint256(0, 0), to, value);
@@ -154,6 +159,8 @@ namespace it {
 
         %{
             stop_prank = start_prank(ids.caller) 
+            mock_call(ids.old_to_owner, "onERC3525Received", [ids.IERC3525_RECEIVER_ID])
+            mock_call(ids.old_to_owner, "supportsInterface", [1])
             expect_events({"name": "TransferValue"})
         %}
         let (_) = ERC3525.transfer_from(from_token_id, to_token_id, 0, value);
@@ -191,6 +198,8 @@ namespace it {
         let (local old_slot) = ERC3525.slot_of(from_token_id);
         %{
             stop_prank = start_prank(ids.caller) 
+            mock_call(ids.old_owner, "onERC3525Received", [ids.IERC3525_RECEIVER_ID])
+            mock_call(ids.old_owner, "supportsInterface", [1])
             expect_events({"name": "TransferValue"})
         %}
         let (_) = ERC3525.transfer_from(from_token_id, to_token_id, 0, value);
