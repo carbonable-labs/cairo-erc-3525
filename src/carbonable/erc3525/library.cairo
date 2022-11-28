@@ -62,6 +62,14 @@ func ERC3525_approved_values(owner: felt, token_id: Uint256, operator: felt) -> 
 func ERC3525_slots(token_id: Uint256) -> (slot: Uint256) {
 }
 
+@storage_var
+func ERC3525_slot_uri(slot: Uint256) -> (uri: felt) {
+}
+
+@storage_var
+func ERC3525_contract_uri() -> (uri: felt) {
+}
+
 namespace ERC3525 {
     //
     // Constructor
@@ -208,6 +216,18 @@ namespace ERC3525 {
         return (to_token_id=to_token_id);
     }
 
+    func contract_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+        uri: felt
+    ) {
+        return ERC3525_contract_uri.read();
+    }
+
+    func slot_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        slot: Uint256
+    ) -> (uri: felt) {
+        return ERC3525_slot_uri.read(slot);
+    }
+
     //
     // Internal
     //
@@ -239,7 +259,6 @@ namespace ERC3525 {
             _approve_value(token_id, spender, new_allowance);
             return ();
         }
-
         return ();
     }
 
@@ -378,6 +397,21 @@ namespace ERC3525 {
         }
         ERC3525_values.write(token_id, new_balance);
         TransferValue.emit(token_id, Uint256(0, 0), burn_value);
+        return ();
+    }
+
+    // URIs
+    func _set_contract_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        uri: felt
+    ) {
+        ERC3525_contract_uri.write(uri);
+        return ();
+    }
+
+    func _set_slot_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        slot: Uint256, uri: felt
+    ) {
+        ERC3525_slot_uri.write(slot, uri);
         return ();
     }
 }
