@@ -31,6 +31,8 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     ERC3525._mint(USER1, Uint256(TOKN1, 0), Uint256(SLOT1, 0), Uint256(42, 0));
     ERC3525._mint(USER2, Uint256(TOKN2, 0), Uint256(SLOT1, 0), Uint256(21, 0));
 
+    ERC3525._set_contract_uri('ipfs://');
+    ERC3525._set_slot_uri(Uint256(1, 0), 'ipfs://slot');
     return ();
 }
 
@@ -79,5 +81,20 @@ func test_slot_of_nonexistent_token{
     let token_id = Uint256(666, 0);
     %{ expect_revert(error_message="ERC3525: query for nonexistent token") %}
     let (slot: Uint256) = ERC3525.slot_of(token_id);
+    return ();
+}
+
+@view
+func test_contract_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    let (uri: felt) = ERC3525.contract_uri();
+    assert 'ipfs://' = uri;
+    return ();
+}
+
+@view
+func test_slot_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    let slot = Uint256(1, 0);
+    let (uri: felt) = ERC3525.slot_uri(slot);
+    assert 'ipfs://slot' = uri;
     return ();
 }
