@@ -13,9 +13,22 @@ from openzeppelin.token.erc721.library import ERC721
 from openzeppelin.token.erc721.IERC721 import IERC721
 from openzeppelin.token.erc721.IERC721Metadata import IERC721Metadata
 
-from carbonable.erc3525.IERC3525Example import IERC3525Example as IERC3525
+from carbonable.erc3525.IERC3525Full import IERC3525Full as IERC3525
 
 namespace assert_that {
+    func total_supply_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, instance}(
+        expected_supply_felt
+    ) {
+        alloc_locals;
+        let expected_supply = Uint256(expected_supply_felt, 0);
+        let (returned_supply) = IERC3525.totalSupply(instance);
+        let (is_eq) = uint256_eq(returned_supply, expected_supply);
+        with_attr error_message("totalSupply is unexpected") {
+            assert 1 = is_eq;
+        }
+        return ();
+    }
+
     func slot_of_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, instance}(
         token_id_felt, expected_slot_felt
     ) {

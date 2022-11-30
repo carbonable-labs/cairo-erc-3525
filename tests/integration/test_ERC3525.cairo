@@ -4,10 +4,11 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.introspection.erc165.IERC165 import IERC165
+from openzeppelin.token.erc721.enumerable.IERC721Enumerable import IERC721Enumerable
 from openzeppelin.token.erc721.IERC721 import IERC721
 from openzeppelin.token.erc721.IERC721Metadata import IERC721Metadata
 
-from carbonable.erc3525.IERC3525Example import IERC3525Example as IERC3525
+from carbonable.erc3525.IERC3525Full import IERC3525Full as IERC3525
 from carbonable.erc3525.IERC3525Metadata import IERC3525Metadata
 from carbonable.erc3525.utils.constants.library import (
     IERC165_ID,
@@ -47,7 +48,7 @@ const SLOT2 = 'slot2';
 @external
 func __setup__() {
     %{
-        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/ERC3525Example.cairo", 
+        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525MintableBurnable.cairo", 
             [ids.NAME, ids.SYMBOL, ids.DECIMALS]).contract_address
     %}
 
@@ -122,79 +123,81 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     with instance {
         assert_that.ERC3525_balance_of_is(1, 20);
         assert_that.owner_is(1, account1);
-    }
 
-    // approve USER3 tokens
-    %{ stop_prank = start_prank(caller_address=ids.account1, target_contract_address=ids.instance) %}
-    IERC3525.approve3525(instance, Uint256(1, 0), account3, Uint256(5, 0));
-    IERC3525.approve3525(instance, Uint256(2, 0), account3, Uint256(5, 0));
-    IERC3525.approve3525(instance, Uint256(6, 0), account3, Uint256(5, 0));
-    %{ stop_prank() %}
+        // approve USER3 tokens
+        %{ stop_prank = start_prank(caller_address=ids.account1, target_contract_address=ids.instance) %}
+        IERC3525.approve3525(instance, Uint256(1, 0), account3, Uint256(5, 0));
+        IERC3525.approve3525(instance, Uint256(2, 0), account3, Uint256(5, 0));
+        IERC3525.approve3525(instance, Uint256(6, 0), account3, Uint256(5, 0));
+        %{ stop_prank() %}
 
-    // / Transfer tokens
-    // 1 -> 3
-    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-    let (_) = IERC3525.transferFrom3525(
-        contract_address=instance,
-        fromTokenId=Uint256(1, 0),
-        toTokenId=Uint256(3, 0),
-        to=0,
-        value=Uint256(1, 0),
-    );
-    %{ stop_prank() %}
+        // / Transfer tokens
+        // 1 -> 3
+        %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
+        let (_) = IERC3525.transferFrom3525(
+            contract_address=instance,
+            fromTokenId=Uint256(1, 0),
+            toTokenId=Uint256(3, 0),
+            to=0,
+            value=Uint256(1, 0),
+        );
+        %{ stop_prank() %}
 
-    // 2 -> 3
-    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-    let (_) = IERC3525.transferFrom3525(
-        contract_address=instance,
-        fromTokenId=Uint256(2, 0),
-        toTokenId=Uint256(3, 0),
-        to=0,
-        value=Uint256(1, 0),
-    );
-    %{ stop_prank() %}
+        // 2 -> 3
+        %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
+        let (_) = IERC3525.transferFrom3525(
+            contract_address=instance,
+            fromTokenId=Uint256(2, 0),
+            toTokenId=Uint256(3, 0),
+            to=0,
+            value=Uint256(1, 0),
+        );
+        %{ stop_prank() %}
 
-    // 6 -> 7
-    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-    let (_) = IERC3525.transferFrom3525(
-        contract_address=instance,
-        fromTokenId=Uint256(6, 0),
-        toTokenId=Uint256(7, 0),
-        to=0,
-        value=Uint256(1, 0),
-    );
-    %{ stop_prank() %}
+        // 6 -> 7
+        %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
+        let (_) = IERC3525.transferFrom3525(
+            contract_address=instance,
+            fromTokenId=Uint256(6, 0),
+            toTokenId=Uint256(7, 0),
+            to=0,
+            value=Uint256(1, 0),
+        );
+        %{ stop_prank() %}
 
-    // 1 -> 10 (new)
-    %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-    let (token_id) = IERC3525.transferFrom3525(
-        contract_address=instance,
-        fromTokenId=Uint256(1, 0),
-        toTokenId=Uint256(0, 0),
-        to=account4,
-        value=Uint256(1, 0),
-    );
-    %{ stop_prank() %}
-    let token_10 = token_id.low;
-    assert 10 = token_10;
+        // 1 -> 10 (new)
+        %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
+        let (token_id) = IERC3525.transferFrom3525(
+            contract_address=instance,
+            fromTokenId=Uint256(1, 0),
+            toTokenId=Uint256(0, 0),
+            to=account4,
+            value=Uint256(1, 0),
+        );
+        %{ stop_prank() %}
+        let token_10 = token_id.low;
+        assert 10 = token_10;
 
-    with instance {
         assert_that.allowance_is(1, account3, 3);
         assert_that.ERC3525_balance_of_is(1, 18);
-    }
 
-    // Burn value
-    IERC3525.burnValue(instance, Uint256(1, 0), Uint256(3, 0));
-    IERC3525.burnValue(instance, Uint256(8, 0), Uint256(2, 0));
-    IERC3525.burnValue(instance, Uint256(9, 0), Uint256(1, 0));
+        // Burn value
+        IERC3525.burnValue(instance, Uint256(1, 0), Uint256(3, 0));
+        IERC3525.burnValue(instance, Uint256(8, 0), Uint256(2, 0));
+        IERC3525.burnValue(instance, Uint256(9, 0), Uint256(1, 0));
 
-    with instance {
         assert_that.allowance_is(1, account3, 3);
         assert_that.ERC3525_balance_of_is(1, 15);
-    }
+        assert_that.total_supply_is(10);
 
-    // Burn token
-    IERC3525.burn(instance, Uint256(1, 0));
+        // Burn token
+        IERC3525.burn(instance, Uint256(1, 0));
+        assert_that.total_supply_is(10);
+
+        // Mint after burn
+        let (_) = IERC3525.mint(instance, account1, slot1, value);  // #11
+        assert_that.total_supply_is(11);
+    }
 
     return ();
 }
