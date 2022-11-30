@@ -5,6 +5,8 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
+from starkware.starknet.common.syscalls import get_caller_address
+
 from openzeppelin.introspection.erc165.library import ERC165
 from openzeppelin.token.erc721.enumerable.library import ERC721Enumerable
 from openzeppelin.token.erc721.library import ERC721
@@ -78,6 +80,30 @@ func isApprovedForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 ) -> (isApproved: felt) {
     let (isApproved: felt) = ERC721.is_approved_for_all(owner, operator);
     return (isApproved=isApproved);
+}
+
+@view
+func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    totalSupply: Uint256
+) {
+    let (totalSupply) = ERC721Enumerable.total_supply();
+    return (totalSupply=totalSupply);
+}
+
+@view
+func tokenByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    index: Uint256
+) -> (tokenId: Uint256) {
+    let (tokenId) = ERC721Enumerable.token_by_index(index);
+    return (tokenId=tokenId);
+}
+
+@view
+func tokenOfOwnerByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    owner: felt, index: Uint256
+) -> (tokenId: Uint256) {
+    let (tokenId) = ERC721Enumerable.token_of_owner_by_index(owner, index);
+    return (tokenId=tokenId);
 }
 
 //
@@ -205,6 +231,10 @@ func mintValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 
 @external
 func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token_id: Uint256) {
+    let (caller) = get_caller_address();
+    with_attr error_message("ERC3525: caller is not token owner nor approved") {
+        ERC721._is_approved_or_owner(caller, token_id);
+    }
     ERC3525._burn(token_id);
     return ();
 }
@@ -213,6 +243,10 @@ func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token
 func burnValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     token_id: Uint256, value: Uint256
 ) {
+    let (caller) = get_caller_address();
+    with_attr error_message("ERC3525: caller is not token owner nor approved") {
+        ERC721._is_approved_or_owner(caller, token_id);
+    }
     ERC3525._burn_value(token_id, value);
     return ();
 }
