@@ -8,7 +8,7 @@ from openzeppelin.introspection.erc165.IERC165 import IERC165
 from openzeppelin.token.erc721.IERC721 import IERC721
 from openzeppelin.token.erc721.IERC721Metadata import IERC721Metadata
 
-from carbonable.erc3525.IERC3525Example import IERC3525Example as IERC3525
+from carbonable.erc3525.IERC3525Full import IERC3525Full as IERC3525
 from carbonable.erc3525.IERC3525Metadata import IERC3525Metadata
 from carbonable.erc3525.utils.constants.library import (
     ON_ERC3525_RECEIVED_SELECTOR,
@@ -51,7 +51,7 @@ const SLOT2 = 'slot2';
 @external
 func __setup__() {
     %{
-        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/ERC3525Example.cairo", 
+        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525MintableBurnable.cairo",
             [ids.NAME, ids.SYMBOL, ids.DECIMALS]).contract_address
     %}
 
