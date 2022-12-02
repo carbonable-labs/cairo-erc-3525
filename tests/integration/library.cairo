@@ -33,8 +33,8 @@ namespace assert_that {
         token_id_felt, expected_slot_felt
     ) {
         alloc_locals;
-        let (token_id) = Uint256(token_id_felt, 0);
-        let (expected_slot) = Uint256(expected_slot_felt, 0);
+        let token_id = Uint256(token_id_felt, 0);
+        let expected_slot = Uint256(expected_slot_felt, 0);
         let (returned_slot: Uint256) = IERC3525.slotOf(instance, token_id);
         let (is_eq) = uint256_eq(returned_slot, expected_slot);
         assert 1 = is_eq;
