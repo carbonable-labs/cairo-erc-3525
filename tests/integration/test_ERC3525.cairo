@@ -92,6 +92,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     let slot1 = Uint256(SLOT1, 0);
     let slot2 = Uint256(SLOT2, 0);
     let value = Uint256(10, 0);
+    let zero = Uint256(0, 0);
     local account1;
     local account2;
     local account3;
@@ -106,15 +107,15 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     %}
 
     // Mint some tokens
-    let (_) = IERC3525.mint(instance, account1, slot1, value);  // #01
-    let (_) = IERC3525.mint(instance, account1, slot1, value);  // #02
-    let (_) = IERC3525.mint(instance, account2, slot1, value);  // #03
-    let (_) = IERC3525.mint(instance, account3, slot1, value);  // #04
-    let (_) = IERC3525.mint(instance, account4, slot1, value);  // #05
-    let (_) = IERC3525.mint(instance, account1, slot2, value);  // #06
-    let (_) = IERC3525.mint(instance, account2, slot2, value);  // #07
-    let (_) = IERC3525.mint(instance, account2, slot2, value);  // #08
-    let (_) = IERC3525.mint(instance, account3, slot2, value);  // #09
+    let (_) = IERC3525.mintNew(instance, account1, slot1, value);  // #01
+    let (_) = IERC3525.mintNew(instance, account1, slot1, value);  // #02
+    let (_) = IERC3525.mintNew(instance, account2, slot1, value);  // #03
+    let (_) = IERC3525.mintNew(instance, account3, slot1, value);  // #04
+    let (_) = IERC3525.mintNew(instance, account4, slot1, value);  // #05
+    let (_) = IERC3525.mintNew(instance, account1, slot2, value);  // #06
+    let (_) = IERC3525.mintNew(instance, account2, slot2, value);  // #07
+    let (_) = IERC3525.mintNew(instance, account2, slot2, value);  // #08
+    let (_) = IERC3525.mintNew(instance, account3, slot2, value);  // #09
 
     // Mint more value
     IERC3525.mintValue(instance, Uint256(1, 0), value);
@@ -192,11 +193,19 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
         // Burn token
         IERC3525.burn(instance, Uint256(1, 0));
-        assert_that.total_supply_is(10);
+        assert_that.total_supply_is(9);
 
         // Mint after burn
-        let (_) = IERC3525.mint(instance, account1, slot1, value);  // #11
-        assert_that.total_supply_is(11);
+        let (token_id) = IERC3525.mintNew(instance, account1, slot2, value);  // #11 minted
+        assert_that.total_supply_is(10);
+        assert 11 = token_id.low;
+
+        // Mint after burn
+
+        IERC3525.mint(instance, account2, Uint256(1, 0), slot2, value);  // #1 reminted
+
+        assert_that.slot_of_is(1, SLOT2);
+        assert_that.owner_is(1, account2);
     }
 
     return ();
