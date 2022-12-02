@@ -70,7 +70,7 @@ func test_account_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range
     let slot = Uint256(1, 0);
     let value = Uint256(42, 0);
 
-    let (token_id: Uint256) = IERC3525.mint(instance, USER1, slot, value);
+    let (token_id: Uint256) = IERC3525.mintNew(instance, USER1, slot, value);
     %{
         stop_prank = start_prank(caller_address=ids.USER1, target_contract_address=ids.instance)
         expect_call(ids.address, "onERC3525Received", [ids.USER1, 1,0, 2,0, 3,0, 0])
@@ -94,7 +94,7 @@ func test_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     let slot = Uint256(1, 0);
     let value = Uint256(42, 0);
 
-    let (token_id) = IERC3525.mint(instance, USER1, slot, value);
+    let (token_id) = IERC3525.mintNew(instance, USER1, slot, value);
     %{
         stop_prank = start_prank(caller_address=ids.USER1, target_contract_address=ids.instance)
         expect_call(ids.address, "supportsInterface", [ids.IERC3525_RECEIVER_ID])
@@ -118,7 +118,7 @@ func test_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     let slot = Uint256(1, 0);
     let value = Uint256(42, 0);
 
-    let (token_id) = IERC3525.mint(instance, USER1, slot, value);
+    let (token_id) = IERC3525.mintNew(instance, USER1, slot, value);
     %{
         stop_prank = start_prank(caller_address=ids.USER1, target_contract_address=ids.instance)
         expect_call(ids.address, "supportsInterface", [ids.ON_ERC3525_RECEIVED_SELECTOR])
@@ -145,7 +145,7 @@ func test_not_account_nor_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
     let slot = Uint256(1, 0);
     let value = Uint256(42, 0);
 
-    let (token_id) = IERC3525.mint(instance, USER1, slot, value);
+    let (token_id) = IERC3525.mintNew(instance, USER1, slot, value);
     %{
         stop_prank = start_prank(caller_address=ids.USER1, target_contract_address=ids.instance)
         expect_call(ids.address, "supportsInterface", [ids.IERC3525_RECEIVER_ID])
@@ -169,7 +169,7 @@ func test_receiver_rejected{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
     let slot = Uint256(1, 0);
     let value = Uint256(42, 0);
 
-    let (token_id) = IERC3525.mint(instance, USER1, slot, value);
+    let (token_id) = IERC3525.mintNew(instance, USER1, slot, value);
     %{
         stop_prank = start_prank(caller_address=ids.USER1, target_contract_address=ids.instance) 
         expect_call(ids.address, "supportsInterface", [ids.ON_ERC3525_RECEIVED_SELECTOR])
