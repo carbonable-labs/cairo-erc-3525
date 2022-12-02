@@ -158,7 +158,7 @@ func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 //
 
 @external
-func approve{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, tokenId: Uint256
 ) {
     ERC721.approve(to, tokenId);
@@ -174,7 +174,7 @@ func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 }
 
 @external
-func transferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func transferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_: felt, to: felt, tokenId: Uint256
 ) {
     ERC721.transfer_from(from_, to, tokenId);
@@ -182,7 +182,7 @@ func transferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_pt
 }
 
 @external
-func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_: felt, to: felt, tokenId: Uint256, data_len: felt, data: felt*
 ) {
     ERC721.safe_transfer_from(from_, to, tokenId, data_len, data);
@@ -214,15 +214,22 @@ func transferFrom3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 //
 
 @external
-func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    to: felt, slot: Uint256, value: Uint256
-) -> (token_id: Uint256) {
-    let (token_id) = ERC3525._mint_new(to, slot, value);
-    return (token_id=token_id);
+func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    to: felt, token_id: Uint256, slot: Uint256, value: Uint256
+) {
+    return ERC3525._mint(to, token_id, slot, value);
 }
 
 @external
-func mintValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func mintNew{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    to: felt, slot: Uint256, value: Uint256
+) -> (token_id: Uint256) {
+    let (new_token_id) = ERC3525._mint_new(to, slot, value);
+    return (token_id=new_token_id);
+}
+
+@external
+func mintValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256, value: Uint256
 ) {
     ERC3525._mint_value(token_id, value);
@@ -230,7 +237,7 @@ func mintValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 }
 
 @external
-func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token_id: Uint256) {
+func burn{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(token_id: Uint256) {
     let (caller) = get_caller_address();
     with_attr error_message("ERC3525: caller is not token owner nor approved") {
         ERC721._is_approved_or_owner(caller, token_id);
@@ -240,7 +247,7 @@ func burn{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token
 }
 
 @external
-func burnValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func burnValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256, value: Uint256
 ) {
     let (caller) = get_caller_address();
@@ -252,7 +259,7 @@ func burnValue{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
 }
 
 @external
-func setTokenURI{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+func setTokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256, tokenURI: felt
 ) {
     ERC721._set_token_uri(tokenId, tokenURI);

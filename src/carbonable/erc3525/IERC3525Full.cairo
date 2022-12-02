@@ -26,7 +26,10 @@ namespace IERC3525Full {
     ) {
     }
 
-    func mint(to: felt, slot: Uint256, value: Uint256) -> (token_id: Uint256) {
+    func mint(to: felt, token_id: Uint256, slot: Uint256, value: Uint256) {
+    }
+
+    func mintNew(to: felt, slot: Uint256, value: Uint256) -> (token_id: Uint256) {
     }
 
     func mintValue(tokenId: Uint256, value: Uint256) {
