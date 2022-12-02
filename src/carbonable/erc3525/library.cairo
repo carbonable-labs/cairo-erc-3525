@@ -70,6 +70,10 @@ func ERC3525_slot_uri(slot: Uint256) -> (uri: felt) {
 func ERC3525_contract_uri() -> (uri: felt) {
 }
 
+@storage_var
+func ERC3525_total_minted_() -> (count: Uint256) {
+}
+
 namespace ERC3525 {
     //
     // Constructor
@@ -295,6 +299,10 @@ namespace ERC3525 {
     func __mint_token{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         to: felt, token_id: Uint256, slot: Uint256
     ) {
+        let (total) = ERC3525_total_minted_.read();
+        let (new_total) = SafeUint256.add(total, Uint256(1, 0));
+        ERC3525_total_minted_.write(new_total);
+
         ERC721Enumerable._mint(to, token_id);
         ERC3525_slots.write(token_id, slot);
         SlotChanged.emit(token_id, Uint256(0, 0), slot);
@@ -324,9 +332,9 @@ namespace ERC3525 {
     func _get_new_token_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         new_token_id: Uint256
     ) {
-        let (supply: Uint256) = ERC721Enumerable.total_supply();
-        let (new_supply: Uint256) = SafeUint256.add(supply, Uint256(1, 0));
-        return (new_token_id=new_supply);
+        let (total: Uint256) = ERC3525_total_minted_.read();
+        let (new_token_id: Uint256) = SafeUint256.add(total, Uint256(1, 0));
+        return (new_token_id=new_token_id);
     }
 
     func _transfer_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -376,7 +384,7 @@ namespace ERC3525 {
         let (local value) = ERC3525_values.read(token_id);
         let (slot) = ERC3525_slots.read(token_id);
 
-        ERC721._burn(token_id);
+        ERC721Enumerable._burn(token_id);
         ERC3525_slots.write(token_id, Uint256(0, 0));
 
         TransferValue.emit(token_id, Uint256(0, 0), value);
@@ -400,7 +408,10 @@ namespace ERC3525 {
         return ();
     }
 
-    // URIs
+    //
+    // Metadata
+    //
+
     func _set_contract_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         uri: felt
     ) {
