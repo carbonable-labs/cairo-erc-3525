@@ -9,7 +9,7 @@ namespace IERC3525SlotEnumerable {
     func slotCount() -> (count: Uint256) {
     }
 
-    func slotbyIndex(index: Uint256) -> (slot: Uint256) {
+    func slotByIndex(index: Uint256) -> (slot: Uint256) {
     }
 
     func tokenSupplyInSlot(slot: Uint256) -> (supply: Uint256) {
