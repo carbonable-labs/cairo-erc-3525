@@ -385,9 +385,11 @@ namespace ERC3525 {
         let (slot) = ERC3525_slots.read(token_id);
 
         ERC721Enumerable._burn(token_id);
-        ERC3525_slots.write(token_id, Uint256(0, 0));
 
+        ERC3525_values.write(token_id, Uint256(0, 0));
         TransferValue.emit(token_id, Uint256(0, 0), value);
+
+        ERC3525_slots.write(token_id, Uint256(0, 0));
         SlotChanged.emit(token_id, slot, Uint256(0, 0));
         return ();
     }
