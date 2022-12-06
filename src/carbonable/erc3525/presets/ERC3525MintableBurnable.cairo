@@ -129,9 +129,9 @@ func valueDecimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 }
 
 @view
-func balanceOf3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    tokenId: Uint256
-) -> (balance: Uint256) {
+func valueOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(tokenId: Uint256) -> (
+    balance: Uint256
+) {
     return ERC3525.balance_of(tokenId);
 }
 
@@ -194,7 +194,7 @@ func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 //
 
 @external
-func approve3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func approveValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256, operator: felt, value: Uint256
 ) {
     ERC3525.approve(tokenId, operator, value);
@@ -202,7 +202,7 @@ func approve3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }
 
 @external
-func transferFrom3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func transferValueFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     fromTokenId: Uint256, toTokenId: Uint256, to: felt, value: Uint256
 ) -> (newTokenId: Uint256) {
     let (new_token_id: Uint256) = ERC3525.transfer_from(fromTokenId, toTokenId, to, value);
