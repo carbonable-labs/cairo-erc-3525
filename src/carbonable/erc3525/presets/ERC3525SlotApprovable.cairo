@@ -25,6 +25,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     ERC721.initializer(name, symbol);
     ERC721Enumerable.initializer();
     ERC3525.initializer(decimals);
+    ERC3525SlotApprovable.initializer();
     return ();
 }
 

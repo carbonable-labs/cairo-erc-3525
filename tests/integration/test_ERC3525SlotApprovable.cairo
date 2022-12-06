@@ -10,6 +10,19 @@ from openzeppelin.token.erc721.IERC721 import IERC721
 from openzeppelin.token.erc721.IERC721Metadata import IERC721Metadata
 
 from carbonable.erc3525.IERC3525Full import IERC3525Full as IERC3525
+from carbonable.erc3525.utils.constants.library import (
+    IERC165_ID,
+    INVALID_ID,
+    IERC721_ID,
+    IERC721_RECEIVER_ID,
+    IERC721_METADATA_ID,
+    IERC721_ENUMERABLE_ID,
+    IERC3525_ID,
+    IERC3525_METADATA_ID,
+    IERC3525_RECEIVER_ID,
+    IERC3525_SLOT_APPROVABLE_ID,
+    ON_ERC3525_RECEIVED_SELECTOR,
+)
 
 from tests.integration.library import assert_that
 
@@ -39,6 +52,38 @@ func __setup__() {
         context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525SlotApprovable.cairo", 
             [ids.NAME, ids.SYMBOL, ids.DECIMALS]).contract_address
     %}
+
+    return ();
+}
+
+@external
+func test_initialized_metadata{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+    let (local erc3525_contract) = contract_access.deployed();
+    let (name) = IERC721Metadata.name(erc3525_contract);
+    let (symbol) = IERC721Metadata.symbol(erc3525_contract);
+    let (decimals) = IERC3525.valueDecimals(erc3525_contract);
+
+    assert NAME = name;
+    assert SYMBOL = symbol;
+    assert DECIMALS = decimals;
+    return ();
+}
+
+@external
+func test_supports_interfaces{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    alloc_locals;
+    let (local instance) = contract_access.deployed();
+    let (is_3525_sa) = IERC165.supportsInterface(instance, IERC3525_SLOT_APPROVABLE_ID);
+    let (is_3525) = IERC165.supportsInterface(instance, IERC3525_ID);
+    let (is_3525_meta) = IERC165.supportsInterface(instance, IERC3525_METADATA_ID);
+    let (is_165) = IERC165.supportsInterface(instance, IERC165_ID);
+    let (is_721) = IERC165.supportsInterface(instance, IERC721_ID);
+    assert 1 = is_3525;
+    assert 1 = is_3525_meta;
+    assert 1 = is_3525_sa;
+    assert 1 = is_165;
+    assert 1 = is_721;
 
     return ();
 }
