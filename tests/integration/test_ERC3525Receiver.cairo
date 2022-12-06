@@ -77,7 +77,7 @@ func test_account_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range
         expect_call(ids.address, "supportsInterface", [ids.ON_ERC3525_RECEIVED_SELECTOR])
         expect_events({"name": "Transfer"}, {"name": "SlotChanged"}, {"name": "TransferValue"})
     %}
-    IERC3525.transferFrom3525(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
+    IERC3525.transferValueFrom(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
     %{ stop_prank() %}
     return ();
 }
@@ -101,7 +101,7 @@ func test_account{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
         expect_call(ids.address, "supportsInterface", [ids.IACCOUNT_ID])
         expect_events({"name": "Transfer"}, {"name": "SlotChanged"}, {"name": "TransferValue"})
     %}
-    IERC3525.transferFrom3525(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
+    IERC3525.transferValueFrom(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
     %{ stop_prank() %}
     return ();
 }
@@ -125,7 +125,7 @@ func test_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
         expect_call(ids.address, "onERC3525Received", [ids.USER1, 1,0, 2,0, 3,0, 0])
         expect_events({"name": "Transfer"}, {"name": "SlotChanged"}, {"name": "TransferValue"})
     %}
-    IERC3525.transferFrom3525(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
+    IERC3525.transferValueFrom(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
     %{ stop_prank() %}
     return ();
 }
@@ -152,7 +152,7 @@ func test_not_account_nor_receiver{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
         expect_call(ids.address, "supportsInterface", [ids.IACCOUNT_ID])
         expect_events({"name": "Transfer"}, {"name": "SlotChanged"}, {"name": "TransferValue"})
     %}
-    IERC3525.transferFrom3525(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
+    IERC3525.transferValueFrom(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
     %{ stop_prank() %}
     return ();
 }
@@ -176,7 +176,7 @@ func test_receiver_rejected{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
         expect_call(ids.address, "onERC3525Received", [ids.USER1, 1,0, 2,0, 3,0, 0])
         expect_revert(error_message="ERC3525: ERC3525Receiver rejected tokens")
     %}
-    IERC3525.transferFrom3525(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
+    IERC3525.transferValueFrom(instance, token_id, Uint256(0, 0), address, Uint256(3, 0));
     %{ stop_prank() %}
     return ();
 }

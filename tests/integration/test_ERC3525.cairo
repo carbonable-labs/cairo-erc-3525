@@ -127,15 +127,15 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
         // approve USER3 tokens
         %{ stop_prank = start_prank(caller_address=ids.account1, target_contract_address=ids.instance) %}
-        IERC3525.approve3525(instance, Uint256(1, 0), account3, Uint256(5, 0));
-        IERC3525.approve3525(instance, Uint256(2, 0), account3, Uint256(5, 0));
-        IERC3525.approve3525(instance, Uint256(6, 0), account3, Uint256(5, 0));
+        IERC3525.approveValue(instance, Uint256(1, 0), account3, Uint256(5, 0));
+        IERC3525.approveValue(instance, Uint256(2, 0), account3, Uint256(5, 0));
+        IERC3525.approveValue(instance, Uint256(6, 0), account3, Uint256(5, 0));
         %{ stop_prank() %}
 
         // / Transfer tokens
         // 1 -> 3
         %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-        let (_) = IERC3525.transferFrom3525(
+        let (_) = IERC3525.transferValueFrom(
             contract_address=instance,
             fromTokenId=Uint256(1, 0),
             toTokenId=Uint256(3, 0),
@@ -146,7 +146,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
         // 2 -> 3
         %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-        let (_) = IERC3525.transferFrom3525(
+        let (_) = IERC3525.transferValueFrom(
             contract_address=instance,
             fromTokenId=Uint256(2, 0),
             toTokenId=Uint256(3, 0),
@@ -157,7 +157,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
         // 6 -> 7
         %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-        let (_) = IERC3525.transferFrom3525(
+        let (_) = IERC3525.transferValueFrom(
             contract_address=instance,
             fromTokenId=Uint256(6, 0),
             toTokenId=Uint256(7, 0),
@@ -168,7 +168,7 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
         // 1 -> 10 (new)
         %{ stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance) %}
-        let (token_id) = IERC3525.transferFrom3525(
+        let (token_id) = IERC3525.transferValueFrom(
             contract_address=instance,
             fromTokenId=Uint256(1, 0),
             toTokenId=Uint256(0, 0),

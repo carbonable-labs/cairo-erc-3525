@@ -57,7 +57,7 @@ namespace assert_that {
         let expected_balance = Uint256(expected_balance_felt, 0);
         let token_id = Uint256(token_id_felt, 0);
 
-        let (returned_balance: Uint256) = IERC3525.balanceOf3525(instance, token_id);
+        let (returned_balance: Uint256) = IERC3525.valueOf(instance, token_id);
         let (is_eq) = uint256_eq(returned_balance, expected_balance);
         with_attr error_message("Can't assert balance") {
             assert 1 = is_eq;
