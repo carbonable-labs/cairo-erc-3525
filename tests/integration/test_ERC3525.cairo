@@ -78,7 +78,7 @@ func test_supports_interfaces{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ra
     let (is_165) = IERC165.supportsInterface(erc3525_contract, IERC165_ID);
     let (is_721) = IERC165.supportsInterface(erc3525_contract, IERC721_ID);
     assert 1 = is_3525;
-    // assert 1 = is_3525_meta;
+    assert 1 = is_3525_meta;
     assert 1 = is_165;
     assert 1 = is_721;
 

@@ -87,7 +87,7 @@ namespace ERC3525 {
         }
         ERC3525_value_decimals.write(decimals);
         ERC165.register_interface(IERC3525_ID);
-        // ERC165.register_interface(IERC3525_METADATA_ID);
+        ERC165.register_interface(IERC3525_METADATA_ID);
 
         return ();
     }
