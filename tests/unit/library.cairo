@@ -12,6 +12,7 @@ from openzeppelin.security.safemath.library import SafeUint256
 from openzeppelin.token.erc721.library import ERC721
 
 from carbonable.erc3525.library import ERC3525
+from carbonable.erc3525.extensions.slotapprovable.library import ERC3525SlotApprovable
 from carbonable.erc3525.utils.constants.library import IERC3525_RECEIVER_ID
 
 namespace assert_that {
@@ -60,6 +61,15 @@ namespace assert_that {
         let (returned_allowance: Uint256) = ERC3525.allowance(token_id, operator);
         let (is_eq) = uint256_eq(returned_allowance, expected_allowance);
         assert 1 = is_eq;
+        return ();
+    }
+
+    func slot_approval_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        owner: felt, slot: Uint256, operator: felt, expected_approval: felt
+    ) {
+        alloc_locals;
+        let (returned_approval) = ERC3525SlotApprovable.is_approved_for_slot(owner, slot, operator);
+        assert returned_approval = expected_approval;
         return ();
     }
 }
@@ -240,6 +250,95 @@ namespace it {
             %{ stop_prank() %}
             assert_that.allowance_is(token_id, operator, Uint256(allowance, 0));
         }
+
+        return ();
+    }
+}
+
+namespace with_slots_it {
+    func transfers{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, caller: felt}(
+        from_token_id_felt: felt, to: felt, value_felt: felt
+    ) {
+        alloc_locals;
+        let from_token_id = Uint256(from_token_id_felt, 0);
+        let value = Uint256(value_felt, 0);
+        let (local old_owner) = ERC721.owner_of(from_token_id);
+        let (local old_bal721_from) = ERC721.balance_of(old_owner);
+        let (local old_bal721_to) = ERC721.balance_of(to);
+        let (local old_bal_from) = ERC3525.balance_of(from_token_id);
+        let (local old_slot) = ERC3525.slot_of(from_token_id);
+
+        %{
+            stop_prank = start_prank(ids.caller) 
+            mock_call(ids.to, "onERC3525Received", [ids.IERC3525_RECEIVER_ID])
+            mock_call(ids.to, "supportsInterface", [ids.TRUE])
+            expect_events({"name": "TransferValue"})
+        %}
+        let (new_token_id) = ERC3525SlotApprovable.transfer_from(
+            from_token_id, Uint256(0, 0), to, value
+        );
+        %{ stop_prank() %}
+
+        let (bal_from) = ERC3525.balance_of(from_token_id);
+        let (expected_bal_from) = SafeUint256.sub_le(old_bal_from, value);
+        assert_that.ERC3525_balance_of_is(from_token_id, expected_bal_from);
+
+        assert_that.ERC3525_balance_of_is(new_token_id, value);
+
+        assert_that.owner_is(from_token_id, old_owner);
+
+        assert_that.ERC721_balance_of_is(old_owner, old_bal721_from);
+
+        let (expected_bal721_to) = SafeUint256.add(old_bal721_to, Uint256(1, 0));
+        assert_that.ERC721_balance_of_is(to, expected_bal721_to);
+
+        assert_that.slot_of_is(from_token_id, old_slot);
+        assert_that.slot_of_is(new_token_id, old_slot);
+
+        return ();
+    }
+
+    func approves{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, caller: felt}(
+        token: felt, operator: felt, allowance: felt
+    ) {
+        alloc_locals;
+
+        let infinity = Uint256(ALL_ONES, ALL_ONES);
+        let token_id = Uint256(token, 0);
+
+        if (allowance == -1) {
+            %{
+                stop_prank = start_prank(ids.caller)
+                expect_events({"name": "ApprovalValue"})
+            %}
+            ERC3525SlotApprovable.approve_value(token_id, operator, infinity);
+            %{ stop_prank() %}
+            assert_that.allowance_is(token_id, operator, infinity);
+        } else {
+            %{
+                stop_prank = start_prank(ids.caller)
+                expect_events({"name": "ApprovalValue"})
+            %}
+            ERC3525SlotApprovable.approve_value(token_id, operator, Uint256(allowance, 0));
+            %{ stop_prank() %}
+            assert_that.allowance_is(token_id, operator, Uint256(allowance, 0));
+        }
+
+        return ();
+    }
+
+    func sets_slot_approval{
+        syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, caller: felt
+    }(owner: felt, slot_felt: felt, operator: felt, approved: felt) {
+        alloc_locals;
+        let slot = Uint256(slot_felt, 0);
+        %{
+            stop_prank = start_prank(ids.caller)
+            expect_events({"name": "ApprovalForSlot"})
+        %}
+        ERC3525SlotApprovable.set_approval_for_slot(owner, slot, operator, approved);
+        %{ stop_prank() %}
+        assert_that.slot_approval_is(owner, slot, operator, approved);
 
         return ();
     }
