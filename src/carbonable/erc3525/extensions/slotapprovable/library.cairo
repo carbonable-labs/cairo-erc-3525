@@ -42,7 +42,6 @@ namespace ERC3525SlotApprovable {
     // Initializer
     //
 
-    @external
     func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
         ERC165.register_interface(IERC3525_SLOT_APPROVABLE_ID);
         return ();
@@ -52,7 +51,6 @@ namespace ERC3525SlotApprovable {
     // Externals
     //
 
-    @external
     func set_approval_for_slot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, slot: Uint256, operator: felt, approved: felt
     ) {
@@ -84,7 +82,6 @@ namespace ERC3525SlotApprovable {
         return ();
     }
 
-    @external
     func is_approved_for_slot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         owner: felt, slot: Uint256, operator: felt
     ) -> (approved: felt) {
@@ -93,7 +90,6 @@ namespace ERC3525SlotApprovable {
         return (approved=approved);
     }
 
-    @external
     func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         to: felt, token_id: Uint256
     ) {
@@ -116,7 +112,6 @@ namespace ERC3525SlotApprovable {
         return ();
     }
 
-    @external
     func approve_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         token_id: Uint256, to: felt, value: Uint256
     ) {
