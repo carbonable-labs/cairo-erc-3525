@@ -13,6 +13,7 @@ from openzeppelin.token.erc721.library import ERC721
 
 from carbonable.erc3525.library import ERC3525
 from carbonable.erc3525.extensions.slotapprovable.library import ERC3525SlotApprovable
+from carbonable.erc3525.extensions.slotenumerable.library import ERC3525SlotEnumerable
 from carbonable.erc3525.utils.constants.library import IERC3525_RECEIVER_ID
 
 namespace assert_that {
@@ -70,6 +71,55 @@ namespace assert_that {
         alloc_locals;
         let (returned_approval) = ERC3525SlotApprovable.is_approved_for_slot(owner, slot, operator);
         assert returned_approval = expected_approval;
+        return ();
+    }
+
+    func slot_count_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        expected_count_felt: felt
+    ) {
+        alloc_locals;
+        let (returned_slot_count) = ERC3525SlotEnumerable.slot_count();
+        %{ print("slot count", ids.returned_slot_count.low) %}
+        let expected_slot_count = Uint256(expected_count_felt, 0);
+        let (is_eq) = uint256_eq(returned_slot_count, expected_slot_count);
+        assert 1 = is_eq;
+        return ();
+    }
+
+    func slot_by_index_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        index_felt: felt, expected_slot_felt: felt
+    ) {
+        alloc_locals;
+        let index = Uint256(index_felt, 0);
+        let expected_slot = Uint256(expected_slot_felt, 0);
+        let (returned_slot) = ERC3525SlotEnumerable.slot_by_index(index);
+        let (is_eq) = uint256_eq(returned_slot, expected_slot);
+        assert 1 = is_eq;
+        return ();
+    }
+
+    func token_supply_in_slot_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        slot_felt: felt, expected_supply_felt: felt
+    ) {
+        alloc_locals;
+        let slot = Uint256(slot_felt, 0);
+        let expected_supply = Uint256(expected_supply_felt, 0);
+        let (returned_supply) = ERC3525SlotEnumerable.token_supply_in_slot(slot);
+        let (is_eq) = uint256_eq(returned_supply, expected_supply);
+        assert 1 = is_eq;
+        return ();
+    }
+
+    func token_in_slot_by_index_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        slot_felt: felt, index_felt: felt, expected_token_id_felt: felt
+    ) {
+        alloc_locals;
+        let slot = Uint256(slot_felt, 0);
+        let index = Uint256(index_felt, 0);
+        let expected_token_id = Uint256(expected_token_id_felt, 0);
+        let (returned_token_id) = ERC3525SlotEnumerable.token_in_slot_by_index(slot, index);
+        let (is_eq) = uint256_eq(returned_token_id, expected_token_id);
+        assert 1 = is_eq;
         return ();
     }
 }
