@@ -79,7 +79,6 @@ namespace assert_that {
     ) {
         alloc_locals;
         let (returned_slot_count) = ERC3525SlotEnumerable.slot_count();
-        %{ print("slot count", ids.returned_slot_count.low) %}
         let expected_slot_count = Uint256(expected_count_felt, 0);
         let (is_eq) = uint256_eq(returned_slot_count, expected_slot_count);
         assert 1 = is_eq;
