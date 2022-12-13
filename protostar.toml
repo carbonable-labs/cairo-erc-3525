@@ -8,8 +8,6 @@ cairo-path = [
 ]
 
 [contracts]
-ERC3525MintableBurnable = [
-    "./src/carbonable/erc3525/presets/ERC3525MintableBurnable.cairo",
-]
+ERC3525MintableBurnable = ["./src/carbonable/erc3525/presets/ERC3525MintableBurnable.cairo"]
 ERC3525SlotApprovable = ["./src/carbonable/erc3525/presets/ERC3525SlotApprovable.cairo"]
-ERC3525SlotEnumerable = ["./src/carbonable/erc3525/presets/ERC3525SlotEnumerable.cairo"]
+ERC3525SlotEnumerableMintableBurnable = ["./src/carbonable/erc3525/presets/ERC3525SlotEnumerableMintableBurnable.cairo"]
