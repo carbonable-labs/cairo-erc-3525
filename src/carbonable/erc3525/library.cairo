@@ -170,7 +170,7 @@ namespace ERC3525 {
         }
 
         // Disambiguate function call:
-        // only one of `to_token_id` and `̀to` must be set
+        // only one of `to_token_id` and `to` must be set
 
         local to_set = is_not_zero(to);
         let (token_id_not_set) = uint256_eq(to_token_id, Uint256(0, 0));
