@@ -9,6 +9,7 @@ from openzeppelin.token.erc721.enumerable.library import ERC721Enumerable
 from openzeppelin.token.erc721.library import ERC721
 
 from carbonable.erc3525.library import ERC3525
+from tests.unit.library import assert_that
 
 const NAME = 'Carbonable Project';
 const SYMBOL = 'CP';
@@ -17,8 +18,6 @@ const ADMIN = 'admin';
 const USER1 = 'user1';
 const USER2 = 'user2';
 const USER3 = 'user3';
-const TOKN1 = 1;
-const TOKN2 = 2;
 const INVALID_ID = 666;
 const SLOT1 = 'slot1';
 const SLOT2 = 'slot2';
@@ -28,8 +27,9 @@ func __setup__{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     ERC721.initializer(NAME, SYMBOL);
     ERC721Enumerable.initializer();
     ERC3525.initializer(DECIMALS);
-    ERC3525._mint(USER1, Uint256(TOKN1, 0), Uint256(SLOT1, 0), Uint256(42, 0));
-    ERC3525._mint(USER2, Uint256(TOKN2, 0), Uint256(SLOT1, 0), Uint256(21, 0));
+    ERC3525._mint(USER1, Uint256(1, 0), Uint256(SLOT1, 0), Uint256(42, 0));
+    ERC3525._mint(USER2, Uint256(2, 0), Uint256(SLOT1, 0), Uint256(21, 0));
+    ERC3525._mint(USER1, Uint256(3, 0), Uint256(SLOT2, 0), Uint256(21, 0));
 
     ERC3525._set_contract_uri('ipfs://');
     ERC3525._set_slot_uri(Uint256(1, 0), 'ipfs://slot');
@@ -68,7 +68,7 @@ func test_balance_of_valid_token{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*,
 
 @view
 func test_slot_of_valid_token{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    let token_id = Uint256(TOKN1, 0);
+    let token_id = Uint256(1, 0);
     let (slot: Uint256) = ERC3525.slot_of(token_id);
     assert SLOT1 = slot.low;
     return ();
@@ -96,5 +96,12 @@ func test_slot_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
     let slot = Uint256(1, 0);
     let (uri: felt) = ERC3525.slot_uri(slot);
     assert 'ipfs://slot' = uri;
+    return ();
+}
+
+@view
+func test_total_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    assert_that.total_value_is(SLOT1, 42 + 21);
+    assert_that.total_value_is(SLOT2, 21);
     return ();
 }

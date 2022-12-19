@@ -124,4 +124,16 @@ namespace assert_that {
         assert 1 = is_eq;
         return ();
     }
+
+    func total_value_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, instance}(
+        slot_felt: felt, expected_total_felt: felt
+    ) {
+        alloc_locals;
+        let slot = Uint256(slot_felt, 0);
+        let expected_total = Uint256(expected_total_felt, 0);
+        let (returned_total) = IERC3525.totalValue(instance, slot);
+        let (is_eq) = uint256_eq(returned_total, expected_total);
+        assert 1 = is_eq;
+        return ();
+    }
 }

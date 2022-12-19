@@ -182,6 +182,9 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
         assert_that.allowance_is(1, account3, 3);
         assert_that.ERC3525_balance_of_is(1, 18);
 
+        assert_that.total_value_is(SLOT1, 7 * 10);
+        assert_that.total_value_is(SLOT2, 4 * 10);
+
         // Burn value
         IERC3525.burnValue(instance, Uint256(1, 0), Uint256(3, 0));
         IERC3525.burnValue(instance, Uint256(8, 0), Uint256(2, 0));
@@ -190,15 +193,23 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
         assert_that.allowance_is(1, account3, 3);
         assert_that.ERC3525_balance_of_is(1, 15);
         assert_that.total_supply_is(10);
+        assert_that.total_value_is(SLOT1, 7 * 10 - 3);
+        assert_that.total_value_is(SLOT2, 4 * 10 - 3);
 
         // Burn token
         IERC3525.burn(instance, Uint256(1, 0));
         assert_that.total_supply_is(9);
 
+        assert_that.total_value_is(SLOT1, 7 * 10 - 3 - 15);
+        assert_that.total_value_is(SLOT2, 4 * 10 - 3);
+
         // Mint after burn
         let (token_id) = IERC3525.mintNew(instance, account1, slot2, value);  // #11 minted
         assert_that.total_supply_is(10);
         assert 11 = token_id.low;
+
+        assert_that.total_value_is(SLOT1, 7 * 10 - 3 - 15);
+        assert_that.total_value_is(SLOT2, 4 * 10 - 3 + 1 * 10);
 
         // Mint after burn
 
@@ -206,6 +217,9 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
         assert_that.slot_of_is(1, SLOT2);
         assert_that.owner_is(1, account2);
+
+        assert_that.total_value_is(SLOT1, 7 * 10 - 3 - 15);
+        assert_that.total_value_is(SLOT2, 4 * 10 - 3 + 2 * 10);
     }
 
     return ();
