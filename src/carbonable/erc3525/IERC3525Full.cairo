@@ -108,7 +108,7 @@ namespace IERC3525Full {
     func slotByIndex(index: Uint256) -> (slot: Uint256) {
     }
 
-    func tokenSupplyInSlot(slot: Uint256) -> (supply: Uint256) {
+    func tokenSupplyInSlot(slot: Uint256) -> (totalAmount: Uint256) {
     }
 
     func tokenInSlotByIndex(slot: Uint256, index: Uint256) -> (tokenId: Uint256) {

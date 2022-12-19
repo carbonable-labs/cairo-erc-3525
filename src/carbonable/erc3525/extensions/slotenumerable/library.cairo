@@ -36,7 +36,7 @@ func ERC3525SlotEnumerable_all_slots_index(slot: Uint256) -> (index: Uint256) {
 }
 
 @storage_var
-func ERC3525SlotEnumerable_slot_tokens_len(slot: Uint256) -> (supply: Uint256) {
+func ERC3525SlotEnumerable_slot_tokens_len(slot: Uint256) -> (total_amount: Uint256) {
 }
 
 @storage_var
@@ -88,15 +88,15 @@ namespace ERC3525SlotEnumerable {
 
     func token_supply_in_slot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         slot: Uint256
-    ) -> (supply: Uint256) {
+    ) -> (total_amount: Uint256) {
         assert_erc3525.uint256(slot);
 
         let (exists) = _slot_exists(slot);
         if (exists == FALSE) {
-            return (supply=Uint256(0, 0));
+            return (total_amount=Uint256(0, 0));
         } else {
             let (supply) = ERC3525SlotEnumerable_slot_tokens_len.read(slot);
-            return (supply=supply);
+            return (total_amount=supply);
         }
     }
 
