@@ -134,6 +134,13 @@ func allowance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     return ERC3525.allowance(tokenId, operator);
 }
 
+@view
+func totalValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(slot: Uint256) -> (
+    total: Uint256
+) {
+    return ERC3525.total_value(slot);
+}
+
 //
 // ERC3525SlotEnumerable
 //
