@@ -74,6 +74,10 @@ func ERC3525_contract_uri() -> (uri: felt) {
 func ERC3525_total_minted_() -> (count: Uint256) {
 }
 
+@storage_var
+func ERC3525_total_value(slot: Uint256) -> (total: Uint256) {
+}
+
 namespace ERC3525 {
     //
     // Constructor
@@ -220,6 +224,10 @@ namespace ERC3525 {
         return (to_token_id=to_token_id);
     }
 
+    //
+    // Metadata
+    //
+
     func contract_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
         uri: felt
     ) {
@@ -230,6 +238,16 @@ namespace ERC3525 {
         slot: Uint256
     ) -> (uri: felt) {
         return ERC3525_slot_uri.read(slot);
+    }
+
+    //
+    // Additional methods
+    //
+
+    func total_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        slot: Uint256
+    ) -> (total: Uint256) {
+        return ERC3525_total_value.read(slot);
     }
 
     //
@@ -325,6 +343,12 @@ namespace ERC3525 {
         let (balance) = ERC3525_values.read(token_id);
         let (new_balance) = SafeUint256.add(balance, value);
         ERC3525_values.write(token_id, new_balance);
+
+        let (slot) = ERC3525.slot_of(token_id);
+        let (total) = ERC3525_total_value.read(slot);
+        let (new_total) = SafeUint256.add(total, value);
+        ERC3525_total_value.write(slot, new_total);
+
         TransferValue.emit(Uint256(0, 0), token_id, value);
         return ();
     }
@@ -382,11 +406,16 @@ namespace ERC3525 {
         assert_erc3525.minted(token_id);
 
         let (local value) = ERC3525_values.read(token_id);
-        let (slot) = ERC3525_slots.read(token_id);
+        let (local slot) = ERC3525_slots.read(token_id);
 
         ERC721Enumerable._burn(token_id);
 
         ERC3525_values.write(token_id, Uint256(0, 0));
+
+        let (total) = ERC3525_total_value.read(slot);
+        let (new_total) = SafeUint256.sub_le(total, value);
+        ERC3525_total_value.write(slot, new_total);
+
         TransferValue.emit(token_id, Uint256(0, 0), value);
 
         ERC3525_slots.write(token_id, Uint256(0, 0));
@@ -405,6 +434,12 @@ namespace ERC3525 {
         with_attr error_message("ERC3525: burn value exceeds balance") {
             let (new_balance: Uint256) = SafeUint256.sub_le(balance, burn_value);
         }
+
+        let (slot) = ERC3525_slots.read(token_id);
+        let (total) = ERC3525_total_value.read(slot);
+        let (new_total) = SafeUint256.sub_le(total, burn_value);
+        ERC3525_total_value.write(slot, new_total);
+
         ERC3525_values.write(token_id, new_balance);
         TransferValue.emit(token_id, Uint256(0, 0), burn_value);
         return ();
