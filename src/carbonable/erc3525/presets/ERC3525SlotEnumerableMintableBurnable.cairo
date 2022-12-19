@@ -155,8 +155,9 @@ func slotByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 @view
 func tokenSupplyInSlot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     slot: Uint256
-) -> (supply: Uint256) {
-    return ERC3525SlotEnumerable.token_supply_in_slot(slot);
+) -> (totalAmount: Uint256) {
+    let (totalAmount) = ERC3525SlotEnumerable.token_supply_in_slot(slot);
+    return (totalAmount=totalAmount);
 }
 
 @view

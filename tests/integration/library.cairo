@@ -102,12 +102,12 @@ namespace assert_that {
 
     func token_supply_in_slot_is{
         syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, instance
-    }(slot_felt: felt, expected_supply_felt: felt) {
+    }(slot_felt: felt, expected_total_amount_felt: felt) {
         alloc_locals;
         let slot = Uint256(slot_felt, 0);
-        let expected_supply = Uint256(expected_supply_felt, 0);
-        let (returned_supply) = IERC3525.tokenSupplyInSlot(instance, slot);
-        let (is_eq) = uint256_eq(returned_supply, expected_supply);
+        let expected_total_amount = Uint256(expected_total_amount_felt, 0);
+        let (returned_total_amount) = IERC3525.tokenSupplyInSlot(instance, slot);
+        let (is_eq) = uint256_eq(returned_total_amount, expected_total_amount);
         assert 1 = is_eq;
         return ();
     }
