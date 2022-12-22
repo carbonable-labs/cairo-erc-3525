@@ -243,57 +243,6 @@ namespace ERC3525SlotEnumerable {
         SlotChanged.emit(Uint256(0, 0), Uint256(0, 0), slot);
         return ();
     }
-
-    func _before_value_transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        from_: felt,
-        to: felt,
-        from_token_id: Uint256,
-        to_token_id: Uint256,
-        slot: Uint256,
-        value: Uint256,
-    ) {
-        let zero = Uint256(0, 0);
-        let (is_not_from_zero_addr) = is_not_zero(from_);
-        let (is_zero_id) = uint256_eq(zero, from_token_id);
-        let (is_slot) = _slot_exists(slot);
-
-        // mint
-        if (is_not_from_zero_addr == 0 and is_zero_id == 1 and is_slot == 0) {
-            _create_slot(slot);
-        }
-        return ();
-    }
-
-    func _after_value_transfer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        from_: felt,
-        to: felt,
-        from_token_id: Uint256,
-        to_token_id: Uint256,
-        slot: Uint256,
-        value: Uint256,
-    ) {
-        let zero = Uint256(0, 0);
-        let (is_not_from_zero_addr) = is_not_zero(from_);
-        let (is_not_to_zero_addr) = is_not_zero(to);
-        let (is_from_zero_id) = uint256_eq(zero, from_token_id);
-        let (is_to_zero_id) = uint256_eq(zero, from_token_id);
-        let (is_from_token_in_slot) = _token_exists_in_slot(slot, from_token_id);
-        let (is_to_token_in_slot) = _token_exists_in_slot(slot, to_token_id);
-        let (is_slot) = _slot_exists(slot);
-
-        // mint
-        if (is_not_from_zero_addr == 0 and is_from_zero_id == 1 and is_to_token_in_slot == 0) {
-            _add_token_to_slot_enumeration(slot, to_token_id);
-            return ();
-        }
-
-        // burn
-        if (is_not_to_zero_addr == 0 and is_to_zero_id == 1 and is_to_token_in_slot == 1) {
-            _remove_token_from_slot_enumeration(slot, to_token_id);
-            return ();
-        }
-        return ();
-    }
 }
 
 //
