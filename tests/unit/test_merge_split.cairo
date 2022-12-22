@@ -310,7 +310,7 @@ func test_cannot_merge_if_not_owner{
 }
 
 @view
-func test_can_merge_1{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+func test_cannot_merge_1{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
     let user = 'bal7';
     let slot = Uint256(SLOT1, 0);
