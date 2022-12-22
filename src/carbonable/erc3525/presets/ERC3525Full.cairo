@@ -2,8 +2,11 @@
 
 %lang starknet
 
+from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.uint256 import Uint256
+from starkware.cairo.common.math_cmp import is_le
+from starkware.cairo.common.uint256 import Uint256, uint256_eq
+
 from starkware.starknet.common.syscalls import get_caller_address
 
 from openzeppelin.introspection.erc165.library import ERC165
@@ -11,7 +14,11 @@ from openzeppelin.token.erc721.enumerable.library import ERC721Enumerable
 from openzeppelin.token.erc721.library import ERC721
 
 from carbonable.erc3525.library import ERC3525
-from carbonable.erc3525.extensions.slotenumerable.library import ERC3525SlotEnumerable
+from carbonable.erc3525.extensions.slotapprovable.library import ERC3525SlotApprovable
+from carbonable.erc3525.extensions.slotenumerable.library import (
+    ERC3525SlotEnumerable,
+    _add_token_to_slot_enumeration,
+)
 
 //
 // Constructor
@@ -24,6 +31,7 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     ERC721.initializer(name, symbol);
     ERC721Enumerable.initializer();
     ERC3525.initializer(decimals);
+    ERC3525SlotApprovable.initializer();
     ERC3525SlotEnumerable.initializer();
     return ();
 }
@@ -91,6 +99,22 @@ func totalSupply{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     return (totalSupply=totalSupply);
 }
 
+@view
+func tokenByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    index: Uint256
+) -> (tokenId: Uint256) {
+    let (tokenId) = ERC721Enumerable.token_by_index(index);
+    return (tokenId=tokenId);
+}
+
+@view
+func tokenOfOwnerByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    owner: felt, index: Uint256
+) -> (tokenId: Uint256) {
+    let (tokenId) = ERC721Enumerable.token_of_owner_by_index(owner, index);
+    return (tokenId=tokenId);
+}
+
 //
 // ERC165
 //
@@ -142,40 +166,6 @@ func totalValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}
 }
 
 //
-// ERC3525SlotEnumerable
-//
-
-@view
-func slotCount{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    count: Uint256
-) {
-    return ERC3525SlotEnumerable.slot_count();
-}
-
-@view
-func slotByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    index: Uint256
-) -> (slot: Uint256) {
-    return ERC3525SlotEnumerable.slot_by_index(index);
-}
-
-@view
-func tokenSupplyInSlot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    slot: Uint256
-) -> (totalAmount: Uint256) {
-    let (totalAmount) = ERC3525SlotEnumerable.token_supply_in_slot(slot);
-    return (totalAmount=totalAmount);
-}
-
-@view
-func tokenInSlotByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    slot: Uint256, index: Uint256
-) -> (tokenId: Uint256) {
-    let (tokenId) = ERC3525SlotEnumerable.token_in_slot_by_index(slot, index);
-    return (tokenId=tokenId);
-}
-
-//
 // External functions
 //
 
@@ -187,7 +177,7 @@ func tokenInSlotByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, tokenId: Uint256
 ) {
-    ERC721.approve(to, tokenId);
+    ERC3525SlotApprovable.approve(to, tokenId);
     return ();
 }
 
@@ -223,7 +213,7 @@ func safeTransferFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 func approveValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     tokenId: Uint256, operator: felt, value: Uint256
 ) {
-    ERC3525.approve(tokenId, operator, value);
+    ERC3525SlotApprovable.approve_value(tokenId, operator, value);
     return ();
 }
 
@@ -231,15 +221,176 @@ func approveValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 func transferValueFrom{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     fromTokenId: Uint256, toTokenId: Uint256, to: felt, value: Uint256
 ) -> (newTokenId: Uint256) {
-    let (new_token_id: Uint256) = ERC3525SlotEnumerable.transfer_from(
+    alloc_locals;
+    let (local new_token_id: Uint256) = ERC3525SlotApprovable.transfer_from(
         fromTokenId, toTokenId, to, value
     );
+
+    if (to != 0) {
+        // Keep enumerability
+        let (slot) = ERC3525.slot_of(fromTokenId);
+        _add_token_to_slot_enumeration(slot, new_token_id);
+        return (newTokenId=new_token_id);
+    }
     return (newTokenId=new_token_id);
+}
+
+//
+// SlotApprovable
+//
+
+@external
+func setApprovalForSlot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    owner: felt, slot: Uint256, operator: felt, approved: felt
+) {
+    ERC3525SlotApprovable.set_approval_for_slot(owner, slot, operator, approved);
+    return ();
+}
+
+@external
+func isApprovedForSlot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    owner: felt, slot: Uint256, operator: felt
+) -> (is_approved: felt) {
+    let (is_approved) = ERC3525SlotApprovable.is_approved_for_slot(owner, slot, operator);
+    return (is_approved=is_approved);
+}
+
+//
+// ERC3525SlotEnumerable
+//
+
+@view
+func slotCount{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    count: Uint256
+) {
+    return ERC3525SlotEnumerable.slot_count();
+}
+
+@view
+func slotByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    index: Uint256
+) -> (slot: Uint256) {
+    return ERC3525SlotEnumerable.slot_by_index(index);
+}
+
+@view
+func tokenSupplyInSlot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    slot: Uint256
+) -> (totalAmount: Uint256) {
+    let (totalAmount) = ERC3525SlotEnumerable.token_supply_in_slot(slot);
+    return (totalAmount=totalAmount);
+}
+
+@view
+func tokenInSlotByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    slot: Uint256, index: Uint256
+) -> (tokenId: Uint256) {
+    let (tokenId) = ERC3525SlotEnumerable.token_in_slot_by_index(slot, index);
+    return (tokenId=tokenId);
 }
 
 //
 // Helpers
 //
+
+//
+// Merge and Split
+//
+
+@view
+func split{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    tokenId: Uint256, amounts_len: felt, amounts: Uint256*
+) -> (token_ids_len: felt, token_ids: Uint256*) {
+    alloc_locals;
+
+    let is_len_valid = is_le(amounts_len, 255);
+    with_attr error_message("ERC3525: split length too large") {
+        assert 1 = is_len_valid;
+    }
+
+    let is_len_valid = is_le(2, amounts_len);
+    with_attr error_message("ERC3525: split length too lowm") {
+        assert 1 = is_len_valid;
+    }
+
+    let (local new_token_ids: Uint256*) = alloc();
+    let (owner) = ERC721.owner_of(tokenId);
+    _split_iter(owner, tokenId, amounts_len, amounts, new_token_ids, 1);
+    return (token_ids_len=amounts_len, token_ids=new_token_ids);
+}
+
+// Private
+func _split_iter{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    owner: felt,
+    token_id: Uint256,
+    amounts_len: felt,
+    amounts: Uint256*,
+    new_token_ids: Uint256*,
+    n: felt,
+) {
+    alloc_locals;
+    if (n == amounts_len) {
+        let (value) = ERC3525.balance_of(token_id);
+        let (is_eq) = uint256_eq([amounts], value);
+        with_attr error_message("ERC3525: Split amounts do not sum to balance") {
+            assert 1 = is_eq;
+        }
+        assert [new_token_ids] = token_id;
+        return ();
+    }
+
+    let (new_token_id) = transferValueFrom(token_id, Uint256(0, 0), owner, [amounts]);
+    assert [new_token_ids] = new_token_id;
+
+    return _split_iter(
+        owner, token_id, amounts_len, amounts + Uint256.SIZE, new_token_ids + Uint256.SIZE, n + 1
+    );
+}
+
+@view
+func merge{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    tokenIds_len: felt, tokenIds: Uint256*
+) {
+    alloc_locals;
+
+    let is_len_valid = is_le(tokenIds_len, 255);
+    with_attr error_message("ERC3525: merge length too large") {
+        assert 1 = is_len_valid;
+    }
+
+    let is_len_valid = is_le(2, tokenIds_len);
+    with_attr error_message("ERC3525: merge length too lowm") {
+        assert 1 = is_len_valid;
+    }
+
+    return _merge_iter(tokenIds_len, tokenIds, 1);
+}
+
+// Private
+func _merge_iter{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    token_ids_len: felt, token_ids: Uint256*, n: felt
+) {
+    if (n == token_ids_len) {
+        return ();
+    }
+
+    let (from_owner) = ERC721.owner_of(token_ids[n - 1]);
+    let (to_owner) = ERC721.owner_of(token_ids[n]);
+    with_attr error_message("ERC3525: merge tokens not from owner") {
+        assert to_owner = from_owner;
+    }
+
+    let (value) = ERC3525.balance_of(token_ids[n - 1]);
+    let (new_token_id) = transferValueFrom(token_ids[n - 1], token_ids[n], 0, value);
+    ERC3525SlotEnumerable._burn(token_ids[n - 1]);
+
+    return _merge_iter(token_ids_len, token_ids, n + 1);
+}
+
+//
+// Mint and Burn
+//
+
 @external
 func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, token_id: Uint256, slot: Uint256, value: Uint256

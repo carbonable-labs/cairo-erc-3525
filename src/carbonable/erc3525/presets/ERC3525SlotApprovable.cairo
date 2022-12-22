@@ -170,7 +170,7 @@ func totalValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}
 func approve{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, tokenId: Uint256
 ) {
-    ERC721.approve(to, tokenId);
+    ERC3525SlotApprovable.approve(to, tokenId);
     return ();
 }
 
