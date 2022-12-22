@@ -1,5 +1,6 @@
 %lang starknet
 
+from starkware.cairo.common.bool import TRUE
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 from starkware.cairo.common.uint256 import Uint256
 
@@ -45,10 +46,11 @@ const SLOT2 = 'slot2';
 //
 // TESTS
 //
+
 @external
 func __setup__() {
     %{
-        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525MintableBurnable.cairo", 
+        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525Full.cairo", 
             [ids.NAME, ids.SYMBOL, ids.DECIMALS]).contract_address
     %}
 
@@ -217,9 +219,27 @@ func test_e2e_3525{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
         assert_that.slot_of_is(1, SLOT2);
         assert_that.owner_is(1, account2);
+        assert_that.total_supply_is(11);
 
         assert_that.total_value_is(SLOT1, 7 * 10 - 3 - 15);
         assert_that.total_value_is(SLOT2, 4 * 10 - 3 + 2 * 10);
+
+        // account2 approves account3 for slot 2
+        %{ stop_prank = start_prank(caller_address=ids.account2, target_contract_address=ids.instance) %}
+        IERC3525.setApprovalForSlot(instance, account2, slot2, account3, TRUE);
+        %{
+            stop_prank() 
+            stop_prank = start_prank(caller_address=ids.account3, target_contract_address=ids.instance)
+        %}
+        // Split #1 with value 10 into (#13,4),(#1,6)
+        let (token_ids_len, token_ids) = IERC3525.split(
+            instance, Uint256(1, 0), 2, cast(new (Uint256(4, 0), Uint256(6, 0)), Uint256*)
+        );
+
+        // Merge tokens back
+        IERC3525.merge(instance, 2, token_ids);
+        %{ stop_prank() %}
+        assert_that.ERC3525_balance_of_is(1, 10);
     }
 
     return ();

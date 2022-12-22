@@ -37,6 +37,14 @@ namespace assert_that {
         return ();
     }
 
+    func token_id_is_nonexistent{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+        token_id: Uint256
+    ) {
+        %{ expect_revert(error_message="ERC721: owner query for nonexistent token") %}
+        let (_) = ERC721.owner_of(token_id);
+        return ();
+    }
+
     func owner_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         token_id: Uint256, expected_owner: felt
     ) {
