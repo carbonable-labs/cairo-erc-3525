@@ -49,7 +49,7 @@ const SLOT2 = 'slot2';
 @external
 func __setup__() {
     %{
-        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525SlotApprovable.cairo", 
+        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525Full.cairo", 
             [ids.NAME, ids.SYMBOL, ids.DECIMALS]).contract_address
     %}
 
