@@ -120,4 +120,12 @@ namespace IERC3525Full {
 
     func totalValue(slot: Uint256) -> (total: Uint256) {
     }
+
+    func merge(tokenIds_len: felt, tokenIds: Uint256*) {
+    }
+
+    func split(tokenId: Uint256, amounts_len: felt, amounts: Uint256*) -> (
+        tokenIds_len: felt, tokenIds: Uint256*
+    ) {
+    }
 }
