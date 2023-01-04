@@ -4,4 +4,4 @@ build:
 	protostar build
 
 test:
-	protostar test
+	protostar test tests/
