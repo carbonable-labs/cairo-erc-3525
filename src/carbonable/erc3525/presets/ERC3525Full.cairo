@@ -3,11 +3,11 @@
 %lang starknet
 
 from starkware.cairo.common.alloc import alloc
-from starkware.cairo.common.cairo_builtins import HashBuiltin
+from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
 from starkware.cairo.common.math_cmp import is_le
 from starkware.cairo.common.uint256 import Uint256, uint256_eq
 
-from starkware.starknet.common.syscalls import get_caller_address
+from starkware.starknet.common.syscalls import get_caller_address, get_contract_address
 
 from openzeppelin.introspection.erc165.library import ERC165
 from openzeppelin.token.erc721.enumerable.library import ERC721Enumerable
@@ -19,6 +19,7 @@ from carbonable.erc3525.extensions.slotenumerable.library import (
     ERC3525SlotEnumerable,
     _add_token_to_slot_enumeration,
 )
+from carbonable.erc3525.periphery.library import ERC3525MetadataDescriptor
 
 //
 // Constructor
@@ -52,14 +53,6 @@ func name{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> 
 @view
 func symbol{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (symbol: felt) {
     return ERC721.symbol();
-}
-
-@view
-func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    tokenId: Uint256
-) -> (tokenURI: felt) {
-    let (tokenURI: felt) = ERC721.token_uri(tokenId);
-    return (tokenURI=tokenURI);
 }
 
 @view
@@ -290,8 +283,47 @@ func tokenInSlotByIndex{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 }
 
 //
+// Metadata Descriptor
+//
+
+@view
+func contractURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    uri_len: felt, uri: felt*
+) {
+    let (instance) = get_contract_address();
+    let (uri_len, uri) = ERC3525MetadataDescriptor.constructContractURI{instance=instance}();
+    return (uri_len=uri_len, uri=uri);
+}
+
+@view
+func slotURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(slot: Uint256) -> (
+    uri_len: felt, uri: felt*
+) {
+    let (instance) = get_contract_address();
+    let (uri_len, uri) = ERC3525MetadataDescriptor.constructSlotURI{instance=instance}(slot);
+    return (uri_len=uri_len, uri=uri);
+}
+
+@view
+func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    tokenId: Uint256
+) -> (uri_len: felt, uri: felt*) {
+    let (instance) = get_contract_address();
+    let (uri_len, uri) = ERC3525MetadataDescriptor.constructTokenURI{instance=instance}(tokenId);
+    return (uri_len=uri_len, uri=uri);
+}
+
+//
 // Helpers
 //
+
+@view
+func tokenIndexInSlot{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    slot: Uint256, index: Uint256
+) -> (tokenId: Uint256) {
+    let (tokenId) = ERC3525SlotEnumerable.token_in_slot_by_index(slot, index);
+    return (tokenId=tokenId);
+}
 
 //
 // Merge and Split
@@ -433,13 +465,5 @@ func burnValue{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         ERC721._is_approved_or_owner(caller, token_id);
     }
     ERC3525._burn_value(token_id, value);
-    return ();
-}
-
-@external
-func setTokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    tokenId: Uint256, tokenURI: felt
-) {
-    ERC721._set_token_uri(tokenId, tokenURI);
     return ();
 }

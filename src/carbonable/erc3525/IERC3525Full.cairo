@@ -62,9 +62,6 @@ namespace IERC3525Full {
     func symbol() -> (symbol: felt) {
     }
 
-    func tokenURI(tokenId: Uint256) -> (tokenURI: felt) {
-    }
-
     func balanceOf(owner: felt) -> (balance: Uint256) {
     }
 
@@ -112,6 +109,19 @@ namespace IERC3525Full {
     }
 
     func tokenInSlotByIndex(slot: Uint256, index: Uint256) -> (tokenId: Uint256) {
+    }
+
+    //
+    // Metadata Descriptor
+    //
+
+    func constructContractURI() -> (uri_len: felt, uri: felt*) {
+    }
+
+    func constructSlotURI(slot: Uint256) -> (uri_len: felt, uri: felt*) {
+    }
+
+    func constructTokenURI(tokenId: Uint256) -> (uri_len: felt, uri: felt*) {
     }
 
     //
