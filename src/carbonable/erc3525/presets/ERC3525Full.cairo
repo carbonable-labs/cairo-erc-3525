@@ -309,7 +309,7 @@ func split{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     }
 
     let is_len_valid = is_le(2, amounts_len);
-    with_attr error_message("ERC3525: split length too lowm") {
+    with_attr error_message("ERC3525: split length too low") {
         assert 1 = is_len_valid;
     }
 
@@ -359,7 +359,7 @@ func merge{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     }
 
     let is_len_valid = is_le(2, tokenIds_len);
-    with_attr error_message("ERC3525: merge length too lowm") {
+    with_attr error_message("ERC3525: merge length too low") {
         assert 1 = is_len_valid;
     }
 
