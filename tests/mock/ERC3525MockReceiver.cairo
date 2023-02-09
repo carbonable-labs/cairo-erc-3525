@@ -8,7 +8,7 @@ from starkware.cairo.common.uint256 import Uint256
 
 from openzeppelin.introspection.erc165.library import ERC165
 
-from carbonable.erc3525.utils.constants.library import IERC3525_RECEIVER_ID, IACCOUNT_ID
+from erc3525.utils.constants.library import IERC3525_RECEIVER_ID, IACCOUNT_ID
 
 @storage_var
 func success_() -> (value: felt) {

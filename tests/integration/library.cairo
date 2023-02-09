@@ -13,7 +13,7 @@ from openzeppelin.token.erc721.library import ERC721
 from openzeppelin.token.erc721.IERC721 import IERC721
 from openzeppelin.token.erc721.IERC721Metadata import IERC721Metadata
 
-from carbonable.erc3525.IERC3525Full import IERC3525Full as IERC3525
+from erc3525.IERC3525Full import IERC3525Full as IERC3525
 
 namespace assert_that {
     func total_supply_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr, instance}(

@@ -15,8 +15,8 @@ from openzeppelin.token.erc721.library import ERC721
 from openzeppelin.token.erc721.enumerable.library import ERC721Enumerable
 from openzeppelin.security.safemath.library import SafeUint256
 
-from carbonable.erc3525.IERC3525Receiver import IERC3525Receiver
-from carbonable.erc3525.utils.constants.library import (
+from erc3525.IERC3525Receiver import IERC3525Receiver
+from erc3525.utils.constants.library import (
     UINT8_MAX,
     IERC3525_ID,
     IERC3525_METADATA_ID,

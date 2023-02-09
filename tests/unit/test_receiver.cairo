@@ -4,8 +4,8 @@ from starkware.cairo.common.bool import TRUE, FALSE
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from carbonable.erc3525.library import ERC3525, _check_on_erc3525_received
-from carbonable.erc3525.utils.constants.library import IERC3525_RECEIVER_ID
+from erc3525.library import ERC3525, _check_on_erc3525_received
+from erc3525.utils.constants.library import IERC3525_RECEIVER_ID
 
 @contract_interface
 namespace IERC3525Receiver {

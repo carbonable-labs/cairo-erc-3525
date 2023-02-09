@@ -9,7 +9,7 @@ from openzeppelin.security.safemath.library import SafeUint256
 from openzeppelin.token.erc721.enumerable.library import ERC721Enumerable
 from openzeppelin.token.erc721.library import ERC721
 
-from carbonable.erc3525.library import ERC3525
+from erc3525.library import ERC3525
 from tests.unit.library import assert_that, it
 
 const NAME = 'Carbonable Project';

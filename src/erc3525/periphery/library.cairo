@@ -9,7 +9,7 @@ from cairopen.string.ASCII import StringCodec
 from cairopen.string.string import String
 from cairopen.string.utils import StringUtil
 
-from carbonable.erc3525.IERC3525Full import IERC3525Full as IERC3525
+from erc3525.IERC3525Full import IERC3525Full as IERC3525
 
 namespace ERC3525MetadataDescriptor {
     func constructContractURI{
