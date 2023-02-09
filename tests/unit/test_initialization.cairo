@@ -3,7 +3,7 @@
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
-from carbonable.erc3525.library import ERC3525
+from erc3525.library import ERC3525
 
 @view
 func test_can_set_valid_decimals{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

@@ -16,8 +16,8 @@ from openzeppelin.security.safemath.library import SafeUint256
 from openzeppelin.token.erc721.library import ERC721
 
 // Project dependencies
-from carbonable.erc3525.library import ERC3525, assert_erc3525
-from carbonable.erc3525.utils.constants.library import IERC3525_SLOT_APPROVABLE_ID
+from erc3525.library import ERC3525, assert_erc3525
+from erc3525.utils.constants.library import IERC3525_SLOT_APPROVABLE_ID
 
 //
 // Events

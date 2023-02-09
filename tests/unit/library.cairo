@@ -11,10 +11,10 @@ from starkware.cairo.common.uint256 import Uint256, uint256_eq, ALL_ONES
 from openzeppelin.security.safemath.library import SafeUint256
 from openzeppelin.token.erc721.library import ERC721
 
-from carbonable.erc3525.library import ERC3525
-from carbonable.erc3525.extensions.slotapprovable.library import ERC3525SlotApprovable
-from carbonable.erc3525.extensions.slotenumerable.library import ERC3525SlotEnumerable
-from carbonable.erc3525.utils.constants.library import IERC3525_RECEIVER_ID
+from erc3525.library import ERC3525
+from erc3525.extensions.slotapprovable.library import ERC3525SlotApprovable
+from erc3525.extensions.slotenumerable.library import ERC3525SlotEnumerable
+from erc3525.utils.constants.library import IERC3525_RECEIVER_ID
 
 namespace assert_that {
     func ERC721_balance_of_is{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(

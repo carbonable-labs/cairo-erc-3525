@@ -9,8 +9,8 @@ from openzeppelin.token.erc721.enumerable.IERC721Enumerable import IERC721Enumer
 from openzeppelin.token.erc721.IERC721 import IERC721
 from openzeppelin.token.erc721.IERC721Metadata import IERC721Metadata
 
-from carbonable.erc3525.IERC3525Full import IERC3525Full as IERC3525
-from carbonable.erc3525.utils.constants.library import (
+from erc3525.IERC3525Full import IERC3525Full as IERC3525
+from erc3525.utils.constants.library import (
     IERC165_ID,
     INVALID_ID,
     IERC721_ID,
@@ -49,7 +49,7 @@ const SLOT2 = 'slot2';
 @external
 func __setup__() {
     %{
-        context.erc3525_contract = deploy_contract("./src/carbonable/erc3525/presets/ERC3525Full.cairo", 
+        context.erc3525_contract = deploy_contract("./src/erc3525/presets/ERC3525Full.cairo", 
             [ids.NAME, ids.SYMBOL, ids.DECIMALS]).contract_address
     %}
 
