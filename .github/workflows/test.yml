@@ -16,10 +16,13 @@ jobs:
           curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash -s -- -v $PROTOSTAR_VERSION
 
       - name: Install protostar dependencies
-        run: make install
+        run: |
+          export PATH="$PATH:/home/runner/.protostar/dist/protostar" && make install
 
       - name: Compile smart contracts
-        run: make build
+        run: |
+          export PATH="$PATH:/home/runner/.protostar/dist/protostar" && make build
 
       - name: Run protostar tests
-        run: make test
+        run: |
+          export PATH="$PATH:/home/runner/.protostar/dist/protostar" && make test
