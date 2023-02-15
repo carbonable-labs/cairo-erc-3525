@@ -6,6 +6,10 @@ from starkware.cairo.common.uint256 import Uint256
 
 @contract_interface
 namespace IERC3525Full {
+    //
+    // ERC3525
+    //
+
     func valueDecimals() -> (decimals: felt) {
     }
 
@@ -27,35 +31,9 @@ namespace IERC3525Full {
     }
 
     //
-    // Mintable Burnable
+    // 721 Enumerable
     //
 
-    func mint(to: felt, token_id: Uint256, slot: Uint256, value: Uint256) {
-    }
-
-    func mintNew(to: felt, slot: Uint256, value: Uint256) -> (token_id: Uint256) {
-    }
-
-    func mintValue(tokenId: Uint256, value: Uint256) {
-    }
-
-    func burn(tokenId: Uint256) {
-    }
-
-    func burnValue(tokenId: Uint256, value: Uint256) {
-    }
-
-    //
-    // Slot Approvable
-    //
-
-    func setApprovalForSlot(owner: felt, slot: Uint256, operator: felt, approved: felt) {
-    }
-
-    func isApprovedForSlot(owner: felt, slot: Uint256, operator: felt) -> (is_approved: felt) {
-    }
-
-    // 721
     func name() -> (name: felt) {
     }
 
@@ -95,6 +73,29 @@ namespace IERC3525Full {
     func tokenOfOwnerByIndex(owner: felt, index: Uint256) -> (tokenId: Uint256) {
     }
 
+    func tokenURI(tokenId: Uint256) -> (uri_len: felt, uri: felt*) {
+    }
+
+    //
+    // 3525 Metadata
+    //
+
+    func contractURI() -> (uri_len: felt, uri: felt*) {
+    }
+
+    func slotURI(slot: Uint256) -> (uri_len: felt, uri: felt*) {
+    }
+
+    //
+    // Slot Approvable
+    //
+
+    func setApprovalForSlot(owner: felt, slot: Uint256, operator: felt, approved: felt) {
+    }
+
+    func isApprovedForSlot(owner: felt, slot: Uint256, operator: felt) -> (is_approved: felt) {
+    }
+
     //
     // Slot Enumerable
     //
@@ -112,16 +113,22 @@ namespace IERC3525Full {
     }
 
     //
-    // Metadata Descriptor
+    // Mintable Burnable
     //
 
-    func constructContractURI() -> (uri_len: felt, uri: felt*) {
+    func mint(to: felt, token_id: Uint256, slot: Uint256, value: Uint256) {
     }
 
-    func constructSlotURI(slot: Uint256) -> (uri_len: felt, uri: felt*) {
+    func mintNew(to: felt, slot: Uint256, value: Uint256) -> (token_id: Uint256) {
     }
 
-    func constructTokenURI(tokenId: Uint256) -> (uri_len: felt, uri: felt*) {
+    func mintValue(tokenId: Uint256, value: Uint256) {
+    }
+
+    func burn(tokenId: Uint256) {
+    }
+
+    func burnValue(tokenId: Uint256, value: Uint256) {
     }
 
     //
@@ -131,11 +138,6 @@ namespace IERC3525Full {
     func totalValue(slot: Uint256) -> (total: Uint256) {
     }
 
-    func merge(tokenIds_len: felt, tokenIds: Uint256*) {
-    }
-
-    func split(tokenId: Uint256, amounts_len: felt, amounts: Uint256*) -> (
-        tokenIds_len: felt, tokenIds: Uint256*
-    ) {
+    func setTokenImage(uri_len: felt, uri: felt*) {
     }
 }
