@@ -135,6 +135,14 @@ namespace IERC3525Full {
     // Additional methods
     //
 
+    func split(tokenId: Uint256, amounts_len: felt, amounts: Uint256*) -> (
+        token_ids_len: felt, token_ids: Uint256*
+    ) {
+    }
+
+    func merge(tokenIds_len: felt, tokenIds: Uint256*) {
+    }
+
     func totalValue(slot: Uint256) -> (total: Uint256) {
     }
 
