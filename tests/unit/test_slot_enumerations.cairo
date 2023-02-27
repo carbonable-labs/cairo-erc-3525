@@ -73,6 +73,15 @@ func test_reverts_invalid_slot_negative{
     return ();
 }
 
+@view
+func test_reverts_overflow{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    let index = Uint256(2 ** 128 - 1, 2 ** 128 - 1);
+    %{ expect_revert(error_message="SafeUint256: addition overflow") %}
+    let (returned_slot) = ERC3525SlotEnumerable.slot_by_index(index);
+    return ();
+
+}
+
 // token supply in slots
 // / it returns the numbers of tokens in slot
 @view
@@ -160,6 +169,17 @@ func test_token_index_reverts_if_index_too_high{
 }() {
     %{ expect_revert(error_message="ERC3525SlotEnumerable: slot token index out of bounds") %}
     assert_that.token_in_slot_by_index_is(SLOT1, 2, 666);
+    return ();
+}
+
+@view
+func test_token_index_reverts_overflow{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}() {
+    let slot = Uint256('nonexistent slot', 0);
+    let index = Uint256(2 ** 128 - 1, 2 ** 128 - 1);
+    %{ expect_revert(error_message="SafeUint256: addition overflow") %}
+    let (returned_token_id) = ERC3525SlotEnumerable.token_in_slot_by_index(slot, index);
     return ();
 }
 
