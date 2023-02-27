@@ -73,16 +73,22 @@ namespace ERC3525SlotEnumerable {
     func slot_by_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         index: Uint256
     ) -> (slot: Uint256) {
+        alloc_locals;
+
         assert_erc3525.uint256(index);
+
+        // Index is internally managed starting at 1 instead of 0
+        let one = Uint256(low=1, high=0);
+        let (real_index) = SafeUint256.add(index, one);
 
         let (count) = ERC3525SlotEnumerable_all_slots_len.read();
 
-        let (is_le) = uint256_le(index, count);
+        let (is_le) = uint256_le(real_index, count);
         with_attr error_message("ERC3525SlotEnumerable: index out of bounds") {
             assert 1 = is_le;
         }
 
-        let (slot) = ERC3525SlotEnumerable_all_slots.read(index);
+        let (slot) = ERC3525SlotEnumerable_all_slots.read(real_index);
         return (slot=slot);
     }
 
@@ -103,17 +109,23 @@ namespace ERC3525SlotEnumerable {
     func token_in_slot_by_index{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         slot: Uint256, index: Uint256
     ) -> (token_id: Uint256) {
+        alloc_locals;
+
         assert_erc3525.uint256(slot);
         assert_erc3525.uint256(index);
 
+        // Index is internally managed starting at 1 instead of 0
+        let one = Uint256(low=1, high=0);
+        let (real_index) = SafeUint256.add(index, one);
+
         let (supply) = token_supply_in_slot(slot);
 
-        let (is_le) = uint256_le(index, supply);
+        let (is_le) = uint256_le(real_index, supply);
         with_attr error_message("ERC3525SlotEnumerable: slot token index out of bounds") {
             assert 1 = is_le;
         }
 
-        let (token_id) = ERC3525SlotEnumerable_slot_tokens.read(slot, index);
+        let (token_id) = ERC3525SlotEnumerable_slot_tokens.read(slot, real_index);
         return (token_id=token_id);
     }
 
