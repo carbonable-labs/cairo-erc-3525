@@ -7,4 +7,4 @@ install:
 	protostar install
 
 test:
-	protostar test tests/
+	protostar test
