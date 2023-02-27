@@ -49,8 +49,8 @@ func test_returns_slot_count{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ran
 func test_returns_valid_slots_by_id{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
-    assert_that.slot_by_index_is(1, SLOT1);
-    assert_that.slot_by_index_is(2, SLOT2);
+    assert_that.slot_by_index_is(0, SLOT1);
+    assert_that.slot_by_index_is(1, SLOT2);
     return ();
 }
 
@@ -60,7 +60,7 @@ func test_reverts_invalid_slot_too_high{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     %{ expect_revert(error_message="ERC3525SlotEnumerable: index out of bounds") %}
-    assert_that.slot_by_index_is(3, SLOT1);
+    assert_that.slot_by_index_is(2, SLOT1);
     return ();
 }
 
@@ -146,10 +146,10 @@ func test_tx_token_to_address_adjusts_tokens_in_slot{
 func test_token_index_returns_token_id_if_index_valid{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
-    assert_that.token_in_slot_by_index_is(SLOT1, 1, 1);
-    assert_that.token_in_slot_by_index_is(SLOT1, 2, 2);
-    assert_that.token_in_slot_by_index_is(SLOT2, 1, 3);
-    assert_that.token_in_slot_by_index_is(SLOT2, 2, 4);
+    assert_that.token_in_slot_by_index_is(SLOT1, 0, 1);
+    assert_that.token_in_slot_by_index_is(SLOT1, 1, 2);
+    assert_that.token_in_slot_by_index_is(SLOT2, 0, 3);
+    assert_that.token_in_slot_by_index_is(SLOT2, 1, 4);
     return ();
 }
 
@@ -159,7 +159,7 @@ func test_token_index_reverts_if_index_too_high{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     %{ expect_revert(error_message="ERC3525SlotEnumerable: slot token index out of bounds") %}
-    assert_that.token_in_slot_by_index_is(SLOT1, 3, 666);
+    assert_that.token_in_slot_by_index_is(SLOT1, 2, 666);
     return ();
 }
 
@@ -173,21 +173,13 @@ func test_token_index_reverts_if_index_invalid{
 }
 
 @view
-func test_token_index_zero_nonexistent{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}() {
-    assert_that.token_in_slot_by_index_is('nonexistent slot', 0, 0);
-    return ();
-}
-
-@view
 func test_token_index_stays_the_same_after_721_tx{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     %{ stop_prank = start_prank(ids.USER1) %}
     ERC721Enumerable.transfer_from(USER1, USER2, Uint256(TOKN1, 0));
     %{ stop_prank() %}
-    assert_that.token_in_slot_by_index_is(SLOT1, TOKN1, 1);
+    assert_that.token_in_slot_by_index_is(SLOT1, 0, TOKN1);
     return ();
 }
 
@@ -203,8 +195,8 @@ func test_token_index_stays_after_tx_token_to_token{
     %}
     ERC3525SlotEnumerable.transfer_from(Uint256(TOKN1, 0), Uint256(TOKN2, 0), 0, value);
     %{ stop_prank() %}
-    assert_that.token_in_slot_by_index_is(SLOT1, 1, 1);
-    assert_that.token_in_slot_by_index_is(SLOT1, 2, 2);
+    assert_that.token_in_slot_by_index_is(SLOT1, 0, 1);
+    assert_that.token_in_slot_by_index_is(SLOT1, 1, 2);
     return ();
 }
 
@@ -220,9 +212,9 @@ func test_token_index_adjusts_after_tx_token_to_address{
     %}
     ERC3525SlotEnumerable.transfer_from(Uint256(TOKN1, 0), Uint256(0, 0), USER2, value);
     %{ stop_prank() %}
-    assert_that.token_in_slot_by_index_is(SLOT1, 1, 1);
-    assert_that.token_in_slot_by_index_is(SLOT1, 2, 2);
-    assert_that.token_in_slot_by_index_is(SLOT1, 3, 5);
+    assert_that.token_in_slot_by_index_is(SLOT1, 0, 1);
+    assert_that.token_in_slot_by_index_is(SLOT1, 1, 2);
+    assert_that.token_in_slot_by_index_is(SLOT1, 2, 5);
     return ();
 }
 
@@ -238,7 +230,7 @@ func test_token_index_adjusts_after_burn{
     %}
     ERC3525SlotEnumerable._burn(Uint256(TOKN1, 0));
     %{ stop_prank() %}
-    assert_that.token_in_slot_by_index_is(SLOT1, 1, 2);
+    assert_that.token_in_slot_by_index_is(SLOT1, 0, 2);
     assert_that.token_supply_in_slot_is(SLOT1, 1);
     return ();
 }
