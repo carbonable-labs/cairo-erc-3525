@@ -128,14 +128,13 @@ func test_e2e_3525_slot_enumerable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
         let (_) = IERC3525.mintNew(instance, account4, slot1, value);  // #05
 
         assert_that.slot_count_is(1);
-        assert_that.slot_by_index_is(1, SLOT1);
+        assert_that.slot_by_index_is(0, SLOT1);
         assert_that.token_supply_in_slot_is(SLOT1, 5);
-        assert_that.token_in_slot_by_index_is(SLOT1, 0, 0);
-        assert_that.token_in_slot_by_index_is(SLOT1, 1, 1);
-        assert_that.token_in_slot_by_index_is(SLOT1, 2, 2);
-        assert_that.token_in_slot_by_index_is(SLOT1, 3, 3);
-        assert_that.token_in_slot_by_index_is(SLOT1, 4, 4);
-        assert_that.token_in_slot_by_index_is(SLOT1, 5, 5);
+        assert_that.token_in_slot_by_index_is(SLOT1, 0, 1);
+        assert_that.token_in_slot_by_index_is(SLOT1, 1, 2);
+        assert_that.token_in_slot_by_index_is(SLOT1, 2, 3);
+        assert_that.token_in_slot_by_index_is(SLOT1, 3, 4);
+        assert_that.token_in_slot_by_index_is(SLOT1, 4, 5);
 
         let (_) = IERC3525.mintNew(instance, account1, slot2, value);  // #06
         let (_) = IERC3525.mintNew(instance, account2, slot2, value);  // #07
@@ -143,13 +142,12 @@ func test_e2e_3525_slot_enumerable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
         let (_) = IERC3525.mintNew(instance, account3, slot2, value);  // #09
 
         assert_that.slot_count_is(2);
-        assert_that.slot_by_index_is(2, SLOT2);
+        assert_that.slot_by_index_is(1, SLOT2);
         assert_that.token_supply_in_slot_is(SLOT2, 4);
-        assert_that.token_in_slot_by_index_is(SLOT2, 0, 0);
-        assert_that.token_in_slot_by_index_is(SLOT2, 1, 6);
-        assert_that.token_in_slot_by_index_is(SLOT2, 2, 7);
-        assert_that.token_in_slot_by_index_is(SLOT2, 3, 8);
-        assert_that.token_in_slot_by_index_is(SLOT2, 4, 9);
+        assert_that.token_in_slot_by_index_is(SLOT2, 0, 6);
+        assert_that.token_in_slot_by_index_is(SLOT2, 1, 7);
+        assert_that.token_in_slot_by_index_is(SLOT2, 2, 8);
+        assert_that.token_in_slot_by_index_is(SLOT2, 3, 9);
 
         // Mint more value
         IERC3525.mintValue(instance, Uint256(1, 0), value);
@@ -217,7 +215,7 @@ func test_e2e_3525_slot_enumerable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
         assert_that.allowance_is(1, account3, 3);
         assert_that.ERC3525_balance_of_is(1, 18);
         assert_that.token_supply_in_slot_is(SLOT1, 6);
-        assert_that.token_in_slot_by_index_is(SLOT1, 6, 10);
+        assert_that.token_in_slot_by_index_is(SLOT1, 5, 10);
 
         // Burn value
         IERC3525.burnValue(instance, Uint256(1, 0), Uint256(3, 0));
@@ -232,14 +230,14 @@ func test_e2e_3525_slot_enumerable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
         IERC3525.burn(instance, Uint256(1, 0));
         assert_that.total_supply_is(9);
         assert_that.token_supply_in_slot_is(SLOT1, 5);
-        assert_that.token_in_slot_by_index_is(SLOT1, 1, 10);
+        assert_that.token_in_slot_by_index_is(SLOT1, 0, 10);
 
         // Mint after burn
         let (token_id) = IERC3525.mintNew(instance, account1, slot2, value);  // #11 minted
         assert_that.total_supply_is(10);
         assert 11 = token_id.low;
         assert_that.token_supply_in_slot_is(SLOT2, 5);
-        assert_that.token_in_slot_by_index_is(SLOT2, 5, 11);
+        assert_that.token_in_slot_by_index_is(SLOT2, 4, 11);
 
         // Mint after burn
 
@@ -247,7 +245,7 @@ func test_e2e_3525_slot_enumerable{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
         assert_that.slot_of_is(1, SLOT2);
         assert_that.owner_is(1, account2);
         assert_that.token_supply_in_slot_is(SLOT2, 6);
-        assert_that.token_in_slot_by_index_is(SLOT2, 6, 1);
+        assert_that.token_in_slot_by_index_is(SLOT2, 5, 1);
 
         return ();
     }
