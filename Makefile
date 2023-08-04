@@ -1,10 +1,16 @@
-.PHONY: build test format
+.PHONY: build test format declare
 
 build:
-	protostar build
+	scarb build
 
-install:
-	protostar install
+format:
+	scarb fmt
 
 test:
-	protostar test
+	scarb test
+
+declare:
+	starkli declare target/dev/cairo-erc-3525_${CONTRACT}.sierra.json 
+
+declare-contract:
+	$(MAKE) declare CONTRACT=contract
