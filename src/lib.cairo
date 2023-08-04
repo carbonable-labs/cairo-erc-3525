@@ -29,10 +29,6 @@ mod erc3525{
             mod interface;
             mod module;
         }
-        mod receiver {
-            mod interface;
-            mod module;
-        }
         mod slotapprovable {
             mod interface;
             mod module;
