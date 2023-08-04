@@ -8,6 +8,6 @@ trait IERC3525Metadata<TContractState> {
 
 #[starknet::interface]
 trait IERC3525MetadataLegacy<TContractState> {
-    fn contractUri(self: @TContractState) -> felt252;
-    fn slotUri(self: @TContractState, slot: u256) -> felt252;
+    fn contractURI(self: @TContractState) -> felt252;
+    fn slotURI(self: @TContractState, slot: u256) -> felt252;
 }
