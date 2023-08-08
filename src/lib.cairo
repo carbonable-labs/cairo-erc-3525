@@ -19,6 +19,7 @@ mod erc721 {
     mod presets {
         mod erc721_mintable_burnable_metadata_enumerable;
         mod erc721_mintable_burnable_metadata;
+        mod erc721_mintable_burnable;
     }
 }
 mod erc3525{
@@ -39,5 +40,9 @@ mod erc3525{
         }
     }
     mod presets {
+        mod erc3525_mintable_burnable;
+        mod erc3525_mintable_burnable_metadata;
+        mod erc3525_mintable_burnable_metadata_slot_approvable;
+        mod erc3525_mintable_burnable_metadata_slot_approvable_slot_enumerable;
     }
 }

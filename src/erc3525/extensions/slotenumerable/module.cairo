@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod ERC3525 {
+mod ERC3525SlotEnumerable {
     use starknet::{get_caller_address, ContractAddress};
     use traits::Into;
     use zeroable::Zeroable;
@@ -27,8 +27,6 @@ mod ERC3525 {
         }
 
         fn slot_by_index(self: @ContractState, index: u256) -> u256 {
-            // TODO: fix?
-            // [Note] Index is internally managed starting at 1 instead of 0
             // [Check] Index is in range
             let count = self._slots_len.read();
             assert(index < count, 'ERC3525: index out of bounds');
