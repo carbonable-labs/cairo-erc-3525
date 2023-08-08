@@ -1,16 +1,16 @@
 #[starknet::contract]
 mod ERC3525 {
     use starknet::{get_caller_address, ContractAddress};
-    use cairo_erc_3525::src5::interface::ISRC5;
-    use cairo_erc_3525::src5::module::SRC5;
-    use cairo_erc_3525::erc721::module::ERC721;
-    use cairo_erc_3525::erc721::interface::IERC721;
-    use cairo_erc_3525::erc721::extensions::metadata::module::ERC721Metadata;
-    use cairo_erc_3525::erc721::extensions::metadata::interface::IERC721Metadata;
-    use cairo_erc_3525::erc3525::module::ERC3525;
-    use cairo_erc_3525::erc3525::interface::IERC3525;
-    use cairo_erc_3525::erc3525::extensions::metadata::module::ERC3525Metadata;
-    use cairo_erc_3525::erc3525::extensions::metadata::interface::IERC3525Metadata;
+    use cairo_erc_721::src5::interface::ISRC5;
+    use cairo_erc_721::src5::module::SRC5;
+    use cairo_erc_721::module::ERC721;
+    use cairo_erc_721::interface::IERC721;
+    use cairo_erc_721::extensions::metadata::module::ERC721Metadata;
+    use cairo_erc_721::extensions::metadata::interface::IERC721Metadata;
+    use cairo_erc_3525::module::ERC3525;
+    use cairo_erc_3525::interface::IERC3525;
+    use cairo_erc_3525::extensions::metadata::module::ERC3525Metadata;
+    use cairo_erc_3525::extensions::metadata::interface::IERC3525Metadata;
 
     #[storage]
     struct Storage {}

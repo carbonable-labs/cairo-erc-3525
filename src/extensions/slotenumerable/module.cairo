@@ -5,10 +5,10 @@ mod ERC3525SlotEnumerable {
     use zeroable::Zeroable;
     use integer::BoundedInt;
 
-    use cairo_erc_3525::src5::module::SRC5;
-    use cairo_erc_3525::erc721::module::ERC721;
-    use cairo_erc_3525::erc3525::module::ERC3525;
-    use cairo_erc_3525::erc3525::extensions::slotenumerable::interface::{IERC3525SlotEnumerable, IERC3525_SLOT_ENUMERABLE_ID};
+    use cairo_erc_721::src5::module::SRC5;
+    use cairo_erc_721::module::ERC721;
+    use cairo_erc_3525::module::ERC3525;
+    use cairo_erc_3525::extensions::slotenumerable::interface::{IERC3525SlotEnumerable, IERC3525_SLOT_ENUMERABLE_ID};
 
     #[storage]
     struct Storage {

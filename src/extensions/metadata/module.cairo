@@ -1,8 +1,8 @@
 #[starknet::contract]
 mod ERC3525Metadata {
     use starknet::ContractAddress;
-    use cairo_erc_3525::src5::module::SRC5;
-    use cairo_erc_3525::erc3525::extensions::metadata::interface::{IERC3525_METADATA_ID, IERC3525Metadata};
+    use cairo_erc_721::src5::module::SRC5;
+    use cairo_erc_3525::extensions::metadata::interface::{IERC3525_METADATA_ID, IERC3525Metadata};
 
     #[storage]
     struct Storage {
