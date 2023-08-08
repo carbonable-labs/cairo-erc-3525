@@ -63,7 +63,7 @@ mod ERC3525 {
             self._value_decimals.read()
         }
 
-        fn balance_of(self: @ContractState, token_id: u256) -> u256 {
+        fn value_of(self: @ContractState, token_id: u256) -> u256 {
             // [Check] Token exists
             self._assert_minted(token_id);
 

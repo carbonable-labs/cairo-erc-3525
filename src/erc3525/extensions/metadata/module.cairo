@@ -11,7 +11,7 @@ mod ERC3525Metadata {
     }
 
     #[external(v0)]
-    impl ERC721MetadataImpl of IERC3525Metadata<ContractState> {
+    impl ERC3525MetadataImpl of IERC3525Metadata<ContractState> {
         fn contract_uri(self: @ContractState) -> felt252 {
             self._contract_uri.read()
         }
@@ -23,7 +23,7 @@ mod ERC3525Metadata {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
+        fn initializer(ref self: ContractState) {
             // [Effect] Register interfaces
             let mut unsafe_state = SRC5::unsafe_new_contract_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, IERC3525_METADATA_ID);

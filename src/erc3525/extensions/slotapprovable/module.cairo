@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod ERC3525 {
+mod ERC3525SlotApprovable {
     use starknet::{get_caller_address, ContractAddress};
     use traits::Into;
     use zeroable::Zeroable;
@@ -111,7 +111,7 @@ mod ERC3525 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, value_decimals: u8) {
+        fn initializer(ref self: ContractState) {
             // [Effect] Register interfaces
             let mut unsafe_state = SRC5::unsafe_new_contract_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, IERC3525_SLOT_APPROVABLE_ID);

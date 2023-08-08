@@ -109,6 +109,15 @@ mod ERC721 {
         }
     }
 
+    #[external(v0)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        fn set_token_uri(self: @ContractState, token_id: u256, token_uri: felt252) {
+            let mut unsafe_state = ERC721Metadata::unsafe_new_contract_state();
+            ERC721Metadata::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
+        }
+    }
+
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, name: felt252, symbol: felt252) {
