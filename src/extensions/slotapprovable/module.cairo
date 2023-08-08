@@ -5,10 +5,10 @@ mod ERC3525SlotApprovable {
     use zeroable::Zeroable;
     use integer::BoundedInt;
 
-    use cairo_erc_3525::src5::module::SRC5;
-    use cairo_erc_3525::erc721::module::ERC721;
-    use cairo_erc_3525::erc3525::module::ERC3525;
-    use cairo_erc_3525::erc3525::extensions::slotapprovable::interface::{IERC3525SlotApprovable, IERC3525_SLOT_APPROVABLE_ID};
+    use cairo_erc_721::src5::module::SRC5;
+    use cairo_erc_721::module::ERC721;
+    use cairo_erc_3525::module::ERC3525;
+    use cairo_erc_3525::extensions::slotapprovable::interface::{IERC3525SlotApprovable, IERC3525_SLOT_APPROVABLE_ID};
 
     #[storage]
     struct Storage {
