@@ -6,6 +6,8 @@ version = "0.1.0"
 
 [dependencies]
 cairo_erc_721 = { git = "https://github.com/carbonable-labs/cairo-erc-721" }
-starknet = "2.1.0-rc2"
+starknet = "2.1.0"
 
 [[target.starknet-contract]]
+sierre = true
+casm = true

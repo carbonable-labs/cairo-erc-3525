@@ -2,7 +2,8 @@
 mod ERC3525 {
     use starknet::{get_caller_address, ContractAddress};
     use array::{ArrayTrait, SpanTrait};
-    use traits::Into;
+    use option::OptionTrait;
+    use traits::{Into, TryInto};
     use zeroable::Zeroable;
     use integer::BoundedInt;
 
@@ -114,10 +115,19 @@ mod ERC3525 {
             self._spend_allowance(caller, from_token_id, value);
 
             // [Effect] Transfer value to address
-            if to_token_id == 0.into() {
-                return self._transfer_value_to(from_token_id, to, value);
-            }
-            self._transfer_value_to_token(from_token_id, to_token_id, value)
+            match to_token_id.try_into() {
+                // Into felt252 works
+                Option::Some(token_id) => {
+                    match token_id {
+                        // If token_id is zero, transfer value to address
+                        0 => self._transfer_value_to(from_token_id, to, value),
+                        // Otherwise, transfer value to token
+                        _ => self._transfer_value_to_token(from_token_id, to_token_id, value),
+                    }
+                },
+                // Into felt252 fails, so token_id is not zero
+                Option::None(()) => self._transfer_value_to_token(from_token_id, to_token_id, value),
+            }            
         }
     }
 

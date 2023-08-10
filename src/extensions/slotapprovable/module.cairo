@@ -1,7 +1,8 @@
 #[starknet::contract]
 mod ERC3525SlotApprovable {
     use starknet::{get_caller_address, ContractAddress};
-    use traits::Into;
+    use traits::{Into, TryInto};
+    use option::OptionTrait;
     use zeroable::Zeroable;
     use integer::BoundedInt;
 
@@ -102,10 +103,19 @@ mod ERC3525SlotApprovable {
 
             // [Effect] Transfer value to address
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            if to_token_id == 0.into() {
-                return ERC3525::InternalImpl::_transfer_value_to(ref unsafe_state, from_token_id, to, value);
-            }
-            ERC3525::InternalImpl::_transfer_value_to_token(ref unsafe_state, from_token_id, to_token_id, value)
+            match to_token_id.try_into() {
+                // Into felt252 works
+                Option::Some(token_id) => {
+                    match token_id {
+                        // If token_id is zero, transfer value to address
+                        0 => ERC3525::InternalImpl::_transfer_value_to(ref unsafe_state, from_token_id, to, value),
+                        // Otherwise, transfer value to token
+                        _ => ERC3525::InternalImpl::_transfer_value_to_token(ref unsafe_state, from_token_id, to_token_id, value),
+                    }
+                },
+                // Into felt252 fails, so token_id is not zero
+                Option::None(()) => ERC3525::InternalImpl::_transfer_value_to_token(ref unsafe_state, from_token_id, to_token_id, value),
+            }  
         }
     }
 
