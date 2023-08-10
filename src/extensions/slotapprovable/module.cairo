@@ -9,17 +9,19 @@ mod ERC3525SlotApprovable {
     use cairo_erc_721::src5::module::SRC5;
     use cairo_erc_721::module::ERC721;
     use cairo_erc_3525::module::ERC3525;
-    use cairo_erc_3525::extensions::slotapprovable::interface::{IERC3525SlotApprovable, IERC3525_SLOT_APPROVABLE_ID};
+    use cairo_erc_3525::extensions::slotapprovable::interface::{
+        IERC3525SlotApprovable, IERC3525_SLOT_APPROVABLE_ID
+    };
 
     #[storage]
     struct Storage {
-        _slot_approvals: LegacyMap::<(ContractAddress, u256, ContractAddress), bool>,
+        _slot_approvals: LegacyMap::<(ContractAddress, u256, ContractAddress), bool>, 
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        ApprovalForSlot: ApprovalForSlot,
+        ApprovalForSlot: ApprovalForSlot, 
     }
 
     #[derive(Drop, starknet::Event)]
@@ -31,8 +33,14 @@ mod ERC3525SlotApprovable {
     }
 
     #[external(v0)]
-    impl ERC3525SlotApprovableImpl of IERC3525SlotApprovable<ContractState>{
-        fn set_approval_for_slot(ref self: ContractState, owner: ContractAddress, slot: u256, operator: ContractAddress, approved: bool) {
+    impl ERC3525SlotApprovableImpl of IERC3525SlotApprovable<ContractState> {
+        fn set_approval_for_slot(
+            ref self: ContractState,
+            owner: ContractAddress,
+            slot: u256,
+            operator: ContractAddress,
+            approved: bool
+        ) {
             // [Check] Caller and operator are not null
             let caller = get_caller_address();
             assert(!caller.is_zero(), 'ERC3525: invalid caller');
@@ -40,7 +48,9 @@ mod ERC3525SlotApprovable {
 
             // [Check] Caller is owner or approved for all
             let unsafe_state = ERC721::unsafe_new_contract_state();
-            let is_approved_for_all = ERC721::ERC721Impl::is_approved_for_all(@unsafe_state, operator, owner);
+            let is_approved_for_all = ERC721::ERC721Impl::is_approved_for_all(
+                @unsafe_state, operator, owner
+            );
             assert(caller == owner || is_approved_for_all, 'ERC3525: caller not allowed');
 
             // [Check] No self approval
@@ -52,8 +62,10 @@ mod ERC3525SlotApprovable {
             // [Event] Emit ApprovalForSlot
             self.emit(ApprovalForSlot { owner, slot, operator, approved });
         }
-        
-        fn is_approved_for_slot(self: @ContractState, owner: ContractAddress, slot: u256, operator: ContractAddress) -> bool {
+
+        fn is_approved_for_slot(
+            self: @ContractState, owner: ContractAddress, slot: u256, operator: ContractAddress
+        ) -> bool {
             self._slot_approvals.read((owner, slot, operator))
         }
     }
@@ -71,7 +83,9 @@ mod ERC3525SlotApprovable {
             ERC721::InternalImpl::_approve(ref unsafe_state, to, token_id);
         }
 
-        fn approve_value(ref self: ContractState, token_id: u256, operator: ContractAddress, value: u256) {
+        fn approve_value(
+            ref self: ContractState, token_id: u256, operator: ContractAddress, value: u256
+        ) {
             // [Check] Caller and operator are not null addresses
             let caller = get_caller_address();
             assert(!caller.is_zero(), 'ERC3525: invalid caller');
@@ -82,13 +96,19 @@ mod ERC3525SlotApprovable {
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
             assert(owner != operator, 'ERC3525: approval to owner');
             self._assert_allowed(caller, token_id);
-            
+
             // [Effect] Store approved value
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
             ERC3525::InternalImpl::_approve_value(ref unsafe_state, token_id, operator, value);
         }
 
-        fn transfer_value_from(ref self: ContractState, from_token_id: u256, to_token_id: u256, to: ContractAddress, value: u256) -> u256 {
+        fn transfer_value_from(
+            ref self: ContractState,
+            from_token_id: u256,
+            to_token_id: u256,
+            to: ContractAddress,
+            value: u256
+        ) -> u256 {
             // [Check] caller, from token_id and transfered value are not null
             let caller = get_caller_address();
             assert(!caller.is_zero(), 'ERC3525: invalid caller');
@@ -108,14 +128,20 @@ mod ERC3525SlotApprovable {
                 Option::Some(token_id) => {
                     match token_id {
                         // If token_id is zero, transfer value to address
-                        0 => ERC3525::InternalImpl::_transfer_value_to(ref unsafe_state, from_token_id, to, value),
+                        0 => ERC3525::InternalImpl::_transfer_value_to(
+                            ref unsafe_state, from_token_id, to, value
+                        ),
                         // Otherwise, transfer value to token
-                        _ => ERC3525::InternalImpl::_transfer_value_to_token(ref unsafe_state, from_token_id, to_token_id, value),
+                        _ => ERC3525::InternalImpl::_transfer_value_to_token(
+                            ref unsafe_state, from_token_id, to_token_id, value
+                        ),
                     }
                 },
                 // Into felt252 fails, so token_id is not zero
-                Option::None(()) => ERC3525::InternalImpl::_transfer_value_to_token(ref unsafe_state, from_token_id, to_token_id, value),
-            }  
+                Option::None(()) => ERC3525::InternalImpl::_transfer_value_to_token(
+                    ref unsafe_state, from_token_id, to_token_id, value
+                ),
+            }
         }
     }
 
@@ -127,12 +153,16 @@ mod ERC3525SlotApprovable {
             SRC5::InternalImpl::register_interface(ref unsafe_state, IERC3525_SLOT_APPROVABLE_ID);
         }
 
-        fn _spend_allowance(ref self: ContractState, spender: ContractAddress, token_id: u256, value: u256) {
+        fn _spend_allowance(
+            ref self: ContractState, spender: ContractAddress, token_id: u256, value: u256
+        ) {
             // [Compute] Spender allowance
             let is_approved = self._is_allowed(spender, token_id);
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            let current_allowance = ERC3525::ERC3525Impl::allowance(@unsafe_state, token_id, spender);
-            let infinity : u256 = BoundedInt::max();
+            let current_allowance = ERC3525::ERC3525Impl::allowance(
+                @unsafe_state, token_id, spender
+            );
+            let infinity: u256 = BoundedInt::max();
 
             // [Effect] Update allowance if the rights are limited
             if current_allowance == infinity || is_approved {
@@ -140,14 +170,18 @@ mod ERC3525SlotApprovable {
             }
             assert(current_allowance >= value, 'ERC3525: insufficient allowance');
             let new_allowance = current_allowance - value;
-            ERC3525::InternalImpl::_approve_value(ref unsafe_state, token_id, spender, new_allowance);
+            ERC3525::InternalImpl::_approve_value(
+                ref unsafe_state, token_id, spender, new_allowance
+            );
         }
 
         fn _is_allowed(self: @ContractState, operator: ContractAddress, token_id: u256) -> bool {
             // [Compute] Operator is owner or approved for all
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
-            let is_owner_or_approved = ERC721::InternalImpl::_is_approved_or_owner(@unsafe_state, operator, token_id);
+            let is_owner_or_approved = ERC721::InternalImpl::_is_approved_or_owner(
+                @unsafe_state, operator, token_id
+            );
 
             // [Compute] Operator is approved for slot
             let unsafe_state = ERC3525::unsafe_new_contract_state();

@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 
-const IERC3525_SLOT_ENUMERABLE_ID : felt252 = 0x3b741b9e;
+const IERC3525_SLOT_ENUMERABLE_ID: felt252 = 0x3b741b9e;
 
 #[starknet::interface]
 trait IERC3525SlotEnumerable<TContractState> {

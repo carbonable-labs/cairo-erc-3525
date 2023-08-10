@@ -1,4 +1,4 @@
-const IERC3525_METADATA_ID : felt252 = 0xe1600902;
+const IERC3525_METADATA_ID: felt252 = 0xe1600902;
 
 #[starknet::interface]
 trait IERC3525Metadata<TContractState> {

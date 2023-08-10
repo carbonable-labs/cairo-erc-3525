@@ -110,7 +110,9 @@ mod ERC3525 {
             ERC3525::ERC3525Impl::slot_of(@unsafe_state, token_id)
         }
 
-        fn approve_value(ref self: ContractState, token_id: u256, operator: ContractAddress, value: u256) {
+        fn approve_value(
+            ref self: ContractState, token_id: u256, operator: ContractAddress, value: u256
+        ) {
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
             ERC3525::ERC3525Impl::approve_value(ref unsafe_state, token_id, operator, value)
         }
@@ -120,9 +122,17 @@ mod ERC3525 {
             ERC3525::ERC3525Impl::allowance(@unsafe_state, token_id, operator)
         }
 
-        fn transfer_value_from(ref self: ContractState, from_token_id: u256, to_token_id: u256, to: ContractAddress, value: u256) -> u256 {
+        fn transfer_value_from(
+            ref self: ContractState,
+            from_token_id: u256,
+            to_token_id: u256,
+            to: ContractAddress,
+            value: u256
+        ) -> u256 {
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::ERC3525Impl::transfer_value_from(ref unsafe_state, from_token_id, to_token_id, to, value)
+            ERC3525::ERC3525Impl::transfer_value_from(
+                ref unsafe_state, from_token_id, to_token_id, to, value
+            )
         }
     }
 
@@ -175,7 +185,9 @@ mod ERC3525 {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, name: felt252, symbol: felt252, value_decimals: u8) {
+        fn initializer(
+            ref self: ContractState, name: felt252, symbol: felt252, value_decimals: u8
+        ) {
             let mut unsafe_state = ERC721::unsafe_new_contract_state();
             ERC721::InternalImpl::initializer(ref unsafe_state);
             let mut unsafe_state = ERC721Metadata::unsafe_new_contract_state();

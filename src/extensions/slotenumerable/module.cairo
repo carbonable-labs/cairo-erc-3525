@@ -8,7 +8,9 @@ mod ERC3525SlotEnumerable {
     use cairo_erc_721::src5::module::SRC5;
     use cairo_erc_721::module::ERC721;
     use cairo_erc_3525::module::ERC3525;
-    use cairo_erc_3525::extensions::slotenumerable::interface::{IERC3525SlotEnumerable, IERC3525_SLOT_ENUMERABLE_ID};
+    use cairo_erc_3525::extensions::slotenumerable::interface::{
+        IERC3525SlotEnumerable, IERC3525_SLOT_ENUMERABLE_ID
+    };
 
     #[storage]
     struct Storage {
@@ -21,7 +23,7 @@ mod ERC3525SlotEnumerable {
     }
 
     #[external(v0)]
-    impl ERC3525SlotEnumerableImpl of IERC3525SlotEnumerable<ContractState>{
+    impl ERC3525SlotEnumerableImpl of IERC3525SlotEnumerable<ContractState> {
         fn slot_count(self: @ContractState) -> u256 {
             self._slots_len.read()
         }
@@ -74,7 +76,9 @@ mod ERC3525SlotEnumerable {
             self._add_token_to_slot_enumeration(slot, token_id);
         }
 
-        fn _mint_new(ref self: ContractState, to: ContractAddress, slot: u256, value: u256) -> u256 {
+        fn _mint_new(
+            ref self: ContractState, to: ContractAddress, slot: u256, value: u256
+        ) -> u256 {
             // [Effect] Mint new
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
             let token_id = ERC3525::InternalImpl::_mint_new(ref unsafe_state, to, slot, value);
@@ -89,7 +93,9 @@ mod ERC3525SlotEnumerable {
             token_id
         }
 
-        fn _mint(ref self: ContractState, to: ContractAddress, token_id: u256, slot: u256, value: u256) {
+        fn _mint(
+            ref self: ContractState, to: ContractAddress, token_id: u256, slot: u256, value: u256
+        ) {
             // [Effect] Mint
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
             ERC3525::InternalImpl::_mint(ref unsafe_state, to, token_id, slot, value);
@@ -130,7 +136,9 @@ mod ERC3525SlotEnumerable {
             self._slot_tokens_index.write((slot, token_id), index);
         }
 
-        fn _remove_token_from_slot_enumeration(ref self: ContractState, slot: u256, token_id: u256) {
+        fn _remove_token_from_slot_enumeration(
+            ref self: ContractState, slot: u256, token_id: u256
+        ) {
             // [Compute] Read last token
             let supply = self._slot_tokens_len.read(slot);
             let last_token = self._slot_tokens.read((slot, supply - 1));
