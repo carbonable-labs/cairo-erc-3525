@@ -88,7 +88,9 @@ mod ERC3525 {
             ERC3525::ERC3525Impl::slot_of(@unsafe_state, token_id)
         }
 
-        fn approve_value(ref self: ContractState, token_id: u256, operator: ContractAddress, value: u256) {
+        fn approve_value(
+            ref self: ContractState, token_id: u256, operator: ContractAddress, value: u256
+        ) {
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
             ERC3525::ERC3525Impl::approve_value(ref unsafe_state, token_id, operator, value)
         }
@@ -98,9 +100,17 @@ mod ERC3525 {
             ERC3525::ERC3525Impl::allowance(@unsafe_state, token_id, operator)
         }
 
-        fn transfer_value_from(ref self: ContractState, from_token_id: u256, to_token_id: u256, to: ContractAddress, value: u256) -> u256 {
+        fn transfer_value_from(
+            ref self: ContractState,
+            from_token_id: u256,
+            to_token_id: u256,
+            to: ContractAddress,
+            value: u256
+        ) -> u256 {
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::ERC3525Impl::transfer_value_from(ref unsafe_state, from_token_id, to_token_id, to, value)
+            ERC3525::ERC3525Impl::transfer_value_from(
+                ref unsafe_state, from_token_id, to_token_id, to, value
+            )
         }
     }
 
