@@ -5,3 +5,8 @@ const IERC165_ID: felt252 = 0x01ffc9a7;
 trait ISRC5<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
+
+#[starknet::interface]
+trait ISRC5Legacy<TState> {
+    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
+}
