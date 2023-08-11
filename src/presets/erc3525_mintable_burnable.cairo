@@ -1,7 +1,7 @@
 #[starknet::contract]
 mod ERC3525 {
     use starknet::{get_caller_address, ContractAddress};
-    use cairo_erc_721::src5::interface::ISRC5;
+    use cairo_erc_721::src5::interface::{ISRC5, ISRC5Legacy};
     use cairo_erc_721::src5::module::SRC5;
     use cairo_erc_721::module::ERC721;
     use cairo_erc_721::interface::IERC721;
@@ -14,6 +14,21 @@ mod ERC3525 {
     #[constructor]
     fn constructor(ref self: ContractState, value_decimals: u8) {
         self.initializer(value_decimals);
+    }
+
+    #[external(v0)]
+    impl SRC5Impl of ISRC5<ContractState> {
+        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
+            let unsafe_state = SRC5::unsafe_new_contract_state();
+            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+        }
+    }
+
+    #[external(v0)]
+    impl SRC5LegacyImpl of ISRC5Legacy<ContractState> {
+        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
+            self.supports_interface(interfaceId)
+        }
     }
 
     #[external(v0)]

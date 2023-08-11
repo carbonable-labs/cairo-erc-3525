@@ -47,7 +47,7 @@ mod ERC3525SlotEnumerable {
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState, value_decimals: u8) {
+        fn initializer(ref self: ContractState) {
             // [Effect] Register interfaces
             let mut unsafe_state = SRC5::unsafe_new_contract_state();
             SRC5::InternalImpl::register_interface(ref unsafe_state, IERC3525_SLOT_ENUMERABLE_ID);
