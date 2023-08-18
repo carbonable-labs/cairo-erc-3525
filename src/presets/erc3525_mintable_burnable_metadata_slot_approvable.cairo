@@ -26,7 +26,9 @@ mod ERC3525MintableBurnableMSA {
     use cairo_erc_3525::extensions::metadata::module::ERC3525Metadata;
     use cairo_erc_3525::extensions::metadata::interface::{IERC3525Metadata, IERC3525MetadataLegacy};
     use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovable;
-    use cairo_erc_3525::extensions::slotapprovable::interface::{IERC3525SlotApprovable, IERC3525SlotApprovableLegacy};
+    use cairo_erc_3525::extensions::slotapprovable::interface::{
+        IERC3525SlotApprovable, IERC3525SlotApprovableLegacy
+    };
 
     #[storage]
     struct Storage {}

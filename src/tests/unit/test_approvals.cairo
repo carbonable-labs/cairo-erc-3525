@@ -1,7 +1,10 @@
 use starknet::testing::set_caller_address;
 use cairo_erc_721::module::ERC721;
 use cairo_erc_3525::module::ERC3525;
-use cairo_erc_3525::tests::unit::constants::{STATE, VALUE_DECIMALS, TOKEN_ID_1, INVALID_TOKEN, SLOT_1, VALUE, ZERO, OWNER, OPERATOR, SOMEONE, ANYONE};
+use cairo_erc_3525::tests::unit::constants::{
+    STATE, VALUE_DECIMALS, TOKEN_ID_1, INVALID_TOKEN, SLOT_1, VALUE, ZERO, OWNER, OPERATOR, SOMEONE,
+    ANYONE
+};
 
 // Settings
 
@@ -70,7 +73,7 @@ fn test_721approved_for_all_can_approve_value() {
     let mut erc721_state = ERC721::unsafe_new_contract_state();
     ERC721::ERC721Impl::set_approval_for_all(ref erc721_state, SOMEONE(), true);
     // ERC3525 test
-    set_caller_address(SOMEONE());  // Prank
+    set_caller_address(SOMEONE()); // Prank
     ERC3525::ERC3525Impl::approve_value(ref state, TOKEN_ID_1, OPERATOR(), VALUE);
     let allowance = ERC3525::ERC3525Impl::allowance(@state, TOKEN_ID_1, OPERATOR());
     assert(allowance == VALUE, 'Wrong allowance');
@@ -85,7 +88,7 @@ fn test_721approved_can_approve_value() {
     let mut erc721_state = ERC721::unsafe_new_contract_state();
     ERC721::ERC721Impl::approve(ref erc721_state, SOMEONE(), TOKEN_ID_1);
     // ERC3525 test
-    set_caller_address(SOMEONE());  // Prank
+    set_caller_address(SOMEONE()); // Prank
     ERC3525::ERC3525Impl::approve_value(ref state, TOKEN_ID_1, OPERATOR(), VALUE);
     let allowance = ERC3525::ERC3525Impl::allowance(@state, TOKEN_ID_1, OPERATOR());
     assert(allowance == VALUE, 'Wrong allowance');

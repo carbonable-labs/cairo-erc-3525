@@ -3,14 +3,19 @@ use option::OptionTrait;
 use traits::{Into, TryInto};
 use starknet::ContractAddress;
 
-use snforge_std::{ declare, PreparedContract, deploy, start_prank, stop_prank };
+use snforge_std::{declare, PreparedContract, deploy, start_prank, stop_prank};
 
 use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
 use cairo_erc_721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
 
 use cairo_erc_3525::interface::{IERC3525Dispatcher, IERC3525DispatcherTrait, IERC3525_ID};
-use cairo_erc_3525::presets::erc3525_mintable_burnable_metadata_slot_approvable::{IExternalDispatcher, IExternalDispatcherTrait};
-use cairo_erc_3525::extensions::slotapprovable::interface::{IERC3525SlotApprovableDispatcher, IERC3525SlotApprovableDispatcherTrait, IERC3525_SLOT_APPROVABLE_ID};
+use cairo_erc_3525::presets::erc3525_mintable_burnable_metadata_slot_approvable::{
+    IExternalDispatcher, IExternalDispatcherTrait
+};
+use cairo_erc_3525::extensions::slotapprovable::interface::{
+    IERC3525SlotApprovableDispatcher, IERC3525SlotApprovableDispatcherTrait,
+    IERC3525_SLOT_APPROVABLE_ID
+};
 use cairo_erc_3525::tests::integration::constants;
 
 #[derive(Drop)]
@@ -22,14 +27,22 @@ struct Signers {
 }
 
 fn deploy_contract(class_hash: starknet::class_hash::ClassHash) -> ContractAddress {
-    let constructor_calldata : Array<felt252> = array![constants::NAME, constants::SYMBOL, constants::VALUE_DECIMALS.into()];
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @constructor_calldata };
+    let constructor_calldata: Array<felt252> = array![
+        constants::NAME, constants::SYMBOL, constants::VALUE_DECIMALS.into()
+    ];
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @constructor_calldata
+    };
     deploy(prepared).unwrap()
 }
 
-fn deploy_account(class_hash: starknet::class_hash::ClassHash, public_key: felt252) -> ContractAddress {
-    let constructor_calldata : Array<felt252> = array![public_key];
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @constructor_calldata };
+fn deploy_account(
+    class_hash: starknet::class_hash::ClassHash, public_key: felt252
+) -> ContractAddress {
+    let constructor_calldata: Array<felt252> = array![public_key];
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @constructor_calldata
+    };
     deploy(prepared).unwrap()
 }
 
