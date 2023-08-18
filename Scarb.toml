@@ -13,7 +13,7 @@ sierre = true
 casm = true
 
 [scripts]
-# test = "scarb cairo-test --filter unit && snforge test_integration"
+test = "scarb cairo-test --filter unit && snforge test_integration"
 
 [tool.snforge]
 exit_first = false
