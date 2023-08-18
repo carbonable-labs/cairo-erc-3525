@@ -7,12 +7,12 @@ mod ERC3525 {
     use zeroable::Zeroable;
     use integer::BoundedInt;
 
-    use cairo_erc_3525::constants;
     use cairo_erc_721::src5::module::SRC5;
     use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use cairo_erc_721::module::ERC721;
     use cairo_erc_721::extensions::enumerable::module::ERC721Enumerable;
     use cairo_erc_721::extensions::enumerable::interface::IERC721_ENUMERABLE_ID;
+    use cairo_erc_3525::constants;
     use cairo_erc_3525::interface::{
         IERC3525_ID, IERC3525_RECEIVER_ID, IERC3525, IERC3525ReceiverDispatcher,
         IERC3525ReceiverDispatcherTrait
@@ -158,6 +158,10 @@ mod ERC3525 {
 
         fn _get_new_token_id(self: @ContractState) -> u256 {
             self._total_minted.read() + 1
+        }
+
+        fn _total_value(self: @ContractState, slot: u256) -> u256 {
+            self._total_value.read(slot)
         }
 
         fn _approve_value(
@@ -388,6 +392,85 @@ mod ERC3525 {
             }
             contract.supports_interface(constants::ISRC6_ID)
         }
+
+        fn _split(ref self: ContractState, token_id: u256, amounts: @Array<u256>) -> Array<u256> {
+            // [Check] Token exists
+            self._assert_minted(token_id);
+
+            // [Check] Amounts are not null
+            assert(amounts.len() > 1, 'ERC3525: invalid amounts');
+
+            // [Check] Amounts
+            let mut total_amount: u256 = 0;
+            let mut index = 0;
+            loop {
+                if index >= amounts.len() {
+                    break;
+                }
+                let amount = *amounts[index];
+                assert(amount != 0, 'ERC3525: invalid amounts');
+                total_amount += amount;
+                index += 1;
+            };
+            assert(total_amount != 0.into(), 'ERC3525: invalid amounts');
+
+            // [Check] Amounts sum does not exceed balance
+            let balance = self._values.read(token_id);
+            assert(balance >= total_amount, 'ERC3525: value exceeds balance');
+
+            // [Effect] Update token and total value
+            let slot = self._slots.read(token_id);
+            let unsafe_state = ERC721::unsafe_new_contract_state();
+            let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
+            self._values.write(token_id, balance - total_amount);
+
+            // [Effect] Mint new tokens
+            let mut new_token_ids = ArrayTrait::new();
+            let mut index = 0;
+            loop {
+                if index >= amounts.len() {
+                    break;
+                }
+                let amount = *amounts[index];
+                // [Warning] _mint_new will emit TransferValue where from is 0
+                let new_token_id = self._mint_new(owner, slot, amount);
+                new_token_ids.append(new_token_id);
+                index += 1;
+            };
+            return new_token_ids;
+        }
+    }
+
+    fn _merge(ref self: ContractState, token_ids: @Array<u256>) {
+        // [Check] Token ids are not null
+        assert(token_ids.len() > 1, 'ERC3525: invalid token_ids');
+
+        // [Effect] Merge token values
+        let unsafe_state = ERC721::unsafe_new_contract_state();
+        let mut index = 0;
+        loop {
+            if index + 1 >= token_ids.len() {
+                break;
+            }
+            // [Check] From token id exist
+            let from_token_id = *token_ids[index];
+            self._assert_minted(from_token_id);
+            // [Check] To token id exist
+            let to_token_id = *token_ids[index];
+            self._assert_minted(to_token_id);
+            // [Check] Token ids slot match
+            assert(self.slot_of(from_token_id) == self.slot_of(to_token_id), 'ERC3525: merge slot mismatch');
+            // [Check] Owners match
+            let from_owner = ERC721::ERC721Impl::owner_of(@unsafe_state, from_token_id);
+            let to_owner = ERC721::ERC721Impl::owner_of(@unsafe_state, to_token_id);
+            assert(from_owner == to_owner, 'ERC3525: merge owner mismatch');
+            // [Effect] Merge tokens
+            let value = self._values.read(from_token_id);
+            self._transfer_value(from_token_id, to_token_id, value);
+            // [Effect] Burn from token
+            self._burn(from_token_id);
+            index += 1;
+        };
     }
 
     #[generate_trait]

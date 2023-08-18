@@ -1,5 +1,19 @@
+use starknet::ContractAddress;
+
+#[starknet::interface]
+trait IExternal<TContractState> {
+    fn total_value(self: @TContractState, slot: u256) -> u256;
+    fn mint(ref self: TContractState, to: ContractAddress, slot: u256, value: u256) -> u256;
+    fn mint_value(ref self: TContractState, token_id: u256, value: u256);
+    fn burn(ref self: TContractState, token_id: u256);
+    fn burn_value(ref self: TContractState, token_id: u256, value: u256);
+    fn set_token_uri(self: @TContractState, token_id: u256, token_uri: felt252);
+    fn set_contract_uri(ref self: TContractState, uri: felt252);
+    fn set_slot_uri(ref self: TContractState, slot: u256, uri: felt252);
+}
+
 #[starknet::contract]
-mod ERC3525 {
+mod ERC3525MintableBurnableEMSASE {
     use starknet::{get_caller_address, ContractAddress};
     use cairo_erc_721::src5::interface::{ISRC5, ISRC5Legacy};
     use cairo_erc_721::src5::module::SRC5;
@@ -395,11 +409,20 @@ mod ERC3525 {
     }
 
     #[external(v0)]
-    #[generate_trait]
-    impl ExternalImpl of ExternalTrait {
+    impl ExternalImpl of super::IExternal<ContractState> {
+        fn total_value(self: @ContractState, slot: u256) -> u256 {
+            let unsafe_state = ERC3525::unsafe_new_contract_state();
+            ERC3525::InternalImpl::_total_value(@unsafe_state, slot)
+        }
+
         fn mint(ref self: ContractState, to: ContractAddress, slot: u256, value: u256) -> u256 {
             let mut unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
             ERC3525SlotEnumerable::InternalImpl::_mint_new(ref unsafe_state, to, slot, value)
+        }
+
+        fn mint_value(ref self: ContractState, token_id: u256, value: u256) {
+            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
+            ERC3525::InternalImpl::_mint_value(ref unsafe_state, token_id, value)
         }
 
         fn burn(ref self: ContractState, token_id: u256) {
@@ -410,6 +433,16 @@ mod ERC3525 {
             // [Effect] Burn the token
             let mut unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
             ERC3525SlotEnumerable::InternalImpl::_burn(ref unsafe_state, token_id)
+        }
+
+        fn burn_value(ref self: ContractState, token_id: u256, value: u256) {
+            // [Check] Ensure that the caller is the owner of the token
+            let unsafe_state = ERC721::unsafe_new_contract_state();
+            let owner = ERC721::InternalImpl::_owner_of(@unsafe_state, token_id);
+            assert(get_caller_address() == owner, 'ERC3525Burnable: wrong caller');
+            // [Effect] Burn the token
+            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
+            ERC3525::InternalImpl::_burn_value(ref unsafe_state, token_id, value)
         }
 
         fn set_token_uri(self: @ContractState, token_id: u256, token_uri: felt252) {

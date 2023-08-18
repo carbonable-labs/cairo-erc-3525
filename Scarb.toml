@@ -2,12 +2,18 @@
 name = "cairo_erc_3525"
 version = "0.1.0"
 
-# See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest
-
 [dependencies]
+starknet = "2.1.1"
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", branch = "cairo-2" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.4.1" }
 cairo_erc_721 = { git = "https://github.com/carbonable-labs/cairo-erc-721" }
-starknet = "2.1.0"
 
 [[target.starknet-contract]]
 sierre = true
 casm = true
+
+[scripts]
+test = "scarb cairo-test --filter unit && snforge test_integration"
+
+[tool.snforge]
+exit_first = false
