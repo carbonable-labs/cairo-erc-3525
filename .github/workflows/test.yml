@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Scarb
-        #ses: software-mansion/setup-scarb@v1
+        # uses: software-mansion/setup-scarb@v1
         # Install Scarb from a nightly release
         run: |
           NIGHTLY_DATE=$(echo ${SCARB_VERSION} | cut -d '+' -f 2)
