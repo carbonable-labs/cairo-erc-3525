@@ -459,7 +459,10 @@ mod ERC3525 {
             let to_token_id = *token_ids[index];
             self._assert_minted(to_token_id);
             // [Check] Token ids slot match
-            assert(self.slot_of(from_token_id) == self.slot_of(to_token_id), 'ERC3525: merge slot mismatch');
+            assert(
+                self.slot_of(from_token_id) == self.slot_of(to_token_id),
+                'ERC3525: merge slot mismatch'
+            );
             // [Check] Owners match
             let from_owner = ERC721::ERC721Impl::owner_of(@unsafe_state, from_token_id);
             let to_owner = ERC721::ERC721Impl::owner_of(@unsafe_state, to_token_id);

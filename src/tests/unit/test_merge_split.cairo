@@ -2,7 +2,10 @@ use starknet::testing::{set_caller_address, set_contract_address};
 use array::ArrayTrait;
 use cairo_erc_721::module::ERC721;
 use cairo_erc_3525::module::ERC3525;
-use cairo_erc_3525::tests::unit::constants::{STATE, VALUE_DECIMALS, TOKEN_ID_1, INVALID_TOKEN, SLOT_1, VALUE, ZERO, OWNER, OPERATOR, SOMEONE, ANYONE};
+use cairo_erc_3525::tests::unit::constants::{
+    STATE, VALUE_DECIMALS, TOKEN_ID_1, INVALID_TOKEN, SLOT_1, VALUE, ZERO, OWNER, OPERATOR, SOMEONE,
+    ANYONE
+};
 
 // Settings
 
@@ -19,17 +22,19 @@ fn setup() -> ERC3525::ContractState {
 #[available_gas(20000000)]
 fn test_can_split_2() {
     let mut state = setup();
-    let amounts : Array<u256> = array![VALUE / 2, VALUE / 3];
+    let amounts: Array<u256> = array![VALUE / 2, VALUE / 3];
     set_caller_address(OWNER());
-    let token_ids : Array<u256> = ERC3525::InternalImpl::_split(ref state, TOKEN_ID_1, @amounts);
+    let token_ids: Array<u256> = ERC3525::InternalImpl::_split(ref state, TOKEN_ID_1, @amounts);
     assert(token_ids.len() == 2, 'Wrong token ids length');
-    assert(ERC3525::ERC3525Impl::value_of(@state, TOKEN_ID_1) == VALUE - VALUE / 2 - VALUE / 3, 'Wrong value');
+    assert(
+        ERC3525::ERC3525Impl::value_of(@state, TOKEN_ID_1) == VALUE - VALUE / 2 - VALUE / 3,
+        'Wrong value'
+    );
     assert(*token_ids.at(0) == TOKEN_ID_1 + 1, 'Wrong token id');
     assert(ERC3525::ERC3525Impl::value_of(@state, *token_ids.at(0)) == VALUE / 2, 'Wrong value');
     assert(*token_ids.at(1) == TOKEN_ID_1 + 2, 'Wrong token id');
     assert(ERC3525::ERC3525Impl::value_of(@state, *token_ids.at(1)) == VALUE / 3, 'Wrong value');
 }
-
 // @view
 // func test_can_split_2{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
 //     alloc_locals;
@@ -321,3 +326,4 @@ fn test_can_split_2() {
 
 //     return ();
 // }
+

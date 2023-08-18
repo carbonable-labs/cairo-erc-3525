@@ -3,13 +3,15 @@ use option::OptionTrait;
 use traits::{Into, TryInto};
 use starknet::ContractAddress;
 
-use snforge_std::{ declare, PreparedContract, deploy, start_prank, stop_prank };
+use snforge_std::{declare, PreparedContract, deploy, start_prank, stop_prank};
 
 use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
 use cairo_erc_721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
 
 use cairo_erc_3525::interface::{IERC3525Dispatcher, IERC3525DispatcherTrait, IERC3525_ID};
-use cairo_erc_3525::presets::erc3525_mintable_burnable::{IExternalDispatcher, IExternalDispatcherTrait};
+use cairo_erc_3525::presets::erc3525_mintable_burnable::{
+    IExternalDispatcher, IExternalDispatcherTrait
+};
 use cairo_erc_3525::tests::integration::constants;
 
 #[derive(Drop)]
@@ -21,14 +23,20 @@ struct Signers {
 }
 
 fn deploy_contract(class_hash: starknet::class_hash::ClassHash) -> ContractAddress {
-    let constructor_calldata : Array<felt252> = array![constants::VALUE_DECIMALS.into()];
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @constructor_calldata };
+    let constructor_calldata: Array<felt252> = array![constants::VALUE_DECIMALS.into()];
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @constructor_calldata
+    };
     deploy(prepared).unwrap()
 }
 
-fn deploy_account(class_hash: starknet::class_hash::ClassHash, public_key: felt252) -> ContractAddress {
-    let constructor_calldata : Array<felt252> = array![public_key];
-    let prepared = PreparedContract { class_hash: class_hash, constructor_calldata: @constructor_calldata };
+fn deploy_account(
+    class_hash: starknet::class_hash::ClassHash, public_key: felt252
+) -> ContractAddress {
+    let constructor_calldata: Array<felt252> = array![public_key];
+    let prepared = PreparedContract {
+        class_hash: class_hash, constructor_calldata: @constructor_calldata
+    };
     deploy(prepared).unwrap()
 }
 
@@ -72,11 +80,11 @@ fn test_integration_scenario() {
     let seven = external.mint(signers.someone, constants::SLOT_2, constants::VALUE);
     let height = external.mint(signers.someone, constants::SLOT_2, constants::VALUE);
     let nine = external.mint(signers.anyone, constants::SLOT_2, constants::VALUE);
-    
+
     // Asserts
     assert(erc3525.value_of(one) == constants::VALUE, 'Wrong value');
     assert(erc721.owner_of(one) == signers.owner, 'Wrong owner');
-    
+
     // Approve
     start_prank(contract_address, signers.owner);
     erc3525.approve_value(one, signers.anyone, constants::VALUE / 2);
@@ -106,12 +114,20 @@ fn test_integration_scenario() {
     external.burn_value(nine, 1);
     assert(erc3525.allowance(one, signers.anyone) == constants::VALUE / 2 - 2, 'Wrong allowance');
     assert(erc3525.value_of(one) == constants::VALUE - 2 - 3, 'Wrong value');
-    assert(external.total_value(constants::SLOT_1) == 5 * constants::VALUE - 3, 'Wrong total value');
-    assert(external.total_value(constants::SLOT_2) == 4 * constants::VALUE - 3, 'Wrong total value');
+    assert(
+        external.total_value(constants::SLOT_1) == 5 * constants::VALUE - 3, 'Wrong total value'
+    );
+    assert(
+        external.total_value(constants::SLOT_2) == 4 * constants::VALUE - 3, 'Wrong total value'
+    );
 
     // Burn token
     start_prank(contract_address, signers.owner);
     external.burn(one);
-    assert(external.total_value(constants::SLOT_1) == 4 * constants::VALUE + 2, 'Wrong total value');
-    assert(external.total_value(constants::SLOT_2) == 4 * constants::VALUE - 3, 'Wrong total value');
+    assert(
+        external.total_value(constants::SLOT_1) == 4 * constants::VALUE + 2, 'Wrong total value'
+    );
+    assert(
+        external.total_value(constants::SLOT_2) == 4 * constants::VALUE - 3, 'Wrong total value'
+    );
 }
