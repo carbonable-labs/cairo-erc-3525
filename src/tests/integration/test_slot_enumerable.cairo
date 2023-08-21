@@ -69,3 +69,44 @@ fn test_integration_slot_enumerable_supports_interface() {
     assert(src5.supports_interface(IERC3525_ID), 'IERC3525 not supported');
     assert(src5.supports_interface(IERC3525_SLOT_ENUMERABLE_ID), 'ISlotEnumerable not supported');
 }
+#[test]
+fn test_integration_scenario() {
+    // Setup
+    let (contract_address, signers) = __setup__();
+    let external = IExternalDispatcher { contract_address };
+    let erc3525 = IERC3525Dispatcher { contract_address };
+    let erc3525_se = IERC3525SlotEnumerableDispatcher { contract_address };
+    let erc721 = IERC721Dispatcher { contract_address };
+
+    // Mint tokens
+    let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
+    let two = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
+    let three = external.mint(signers.someone, constants::SLOT_1, constants::VALUE);
+    let four = external.mint(signers.anyone, constants::SLOT_1, constants::VALUE);
+    let five = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
+
+    // Assert enuerable
+    assert(erc3525_se.slot_count() == 1, 'Wrong slot count');
+    assert(erc3525_se.slot_by_index(0) == constants::SLOT_1, 'Wrong slot at index');
+    assert(erc3525_se.token_supply_in_slot(constants::SLOT_1) == 5, 'Wrong toke supply in slot');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_1, 0) ==  one, 'Wrong token in slot at index');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_1, 1) ==  two, 'Wrong token in slot at index');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_1, 2) ==  three, 'Wrong token in slot at index');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_1, 3) ==  four, 'Wrong token in slot at index');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_1, 4) ==  five, 'Wrong token in slot at index');
+
+    // Mint tokens
+    let six = external.mint(signers.owner, constants::SLOT_2, constants::VALUE);
+    let seven = external.mint(signers.someone, constants::SLOT_2, constants::VALUE);
+    let height = external.mint(signers.someone, constants::SLOT_2, constants::VALUE);
+    let nine = external.mint(signers.anyone, constants::SLOT_2, constants::VALUE);
+
+    // Assert enuerable
+    assert(erc3525_se.slot_count() == 2, 'Wrong slot count');
+    assert(erc3525_se.slot_by_index(1) == constants::SLOT_2, 'Wrong slot at index');
+    assert(erc3525_se.token_supply_in_slot(constants::SLOT_2) == 4, 'Wrong toke supply in slot');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_2, 0) ==  six, 'Wrong token in slot at index');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_2, 1) ==  seven, 'Wrong token in slot at index');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_2, 2) ==  height, 'Wrong token in slot at index');
+    assert(erc3525_se.token_in_slot_by_index(constants::SLOT_2, 3) ==  nine, 'Wrong token in slot at index');
+}
