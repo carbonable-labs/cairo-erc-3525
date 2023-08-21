@@ -21,8 +21,6 @@ use cairo_erc_3525::tests::integration::constants;
 #[derive(Drop)]
 struct Signers {
     owner: ContractAddress,
-    someone: ContractAddress,
-    anyone: ContractAddress,
     operator: ContractAddress,
 }
 
@@ -52,8 +50,6 @@ fn __setup__() -> (ContractAddress, Signers) {
     let class_hash = declare('Account');
     let signer = Signers {
         owner: deploy_account(class_hash, 'OWNER'),
-        someone: deploy_account(class_hash, 'SOMEONE'),
-        anyone: deploy_account(class_hash, 'ANYONE'),
         operator: deploy_account(class_hash, 'OPERATOR'),
     };
     (contract_address, signer)
@@ -69,3 +65,26 @@ fn test_integration_slot_approvable_supports_interface() {
     assert(src5.supports_interface(IERC3525_ID), 'IERC3525 not supported');
     assert(src5.supports_interface(IERC3525_SLOT_APPROVABLE_ID), 'ISlotApprovable not supported');
 }
+
+#[test]
+fn test_integration_scenario() {
+    // Setup
+    let (contract_address, signers) = __setup__();
+    let external = IExternalDispatcher { contract_address };
+    let erc3525 = IERC3525Dispatcher { contract_address };
+    let erc3525_sa = IERC3525SlotApprovableDispatcher { contract_address };
+    let erc721 = IERC721Dispatcher { contract_address };
+
+    // Mint tokens
+    let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
+    let two = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
+
+    // Slot approvals
+    start_prank(contract_address, signers.owner);
+    erc3525_sa.set_approval_for_slot(signers.owner, constants::SLOT_1, signers.operator, true);
+
+    // Transfer value
+    start_prank(contract_address, signers.operator);
+    erc3525.transfer_value_from(one, two, constants::ZERO(), 1);
+}
+
