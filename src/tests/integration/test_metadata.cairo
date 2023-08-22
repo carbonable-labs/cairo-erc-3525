@@ -68,3 +68,31 @@ fn test_integration_metadata_supports_interface() {
     assert(src5.supports_interface(IERC3525_ID), 'IERC3525 not supported');
     assert(src5.supports_interface(IERC3525_METADATA_ID), 'IMetadata not supported');
 }
+
+#[test]
+fn test_integration_scenario() {
+    // Setup
+    let (contract_address, signers) = __setup__();
+    let external = IExternalDispatcher { contract_address };
+    let erc3525 = IERC3525Dispatcher { contract_address };
+    let erc3525_metadata = IERC3525MetadataDispatcher { contract_address };
+    let erc721 = IERC721Dispatcher { contract_address };
+
+    // Mint tokens
+    let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
+    let two = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
+
+    // Assert metadata
+    assert(erc3525_metadata.contract_uri() == 0, 'Wrong contract uri');
+    assert(erc3525_metadata.slot_uri(constants::SLOT_1) == 0, 'Wrong slot uri');
+    assert(erc3525_metadata.slot_uri(constants::SLOT_2) == 0, 'Wrong slot uri');
+
+    // Set metadta
+    external.set_contract_uri(constants::CONTRACT_URI);
+    external.set_slot_uri(constants::SLOT_1, constants::SLOT_URI);
+
+    // Assert metadata
+    assert(erc3525_metadata.contract_uri() == constants::CONTRACT_URI, 'Wrong contract uri');
+    assert(erc3525_metadata.slot_uri(constants::SLOT_1) == constants::SLOT_URI, 'Wrong slot uri');
+    assert(erc3525_metadata.slot_uri(constants::SLOT_2) == 0, 'Wrong slot uri');
+}

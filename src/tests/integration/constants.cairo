@@ -20,6 +20,8 @@ const INVALID_TOKEN: u256 = 666;
 const SLOT_1: u256 = 'SLOT1';
 const SLOT_2: u256 = 'SLOT2';
 const VALUE: u256 = 1000;
+const CONTRACT_URI: felt252 = 'CONTRACT_URI';
+const SLOT_URI: felt252 = 'SLOT_URI';
 
 // Addresses
 
