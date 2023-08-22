@@ -5,7 +5,6 @@ trait IReceiver<TContractState> {
 
 #[starknet::contract]
 mod Receiver {
-
     use cairo_erc_721::src5::interface::{ISRC5, ISRC5Legacy};
     use cairo_erc_721::src5::module::SRC5;
     use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
