@@ -314,7 +314,7 @@ mod ERC3525 {
             let success = self
                 ._check_on_erc3525_received(from_token_id, to_token_id, owner, value, data.span());
 
-            // TODO: Enable when the main accounts accept SRC6
+            // TODO: Enable when main stream accounts accept SRC6
             // assert(success, 'ERC3525: invalid receiver');
 
             // [Event] Emit TransferValue
