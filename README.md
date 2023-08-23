@@ -25,31 +25,24 @@ A Cairo implementation of [EIP-3525](https://eips.ethereum.org/EIPS/eip-3525) ba
 
 #### 📦 Requirements
 
-- [protostar](https://github.com/software-mansion/protostar)
-
-### 🎉 Install
-
-```bash
-protostar install
-```
+- [scarb](https://docs.swmansion.com/scarb/)
 
 ### ⛏️ Compile
 
 ```bash
-make
+scarb build
+```
+
+### 💄 Code style
+
+```bash
+scarb fmt
 ```
 
 ### 🌡️ Test
 
 ```bash
-# Run all tests
-make test
-
-# Run only unit tests
-protostar test tests/unit
-
-# Run only integration tests
-protostar test tests/integration
+scarb test
 ```
 
 ## 📄 License
