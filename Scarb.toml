@@ -4,7 +4,7 @@ version = "0.1.0"
 
 [dependencies]
 starknet = "2.1.1"
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", branch = "cairo-2" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", branch = "cairo-2", version = "0.7.0-rc.0"}
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.4.1" }
 cairo_erc_721 = { git = "https://github.com/carbonable-labs/cairo-erc-721" }
 
