@@ -47,4 +47,4 @@ scarb test
 
 ## 📄 License
 
-This project is released under the MIT license.
+This project is released under the Apache 2.0 license.
