@@ -1,6 +1,8 @@
 [package]
 name = "cairo_erc_3525"
-version = "0.1.0"
+version = "2.0.1"
+
+[lib]
 
 [dependencies]
 starknet = "2.1.1"
