@@ -15,13 +15,13 @@ mod ERC3525SlotApprovable {
 
     #[storage]
     struct Storage {
-        _slot_approvals: LegacyMap::<(ContractAddress, u256, ContractAddress), bool>, 
+        _slot_approvals: LegacyMap::<(ContractAddress, u256, ContractAddress), bool>,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
-        ApprovalForSlot: ApprovalForSlot, 
+        ApprovalForSlot: ApprovalForSlot,
     }
 
     #[derive(Drop, starknet::Event)]

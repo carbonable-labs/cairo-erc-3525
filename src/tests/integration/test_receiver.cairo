@@ -17,7 +17,7 @@ use cairo_erc_3525::tests::mocks::receiver::{IReceiverDispatcher, IReceiverDispa
 
 #[derive(Drop)]
 struct Signers {
-    owner: ContractAddress, 
+    owner: ContractAddress,
 }
 
 fn deploy_contract(class_hash: starknet::class_hash::ClassHash) -> ContractAddress {
