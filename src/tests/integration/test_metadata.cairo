@@ -1,21 +1,23 @@
 use result::ResultTrait;
 use option::OptionTrait;
+use array::ArrayTrait;
 use traits::{Into, TryInto};
 use starknet::ContractAddress;
-
-use snforge_std::{declare, PreparedContract, deploy, start_prank, stop_prank};
+use starknet::testing;
 
 use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
 use cairo_erc_721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
 
 use cairo_erc_3525::interface::{IERC3525Dispatcher, IERC3525DispatcherTrait, IERC3525_ID};
 use cairo_erc_3525::presets::erc3525_mintable_burnable_metadata::{
-    IExternalDispatcher, IExternalDispatcherTrait
+    ERC3525MintableBurnableMetadata, IExternalDispatcher, IExternalDispatcherTrait
 };
 use cairo_erc_3525::extensions::metadata::interface::{
     IERC3525MetadataDispatcher, IERC3525MetadataDispatcherTrait, IERC3525_METADATA_ID
 };
+
 use cairo_erc_3525::tests::integration::constants;
+use cairo_erc_3525::tests::mocks::account::Account;
 
 #[derive(Drop)]
 struct Signers {
@@ -26,29 +28,24 @@ struct Signers {
 }
 
 fn deploy_contract(class_hash: starknet::class_hash::ClassHash) -> ContractAddress {
-    let constructor_calldata: Array<felt252> = array![
+    let calldata: Array<felt252> = array![
         constants::NAME, constants::SYMBOL, constants::VALUE_DECIMALS.into()
     ];
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @constructor_calldata
-    };
-    deploy(prepared).unwrap()
+    let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false).unwrap();
+    address
 }
 
 fn deploy_account(
     class_hash: starknet::class_hash::ClassHash, public_key: felt252
 ) -> ContractAddress {
-    let constructor_calldata: Array<felt252> = array![public_key];
-    let prepared = PreparedContract {
-        class_hash: class_hash, constructor_calldata: @constructor_calldata
-    };
-    deploy(prepared).unwrap()
+    let calldata: Array<felt252> = array![public_key];
+    let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false).unwrap();
+    address
 }
 
 fn __setup__() -> (ContractAddress, Signers) {
-    let class_hash = declare('ERC3525MintableBurnableMetadata');
-    let contract_address = deploy_contract(class_hash);
-    let class_hash = declare('Account');
+    let contract_address = deploy_contract(ERC3525MintableBurnableMetadata::TEST_CLASS_HASH.try_into().unwrap());
+    let class_hash = Account::TEST_CLASS_HASH.try_into().unwrap();
     let signer = Signers {
         owner: deploy_account(class_hash, 'OWNER'),
         someone: deploy_account(class_hash, 'SOMEONE'),
@@ -59,6 +56,7 @@ fn __setup__() -> (ContractAddress, Signers) {
 }
 
 #[test]
+#[available_gas(100_000_000)]
 fn test_integration_metadata_supports_interface() {
     // Setup
     let (contract_address, _) = __setup__();
@@ -70,7 +68,8 @@ fn test_integration_metadata_supports_interface() {
 }
 
 #[test]
-fn test_integration_scenario() {
+#[available_gas(100_000_000)]
+fn test_integration_metadata_scenario() {
     // Setup
     let (contract_address, signers) = __setup__();
     let external = IExternalDispatcher { contract_address };
