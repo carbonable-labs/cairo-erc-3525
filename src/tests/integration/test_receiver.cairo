@@ -36,16 +36,16 @@ fn deploy_account(
     address
 }
 
-fn deploy_receiver(
-    class_hash: starknet::class_hash::ClassHash
-) -> ContractAddress {
+fn deploy_receiver(class_hash: starknet::class_hash::ClassHash) -> ContractAddress {
     let calldata: Array<felt252> = array![];
     let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false).unwrap();
     address
 }
 
 fn __setup__() -> (ContractAddress, Signers, ContractAddress) {
-    let contract_address = deploy_contract(ERC3525MintableBurnable::TEST_CLASS_HASH.try_into().unwrap());
+    let contract_address = deploy_contract(
+        ERC3525MintableBurnable::TEST_CLASS_HASH.try_into().unwrap()
+    );
     let class_hash = Account::TEST_CLASS_HASH.try_into().unwrap();
     let signer = Signers { owner: deploy_account(class_hash, 'OWNER') };
     let class_hash = Receiver::TEST_CLASS_HASH.try_into().unwrap();

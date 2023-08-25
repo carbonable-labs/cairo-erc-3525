@@ -28,8 +28,11 @@ struct Signers {
 }
 
 fn deploy_contract(class_hash: starknet::class_hash::ClassHash) -> ContractAddress {
-    let calldata: Array<felt252> = array![constants::NAME, constants::SYMBOL, constants::VALUE_DECIMALS.into()];
-    let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false).expect('Deploy contract failed');
+    let calldata: Array<felt252> = array![
+        constants::NAME, constants::SYMBOL, constants::VALUE_DECIMALS.into()
+    ];
+    let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false)
+        .expect('Deploy contract failed');
     address
 }
 
@@ -37,12 +40,15 @@ fn deploy_account(
     class_hash: starknet::class_hash::ClassHash, public_key: felt252
 ) -> ContractAddress {
     let calldata: Array<felt252> = array![public_key];
-    let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false).expect('Deploy account failed');
+    let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false)
+        .expect('Deploy account failed');
     address
 }
 
 fn __setup__() -> (ContractAddress, Signers) {
-    let contract_address = deploy_contract(ERC3525MintableBurnableEMSASE::TEST_CLASS_HASH.try_into().unwrap());
+    let contract_address = deploy_contract(
+        ERC3525MintableBurnableEMSASE::TEST_CLASS_HASH.try_into().unwrap()
+    );
     let class_hash = Account::TEST_CLASS_HASH.try_into().unwrap();
     let signer = Signers {
         owner: deploy_account(class_hash, 'OWNER'),

@@ -44,7 +44,9 @@ fn deploy_account(
 }
 
 fn __setup__() -> (ContractAddress, Signers) {
-    let contract_address = deploy_contract(ERC3525MintableBurnableMetadata::TEST_CLASS_HASH.try_into().unwrap());
+    let contract_address = deploy_contract(
+        ERC3525MintableBurnableMetadata::TEST_CLASS_HASH.try_into().unwrap()
+    );
     let class_hash = Account::TEST_CLASS_HASH.try_into().unwrap();
     let signer = Signers {
         owner: deploy_account(class_hash, 'OWNER'),
