@@ -14,9 +14,9 @@ mod ERC3525SlotEnumerable {
 
     #[storage]
     struct Storage {
-        _slots_len: u256,
-        _slots: LegacyMap<u256, u256>,
-        _slots_index: LegacyMap<u256, u256>,
+        enumerable_slots_len: u256,
+        enumerable_slots: LegacyMap<u256, u256>,
+        enumerable_slots_index: LegacyMap<u256, u256>,
         _slot_tokens_len: LegacyMap<u256, u256>,
         _slot_tokens: LegacyMap<(u256, u256), u256>,
         _slot_tokens_index: LegacyMap<(u256, u256), u256>,
@@ -25,14 +25,14 @@ mod ERC3525SlotEnumerable {
     #[external(v0)]
     impl ERC3525SlotEnumerableImpl of IERC3525SlotEnumerable<ContractState> {
         fn slot_count(self: @ContractState) -> u256 {
-            self._slots_len.read()
+            self.enumerable_slots_len.read()
         }
 
         fn slot_by_index(self: @ContractState, index: u256) -> u256 {
             // [Check] Index is in range
-            let count = self._slots_len.read();
+            let count = self.enumerable_slots_len.read();
             assert(index < count, 'ERC3525: index out of bounds');
-            self._slots.read(index)
+            self.enumerable_slots.read(index)
         }
         fn token_supply_in_slot(self: @ContractState, slot: u256) -> u256 {
             self._slot_tokens_len.read(slot)
@@ -54,8 +54,8 @@ mod ERC3525SlotEnumerable {
         }
 
         fn _slot_exists(self: @ContractState, slot: u256) -> bool {
-            let index = self._slots_index.read(slot);
-            self._slots.read(index) == slot && slot != 0
+            let index = self.enumerable_slots_index.read(slot);
+            self.enumerable_slots.read(index) == slot && slot != 0
         }
 
         fn _token_exists(self: @ContractState, slot: u256, token_id: u256) -> bool {
@@ -122,10 +122,10 @@ mod ERC3525SlotEnumerable {
 
         fn _add_slot_to_slots_enumeration(ref self: ContractState, slot: u256) {
             // [Effect] Store new slot
-            let index = self._slots_len.read();
-            self._slots_len.write(index + 1);
-            self._slots.write(index, slot);
-            self._slots_index.write(slot, index);
+            let index = self.enumerable_slots_len.read();
+            self.enumerable_slots_len.write(index + 1);
+            self.enumerable_slots.write(index, slot);
+            self.enumerable_slots_index.write(slot, index);
         }
 
         fn _add_token_to_slot_enumeration(ref self: ContractState, slot: u256, token_id: u256) {

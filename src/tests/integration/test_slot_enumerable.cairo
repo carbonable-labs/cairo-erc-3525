@@ -2,6 +2,7 @@ use result::ResultTrait;
 use option::OptionTrait;
 use array::ArrayTrait;
 use traits::{Into, TryInto};
+
 use starknet::ContractAddress;
 use starknet::testing;
 
@@ -18,6 +19,8 @@ use cairo_erc_3525::extensions::slotenumerable::interface::{
 };
 use cairo_erc_3525::tests::integration::constants;
 use cairo_erc_3525::tests::mocks::account::Account;
+
+use debug::PrintTrait;
 
 #[derive(Drop)]
 struct Signers {
@@ -87,7 +90,7 @@ fn test_integration_slot_enumerable_scenario() {
     let four = external.mint(signers.anyone, constants::SLOT_1, constants::VALUE);
     let five = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
 
-    // Assert enuerable
+    // Assert enumerable
     assert(erc3525_se.slot_count() == 1, 'Wrong slot count');
     assert(erc3525_se.slot_by_index(0) == constants::SLOT_1, 'Wrong slot at index');
     assert(erc3525_se.token_supply_in_slot(constants::SLOT_1) == 5, 'Wrong toke supply in slot');
@@ -118,7 +121,7 @@ fn test_integration_slot_enumerable_scenario() {
     let height = external.mint(signers.someone, constants::SLOT_2, constants::VALUE);
     let nine = external.mint(signers.anyone, constants::SLOT_2, constants::VALUE);
 
-    // Assert enuerable
+    // Assert enumerable
     assert(erc3525_se.slot_count() == 2, 'Wrong slot count');
     assert(erc3525_se.slot_by_index(1) == constants::SLOT_2, 'Wrong slot at index');
     assert(erc3525_se.token_supply_in_slot(constants::SLOT_2) == 4, 'Wrong toke supply in slot');
@@ -138,4 +141,24 @@ fn test_integration_slot_enumerable_scenario() {
         erc3525_se.token_in_slot_by_index(constants::SLOT_2, 3) == nine,
         'Wrong token in slot at index'
     );
+
+    // Approve
+    testing::set_contract_address(signers.owner);
+    erc3525.approve_value(one, signers.anyone, constants::VALUE / 2);
+    erc3525.approve_value(two, signers.anyone, constants::VALUE / 2);
+    erc3525.approve_value(six, signers.anyone, constants::VALUE / 2);
+
+    // Transfers to token id
+    testing::set_contract_address(signers.anyone);
+    erc3525.transfer_value_from(one, three, constants::ZERO(), 1);
+    erc3525.transfer_value_from(two, three, constants::ZERO(), 1);
+    erc3525.transfer_value_from(six, seven, constants::ZERO(), 1);
+
+    // Transfer to
+    let ten = erc3525.transfer_value_from(one, 0, signers.operator, 1);
+    assert(ten == 10, 'Wrong id');
+    assert(erc3525.allowance(one, signers.anyone) == constants::VALUE / 2 - 2, 'Wrong allowance');
+    assert(erc3525.value_of(one) == constants::VALUE - 2, 'Wrong value');
+    assert(external.total_value(constants::SLOT_1) == 5 * constants::VALUE, 'Wrong total value');
+    assert(external.total_value(constants::SLOT_2) == 4 * constants::VALUE, 'Wrong total value');
 }
