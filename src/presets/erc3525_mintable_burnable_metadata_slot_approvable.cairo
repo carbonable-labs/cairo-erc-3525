@@ -7,7 +7,7 @@ trait IExternal<TContractState> {
     fn mint_value(ref self: TContractState, token_id: u256, value: u256);
     fn burn(ref self: TContractState, token_id: u256);
     fn burn_value(ref self: TContractState, token_id: u256, value: u256);
-    fn set_token_uri(self: @TContractState, token_id: u256, token_uri: felt252);
+    fn set_token_uri(ref self: TContractState, token_id: u256, token_uri: felt252);
     fn set_contract_uri(ref self: TContractState, uri: felt252);
     fn set_slot_uri(ref self: TContractState, slot: u256, uri: felt252);
 }
@@ -358,7 +358,7 @@ mod ERC3525MintableBurnableMSA {
             ERC3525::InternalImpl::_burn_value(ref unsafe_state, token_id, value)
         }
 
-        fn set_token_uri(self: @ContractState, token_id: u256, token_uri: felt252) {
+        fn set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
             let mut unsafe_state = ERC721Metadata::unsafe_new_contract_state();
             ERC721Metadata::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
         }
