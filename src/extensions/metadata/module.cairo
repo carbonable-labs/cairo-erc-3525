@@ -1,7 +1,12 @@
 #[starknet::contract]
 mod ERC3525Metadata {
+    // Starknet deps
     use starknet::ContractAddress;
-    use cairo_erc_721::src5::module::SRC5;
+
+    // External deps
+    use openzeppelin::introspection::src5::SRC5;
+
+    // Local deps
     use cairo_erc_3525::extensions::metadata::interface::{IERC3525_METADATA_ID, IERC3525Metadata};
 
     #[storage]

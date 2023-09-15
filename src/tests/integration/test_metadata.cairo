@@ -1,13 +1,18 @@
+// Core deps
 use result::ResultTrait;
 use option::OptionTrait;
 use array::ArrayTrait;
 use traits::{Into, TryInto};
-use starknet::ContractAddress;
+
+// Starknet deps
+use starknet::{ContractAddress};
 use starknet::testing;
 
-use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
-use cairo_erc_721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
+// External deps
+use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
+use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
 
+// Local deps
 use cairo_erc_3525::interface::{IERC3525Dispatcher, IERC3525DispatcherTrait, IERC3525_ID};
 use cairo_erc_3525::presets::erc3525_mintable_burnable_metadata::{
     ERC3525MintableBurnableMetadata, IExternalDispatcher, IExternalDispatcherTrait
@@ -15,7 +20,6 @@ use cairo_erc_3525::presets::erc3525_mintable_burnable_metadata::{
 use cairo_erc_3525::extensions::metadata::interface::{
     IERC3525MetadataDispatcher, IERC3525MetadataDispatcherTrait, IERC3525_METADATA_ID
 };
-
 use cairo_erc_3525::tests::integration::constants;
 use cairo_erc_3525::tests::mocks::account::Account;
 

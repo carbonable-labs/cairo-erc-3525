@@ -1,17 +1,21 @@
+// Core deps
 use result::ResultTrait;
 use option::OptionTrait;
 use array::ArrayTrait;
 use traits::{Into, TryInto};
 
-use starknet::ContractAddress;
+// Starknet deps
+use starknet::{ContractAddress};
 use starknet::testing;
 
-use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
-use cairo_erc_721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
+// External deps
+use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
+use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
 
+// Local deps
 use cairo_erc_3525::interface::{IERC3525Dispatcher, IERC3525DispatcherTrait, IERC3525_ID};
-use cairo_erc_3525::presets::erc3525_mintable_burnable_metadata_enumerable_slot_approvable_slot_enumerable::{
-    ERC3525MintableBurnableEMSASE, IExternalDispatcher, IExternalDispatcherTrait
+use cairo_erc_3525::presets::erc3525_mintable_burnable_metadata_slot_approvable_slot_enumerable::{
+    ERC3525MintableBurnableMSASE, IExternalDispatcher, IExternalDispatcherTrait
 };
 use cairo_erc_3525::extensions::slotenumerable::interface::{
     IERC3525SlotEnumerableDispatcher, IERC3525SlotEnumerableDispatcherTrait,
@@ -50,7 +54,7 @@ fn deploy_account(
 
 fn __setup__() -> (ContractAddress, Signers) {
     let contract_address = deploy_contract(
-        ERC3525MintableBurnableEMSASE::TEST_CLASS_HASH.try_into().unwrap()
+        ERC3525MintableBurnableMSASE::TEST_CLASS_HASH.try_into().unwrap()
     );
     let class_hash = Account::TEST_CLASS_HASH.try_into().unwrap();
     let signer = Signers {

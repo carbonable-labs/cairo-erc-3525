@@ -17,7 +17,7 @@ trait IERC3525SlotApprovable<TContractState> {
 }
 
 #[starknet::interface]
-trait IERC3525SlotApprovableLegacy<TContractState> {
+trait IERC3525SlotApprovableCamelOnly<TContractState> {
     fn setApprovalForSlot(
         ref self: TContractState,
         owner: ContractAddress,
