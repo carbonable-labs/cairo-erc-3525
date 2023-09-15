@@ -11,7 +11,7 @@ trait IERC3525SlotEnumerable<TContractState> {
 }
 
 #[starknet::interface]
-trait IERC3525SlotEnumerableLegacy<TContractState> {
+trait IERC3525SlotEnumerableCamelOnly<TContractState> {
     fn slotCount(self: @TContractState) -> u256;
     fn slotByIndex(self: @TContractState, index: u256) -> u256;
     fn tokenSupplyInSlot(self: @TContractState, slot: u256) -> u256;

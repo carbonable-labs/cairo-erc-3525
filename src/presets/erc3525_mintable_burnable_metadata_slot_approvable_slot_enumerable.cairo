@@ -13,29 +13,40 @@ trait IExternal<TContractState> {
 }
 
 #[starknet::contract]
-mod ERC3525MintableBurnableEMSASE {
+mod ERC3525MintableBurnableMSASE {
+    // Starknet deps
     use starknet::{get_caller_address, ContractAddress};
-    use cairo_erc_721::src5::interface::{ISRC5, ISRC5Legacy};
-    use cairo_erc_721::src5::module::SRC5;
-    use cairo_erc_721::module::ERC721;
-    use cairo_erc_721::interface::{IERC721, IERC721Legacy};
-    use cairo_erc_721::extensions::metadata::module::ERC721Metadata;
-    use cairo_erc_721::extensions::metadata::interface::{IERC721Metadata, IERC721MetadataLegacy};
-    use cairo_erc_721::extensions::enumerable::module::ERC721Enumerable;
-    use cairo_erc_721::extensions::enumerable::interface::{
-        IERC721Enumerable, IERC721EnumerableLegacy
+
+    // SRC5
+    use openzeppelin::introspection::interface::{ISRC5, ISRC5Camel};
+    use openzeppelin::introspection::src5::SRC5;
+
+    // ERC721
+    use openzeppelin::token::erc721::erc721::ERC721;
+    use openzeppelin::token::erc721::interface::{
+        IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly
     };
+
+    // ERC3525
     use cairo_erc_3525::module::ERC3525;
-    use cairo_erc_3525::interface::{IERC3525, IERC3525Legacy};
+    use cairo_erc_3525::interface::{IERC3525, IERC3525CamelOnly};
+
+    // ERC3525 - Metadata
     use cairo_erc_3525::extensions::metadata::module::ERC3525Metadata;
-    use cairo_erc_3525::extensions::metadata::interface::{IERC3525Metadata, IERC3525MetadataLegacy};
+    use cairo_erc_3525::extensions::metadata::interface::{
+        IERC3525Metadata, IERC3525MetadataCamelOnly
+    };
+
+    // ERC3525 - SlotAprovable
     use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovable;
     use cairo_erc_3525::extensions::slotapprovable::interface::{
-        IERC3525SlotApprovable, IERC3525SlotApprovableLegacy
+        IERC3525SlotApprovable, IERC3525SlotApprovableCamelOnly
     };
+
+    // ERC3525 - SlotEnumerable
     use cairo_erc_3525::extensions::slotenumerable::module::ERC3525SlotEnumerable;
     use cairo_erc_3525::extensions::slotenumerable::interface::{
-        IERC3525SlotEnumerable, IERC3525SlotEnumerableLegacy
+        IERC3525SlotEnumerable, IERC3525SlotEnumerableCamelOnly
     };
 
     #[storage]
@@ -55,7 +66,7 @@ mod ERC3525MintableBurnableEMSASE {
     }
 
     #[external(v0)]
-    impl SRC5LegacyImpl of ISRC5Legacy<ContractState> {
+    impl SRC5CamelOnlyImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
             self.supports_interface(interfaceId)
         }
@@ -100,8 +111,8 @@ mod ERC3525MintableBurnableEMSASE {
         fn transfer_from(
             ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
         ) {
-            let mut unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-            ERC721Enumerable::InternalImpl::transfer_from(ref unsafe_state, from, to, token_id)
+            let mut unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::ERC721Impl::transfer_from(ref unsafe_state, from, to, token_id)
         }
 
         fn safe_transfer_from(
@@ -111,15 +122,13 @@ mod ERC3525MintableBurnableEMSASE {
             token_id: u256,
             data: Span<felt252>
         ) {
-            let mut unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-            ERC721Enumerable::InternalImpl::safe_transfer_from(
-                ref unsafe_state, from, to, token_id, data
-            )
+            let mut unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::ERC721Impl::safe_transfer_from(ref unsafe_state, from, to, token_id, data)
         }
     }
 
     #[external(v0)]
-    impl ERC721LegacyImpl of IERC721Legacy<ContractState> {
+    impl ERC721CamelOnlyImpl of IERC721CamelOnly<ContractState> {
         fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
             self.balance_of(account)
         }
@@ -162,62 +171,25 @@ mod ERC3525MintableBurnableEMSASE {
     #[external(v0)]
     impl ERC721MetadataImpl of IERC721Metadata<ContractState> {
         fn name(self: @ContractState) -> felt252 {
-            let unsafe_state = ERC721Metadata::unsafe_new_contract_state();
-            ERC721Metadata::ERC721MetadataImpl::name(@unsafe_state)
+            let unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::ERC721MetadataImpl::name(@unsafe_state)
         }
 
         fn symbol(self: @ContractState) -> felt252 {
-            let unsafe_state = ERC721Metadata::unsafe_new_contract_state();
-            ERC721Metadata::ERC721MetadataImpl::symbol(@unsafe_state)
+            let unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::ERC721MetadataImpl::symbol(@unsafe_state)
         }
 
         fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
-            let unsafe_state = ERC721Metadata::unsafe_new_contract_state();
-            ERC721Metadata::ERC721MetadataImpl::token_uri(@unsafe_state, token_id)
+            let unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::ERC721MetadataImpl::token_uri(@unsafe_state, token_id)
         }
     }
 
     #[external(v0)]
-    impl ERC721MetadataLegacyImpl of IERC721MetadataLegacy<ContractState> {
+    impl ERC721MetadataCamelOnlyImpl of IERC721MetadataCamelOnly<ContractState> {
         fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
             self.token_uri(tokenId)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC721EnumerableImpl of IERC721Enumerable<ContractState> {
-        fn total_supply(self: @ContractState) -> u256 {
-            let unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-            ERC721Enumerable::ERC721EnumerableImpl::total_supply(@unsafe_state)
-        }
-
-        fn token_by_index(self: @ContractState, index: u256) -> u256 {
-            let unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-            ERC721Enumerable::ERC721EnumerableImpl::token_by_index(@unsafe_state, index)
-        }
-
-        fn token_of_owner_by_index(
-            self: @ContractState, owner: ContractAddress, index: u256
-        ) -> u256 {
-            let unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-            ERC721Enumerable::ERC721EnumerableImpl::token_of_owner_by_index(
-                @unsafe_state, owner, index
-            )
-        }
-    }
-
-    #[external(v0)]
-    impl ERC721EnumerableLegacyImpl of IERC721EnumerableLegacy<ContractState> {
-        fn totalSupply(self: @ContractState) -> u256 {
-            self.total_supply()
-        }
-
-        fn tokenByIndex(self: @ContractState, index: u256) -> u256 {
-            self.token_by_index(index)
-        }
-
-        fn tokenOfOwnerByIndex(self: @ContractState, owner: ContractAddress, index: u256) -> u256 {
-            self.token_of_owner_by_index(owner, index)
         }
     }
 
@@ -274,7 +246,7 @@ mod ERC3525MintableBurnableEMSASE {
     }
 
     #[external(v0)]
-    impl ERC3525LegacyImpl of IERC3525Legacy<ContractState> {
+    impl ERC3525CamelOnlyImpl of IERC3525CamelOnly<ContractState> {
         fn valueDecimals(self: @ContractState) -> u8 {
             self.value_decimals()
         }
@@ -318,7 +290,7 @@ mod ERC3525MintableBurnableEMSASE {
     }
 
     #[external(v0)]
-    impl ERC3525MetadataLegacyImpl of IERC3525MetadataLegacy<ContractState> {
+    impl ERC3525MetadataCamelOnlyImpl of IERC3525MetadataCamelOnly<ContractState> {
         fn contractURI(self: @ContractState) -> felt252 {
             self.contract_uri()
         }
@@ -354,7 +326,7 @@ mod ERC3525MintableBurnableEMSASE {
     }
 
     #[external(v0)]
-    impl ERC3525SlotApprovableLegacyImpl of IERC3525SlotApprovableLegacy<ContractState> {
+    impl ERC3525SlotApprovableCamelOnlyImpl of IERC3525SlotApprovableCamelOnly<ContractState> {
         fn setApprovalForSlot(
             ref self: ContractState,
             owner: ContractAddress,
@@ -397,7 +369,7 @@ mod ERC3525MintableBurnableEMSASE {
     }
 
     #[external(v0)]
-    impl ERC3525SlotEnumerableLegacyImpl of IERC3525SlotEnumerableLegacy<ContractState> {
+    impl ERC3525SlotEnumerableCamelOnlyImpl of IERC3525SlotEnumerableCamelOnly<ContractState> {
         fn slotCount(self: @ContractState) -> u256 {
             self.slot_count()
         }
@@ -450,8 +422,8 @@ mod ERC3525MintableBurnableEMSASE {
         }
 
         fn set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
-            let mut unsafe_state = ERC721Metadata::unsafe_new_contract_state();
-            ERC721Metadata::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
+            let mut unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
         }
 
         fn set_contract_uri(ref self: ContractState, uri: felt252) {
@@ -471,11 +443,7 @@ mod ERC3525MintableBurnableEMSASE {
             ref self: ContractState, name: felt252, symbol: felt252, value_decimals: u8
         ) {
             let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::InternalImpl::initializer(ref unsafe_state);
-            let mut unsafe_state = ERC721Metadata::unsafe_new_contract_state();
-            ERC721Metadata::InternalImpl::initializer(ref unsafe_state, name, symbol);
-            let mut unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-            ERC721Enumerable::InternalImpl::initializer(ref unsafe_state);
+            ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
             ERC3525::InternalImpl::initializer(ref unsafe_state, value_decimals);
             let mut unsafe_state = ERC3525Metadata::unsafe_new_contract_state();

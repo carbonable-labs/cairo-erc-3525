@@ -22,7 +22,7 @@ trait IERC3525<TContractState> {
 }
 
 #[starknet::interface]
-trait IERC3525Legacy<TContractState> {
+trait IERC3525CamelOnly<TContractState> {
     fn valueDecimals(self: @TContractState) -> u8;
     fn valueOf(self: @TContractState, tokenId: u256) -> u256;
     fn slotOf(self: @TContractState, tokenId: u256) -> u256;
@@ -51,7 +51,7 @@ trait IERC3525Receiver<TContractState> {
 }
 
 #[starknet::interface]
-trait IERC3525ReceiverLegacy<TContractState> {
+trait IERC3525ReceiverCamelOnly<TContractState> {
     fn onERC3525Received(
         ref self: TContractState,
         operator: ContractAddress,

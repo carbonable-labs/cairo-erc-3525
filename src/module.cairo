@@ -1,17 +1,21 @@
 #[starknet::contract]
 mod ERC3525 {
-    use starknet::{get_caller_address, ContractAddress};
+    // Core deps
     use array::{ArrayTrait, SpanTrait};
     use option::OptionTrait;
     use traits::{Into, TryInto};
     use zeroable::Zeroable;
     use integer::BoundedInt;
 
-    use cairo_erc_721::src5::module::SRC5;
-    use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
-    use cairo_erc_721::module::ERC721;
-    use cairo_erc_721::extensions::enumerable::module::ERC721Enumerable;
-    use cairo_erc_721::extensions::enumerable::interface::IERC721_ENUMERABLE_ID;
+    // Starknet deps
+    use starknet::{get_caller_address, ContractAddress};
+
+    // External deps
+    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+    use openzeppelin::token::erc721::erc721::ERC721;
+
+    // Local deps
     use cairo_erc_3525::constants;
     use cairo_erc_3525::interface::{
         IERC3525_ID, IERC3525_RECEIVER_ID, IERC3525, IERC3525ReceiverDispatcher,
@@ -242,20 +246,9 @@ mod ERC3525 {
         }
 
         fn _mint_token(ref self: ContractState, to: ContractAddress, token_id: u256, slot: u256) {
-            // [Compute] Enumerable supported
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            let enumerable = SRC5::SRC5Impl::supports_interface(
-                @unsafe_state, IERC721_ENUMERABLE_ID
-            );
-
             // [Effect] Mint a new enumerable token if supported, standard token otherwise
-            if enumerable {
-                let mut unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-                ERC721Enumerable::InternalImpl::_mint(ref unsafe_state, to, token_id);
-            } else {
-                let mut unsafe_state = ERC721::unsafe_new_contract_state();
-                ERC721::InternalImpl::_mint(ref unsafe_state, to, token_id);
-            }
+            let mut unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::InternalImpl::_mint(ref unsafe_state, to, token_id);
 
             // [Effect] Store slot
             self._slots.write(token_id, slot);
@@ -325,20 +318,9 @@ mod ERC3525 {
             // [Check] Token exists
             self._assert_minted(token_id);
 
-            // [Compute] Enumerable supported
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            let enumerable = SRC5::SRC5Impl::supports_interface(
-                @unsafe_state, IERC721_ENUMERABLE_ID
-            );
-
             // [Effect] Burn token
-            if enumerable {
-                let mut unsafe_state = ERC721Enumerable::unsafe_new_contract_state();
-                ERC721Enumerable::InternalImpl::_burn(ref unsafe_state, token_id);
-            } else {
-                let mut unsafe_state = ERC721::unsafe_new_contract_state();
-                ERC721::InternalImpl::_burn(ref unsafe_state, token_id);
-            }
+            let mut unsafe_state = ERC721::unsafe_new_contract_state();
+            ERC721::InternalImpl::_burn(ref unsafe_state, token_id);
 
             // [Effect] Update token and total value
             let value = self._values.read(token_id);

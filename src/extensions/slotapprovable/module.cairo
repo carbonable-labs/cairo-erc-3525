@@ -1,13 +1,19 @@
 #[starknet::contract]
 mod ERC3525SlotApprovable {
-    use starknet::{get_caller_address, ContractAddress};
+    // Core deps
     use traits::{Into, TryInto};
     use option::OptionTrait;
     use zeroable::Zeroable;
     use integer::BoundedInt;
 
-    use cairo_erc_721::src5::module::SRC5;
-    use cairo_erc_721::module::ERC721;
+    // Starknet deps
+    use starknet::{get_caller_address, ContractAddress};
+
+    // External deps
+    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::token::erc721::erc721::ERC721;
+
+    // Local deps
     use cairo_erc_3525::module::ERC3525;
     use cairo_erc_3525::extensions::slotapprovable::interface::{
         IERC3525SlotApprovable, IERC3525_SLOT_APPROVABLE_ID

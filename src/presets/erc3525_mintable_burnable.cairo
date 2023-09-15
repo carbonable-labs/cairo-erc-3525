@@ -11,13 +11,22 @@ trait IExternal<TContractState> {
 
 #[starknet::contract]
 mod ERC3525MintableBurnable {
+    // Starknet deps
     use starknet::{get_caller_address, ContractAddress};
-    use cairo_erc_721::src5::interface::{ISRC5, ISRC5Legacy};
-    use cairo_erc_721::src5::module::SRC5;
-    use cairo_erc_721::module::ERC721;
-    use cairo_erc_721::interface::IERC721;
+
+    // SRC5
+    use openzeppelin::introspection::interface::{ISRC5, ISRC5Camel};
+    use openzeppelin::introspection::src5::SRC5;
+
+    // ERC721
+    use openzeppelin::token::erc721::erc721::ERC721;
+    use openzeppelin::token::erc721::interface::{
+        IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly
+    };
+
+    // ERC3525
     use cairo_erc_3525::module::ERC3525;
-    use cairo_erc_3525::interface::IERC3525;
+    use cairo_erc_3525::interface::{IERC3525, IERC3525CamelOnly};
 
     #[storage]
     struct Storage {}
@@ -36,7 +45,7 @@ mod ERC3525MintableBurnable {
     }
 
     #[external(v0)]
-    impl SRC5LegacyImpl of ISRC5Legacy<ContractState> {
+    impl SRC5CamelImpl of ISRC5Camel<ContractState> {
         fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
             self.supports_interface(interfaceId)
         }
@@ -182,7 +191,7 @@ mod ERC3525MintableBurnable {
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, value_decimals: u8) {
             let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::InternalImpl::initializer(ref unsafe_state);
+            ERC721::InternalImpl::initializer(ref unsafe_state, 0, 0);
             let mut unsafe_state = ERC3525::unsafe_new_contract_state();
             ERC3525::InternalImpl::initializer(ref unsafe_state, value_decimals);
         }

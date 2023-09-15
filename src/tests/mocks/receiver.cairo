@@ -5,11 +5,15 @@ trait IReceiver<TContractState> {
 
 #[starknet::contract]
 mod Receiver {
-    use cairo_erc_721::src5::interface::{ISRC5, ISRC5Legacy};
-    use cairo_erc_721::src5::module::SRC5;
-    use cairo_erc_721::src5::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
-    use cairo_erc_3525::interface::{IERC3525Receiver, IERC3525_RECEIVER_ID};
+    // Starknet deps
     use starknet::ContractAddress;
+
+    // External deps
+    use openzeppelin::introspection::interface::{ISRC5, ISRC5Dispatcher, ISRC5DispatcherTrait};
+    use openzeppelin::introspection::src5::SRC5;
+    use cairo_erc_3525::interface::{IERC3525Receiver, IERC3525_RECEIVER_ID};
+
+    // Local deps
     use super::IReceiver;
 
     #[storage]

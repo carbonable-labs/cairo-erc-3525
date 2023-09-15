@@ -6,8 +6,7 @@ version = "2.0.2"
 
 [dependencies]
 starknet = ">=2.2.0"
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.7.0-rc.0" }
-cairo_erc_721 = { git = "https://github.com/carbonable-labs/cairo-erc-721" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", rev = "fcdd6d1b02306f18f1089656f15b87d1701ffde3" }
 
 [[target.starknet-contract]]
 sierre = true
