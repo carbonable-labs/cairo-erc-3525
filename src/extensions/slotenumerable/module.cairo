@@ -28,6 +28,12 @@ mod ERC3525SlotEnumerable {
         _slot_tokens_index: LegacyMap<(u256, u256), u256>,
     }
 
+    mod Errors {
+        const INDEX_OUT_OF_BOUNDS: felt252 = 'ERC3525: index out of bounds';
+        const SLOT_ALREADY_EXISTS: felt252 = 'ERC3525: slot already exists';
+        const SLOT_DOES_NOT_EXIST: felt252 = 'ERC3525: slot does not exist';
+    }
+
     #[external(v0)]
     impl ERC3525SlotEnumerableImpl of IERC3525SlotEnumerable<ContractState> {
         fn slot_count(self: @ContractState) -> u256 {
@@ -37,7 +43,7 @@ mod ERC3525SlotEnumerable {
         fn slot_by_index(self: @ContractState, index: u256) -> u256 {
             // [Check] Index is in range
             let count = self._slot_enumerables_len.read();
-            assert(index < count, 'ERC3525: index out of bounds');
+            assert(index < count, Errors::INDEX_OUT_OF_BOUNDS);
             self._slot_enumerables.read(index)
         }
         fn token_supply_in_slot(self: @ContractState, slot: u256) -> u256 {
@@ -46,7 +52,7 @@ mod ERC3525SlotEnumerable {
         fn token_in_slot_by_index(self: @ContractState, slot: u256, index: u256) -> u256 {
             // [Check] Index is in range
             let supply = self._slot_tokens_len.read(slot);
-            assert(index < supply, 'ERC3525: index out of bounds');
+            assert(index < supply, Errors::INDEX_OUT_OF_BOUNDS);
             self._slot_tokens.read((slot, index))
         }
     }
@@ -168,11 +174,11 @@ mod ERC3525SlotEnumerable {
     impl AssertImpl of AssertTrait {
         fn _assert_slot_exists(self: @ContractState, slot: u256) {
             // [Check] Slot exists
-            assert(self._slot_exists(slot), 'ERC3525: slot does not exist');
+            assert(self._slot_exists(slot), Errors::SLOT_DOES_NOT_EXIST);
         }
         fn _assert_slot_not_exists(self: @ContractState, slot: u256) {
             // [Check] Slot not exists
-            assert(!self._slot_exists(slot), 'ERC3525: slot already exists');
+            assert(!self._slot_exists(slot), Errors::SLOT_ALREADY_EXISTS);
         }
     }
 }

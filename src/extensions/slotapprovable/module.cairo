@@ -38,6 +38,10 @@ mod ERC3525SlotApprovable {
         approved: bool,
     }
 
+    mod Errors {
+        const SELF_APPROVAL: felt252 = 'ERC3525: self approval';
+    }
+
     #[external(v0)]
     impl ERC3525SlotApprovableImpl of IERC3525SlotApprovable<ContractState> {
         fn set_approval_for_slot(
@@ -49,18 +53,18 @@ mod ERC3525SlotApprovable {
         ) {
             // [Check] Caller and operator are not null
             let caller = get_caller_address();
-            assert(!caller.is_zero(), 'ERC3525: invalid caller');
-            assert(!operator.is_zero(), 'ERC3525: invalid operator');
+            assert(!caller.is_zero(), ERC3525::Errors::INVALID_CALLER);
+            assert(!operator.is_zero(), ERC3525::Errors::INVALID_OPERATOR);
 
             // [Check] Caller is owner or approved for all
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let is_approved_for_all = ERC721::ERC721Impl::is_approved_for_all(
                 @unsafe_state, operator, owner
             );
-            assert(caller == owner || is_approved_for_all, 'ERC3525: caller not allowed');
+            assert(caller == owner || is_approved_for_all, ERC3525::Errors::CALLER_NOT_ALLOWED);
 
             // [Check] No self approval
-            assert(caller != operator, 'ERC3525: self approval');
+            assert(caller != operator, Errors::SELF_APPROVAL);
 
             // [Effect] Store approval
             self._slot_approvals.write((owner, slot, operator), approved);
@@ -94,13 +98,13 @@ mod ERC3525SlotApprovable {
         ) {
             // [Check] Caller and operator are not null addresses
             let caller = get_caller_address();
-            assert(!caller.is_zero(), 'ERC3525: invalid caller');
-            assert(!operator.is_zero(), 'ERC3525: invalid operator');
+            assert(!caller.is_zero(), ERC3525::Errors::INVALID_CALLER);
+            assert(!operator.is_zero(), ERC3525::Errors::INVALID_OPERATOR);
 
             // [Check] Operator is not owner and caller is approved or owner
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
-            assert(owner != operator, 'ERC3525: approval to owner');
+            assert(owner != operator, ERC3525::Errors::APPROVAL_TO_OWNER);
             self._assert_allowed(caller, token_id);
 
             // [Effect] Store approved value
@@ -117,12 +121,12 @@ mod ERC3525SlotApprovable {
         ) -> u256 {
             // [Check] caller, from token_id and transfered value are not null
             let caller = get_caller_address();
-            assert(!caller.is_zero(), 'ERC3525: invalid caller');
-            assert(from_token_id != 0.into(), 'ERC3525: invalid from token id');
-            assert(value != 0.into(), 'ERC3525: invalid value');
+            assert(!caller.is_zero(), ERC3525::Errors::INVALID_CALLER);
+            assert(from_token_id != 0.into(), ERC3525::Errors::INVALID_FROM_TOKEN_ID);
+            assert(value != 0.into(), ERC3525::Errors::INVALID_VALUE);
 
             // [Check] Disambiguate function call: only one of `to_token_id` and `to` must be set
-            assert(to_token_id == 0.into() || to.is_zero(), 'ERC3525: mutually excl args set');
+            assert(to_token_id == 0.into() || to.is_zero(), ERC3525::Errors::INVALID_EXCLUSIVE_ARGS);
 
             // [Effect] Spend allowance if possible
             self._spend_allowance(caller, from_token_id, value);
@@ -174,7 +178,7 @@ mod ERC3525SlotApprovable {
             if current_allowance == infinity || is_approved {
                 return ();
             }
-            assert(current_allowance >= value, 'ERC3525: insufficient allowance');
+            assert(current_allowance >= value, ERC3525::Errors::INSUFFICIENT_ALLOWANCE);
             let new_allowance = current_allowance - value;
             ERC3525::InternalImpl::_approve_value(
                 ref unsafe_state, token_id, spender, new_allowance
@@ -203,7 +207,7 @@ mod ERC3525SlotApprovable {
     impl AssertImpl of AssertTrait {
         fn _assert_allowed(self: @ContractState, operator: ContractAddress, token_id: u256) {
             // [Check] Operator is allowed
-            assert(self._is_allowed(operator, token_id), 'ERC3525: caller not allowed');
+            assert(self._is_allowed(operator, token_id), ERC3525::Errors::CALLER_NOT_ALLOWED);
         }
     }
 }
