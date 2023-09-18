@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod unit {
     mod constants;
     mod test_initialization;
