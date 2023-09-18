@@ -63,6 +63,30 @@ mod ERC3525 {
         new_slot: u256,
     }
 
+    mod Errors {
+        const INVALID_TOKEN_ID: felt252 = 'ERC3525: invalid token_id';
+        const INVALID_ADDRESS: felt252 = 'ERC3525: invalid address';
+        const INVALID_CALLER: felt252 = 'ERC3525: invalid caller address';
+        const INVALID_OPERATOR: felt252 = 'ERC3525: invalid operator';
+        const INVALID_FROM_TOKEN_ID: felt252 = 'ERC3525: invalid from token id';
+        const INVALID_TO_TOKEN_ID: felt252 = 'ERC3525: invalid to token id';
+        const INVALID_VALUE: felt252 = 'ERC3525: invalid value';
+        const INVALID_EXCLUSIVE_ARGS: felt252 = 'ERC3525: mutually excl args set';
+        const INVALID_AMOUNTS: felt252 = 'ERC3525: invalid amounts';
+        const INVALID_TOKEN_IDS: felt252 = 'ERC3525: invalid token_ids';
+        const INVALID_RECEIVER: felt252 = 'ERC3525: invalid receiver';
+        const SLOT_MISTMATCH: felt252 = 'ERC3525: slot mismatch';
+        const OWNER_MISTMATCH: felt252 = 'ERC3525: owner mismatch';
+        const VALUE_EXCEEDS_BALANCE: felt252 = 'ERC3525: value exceeds balance';
+        const APPROVAL_TO_OWNER: felt252 = 'ERC3525: approval to owner';
+        const CALLER_NOT_ALLOWED: felt252 = 'ERC3525: caller not allowed';
+        const INVALID_SLOT: felt252 = 'ERC3525: invalid slot';
+        const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC3525: insufficient allowance';
+        const RECEIVER_REJECTION: felt252 = 'ERC3525: receiver\'s rejection';
+        const TOKEN_NOT_MINTED: felt252 = 'ERC3525: token not minted';
+        const TOKEN_ALREADY_MINTED: felt252 = 'ERC3525: token already minted';
+    }
+
     #[external(v0)]
     impl ERC3525Impl of IERC3525<ContractState> {
         fn value_decimals(self: @ContractState) -> u8 {
@@ -89,16 +113,16 @@ mod ERC3525 {
         ) {
             // [Check] Caller and operator are not null addresses
             let caller = get_caller_address();
-            assert(!caller.is_zero(), 'ERC3525: invalid caller');
-            assert(!operator.is_zero(), 'ERC3525: invalid operator');
+            assert(!caller.is_zero(), Errors::INVALID_CALLER);
+            assert(!operator.is_zero(), Errors::INVALID_OPERATOR);
 
             // [Check] Operator is not owner and caller is approved or owner
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
-            assert(owner != operator, 'ERC3525: approval to owner');
+            assert(owner != operator, Errors::APPROVAL_TO_OWNER);
             assert(
                 ERC721::InternalImpl::_is_approved_or_owner(@unsafe_state, caller, token_id),
-                'ERC3525: caller not allowed'
+                Errors::CALLER_NOT_ALLOWED
             );
 
             // [Effect] Store approved value
@@ -121,12 +145,12 @@ mod ERC3525 {
         ) -> u256 {
             // [Check] caller, from token_id and transfered value are not null
             let caller = get_caller_address();
-            assert(!caller.is_zero(), 'ERC3525: invalid caller');
-            assert(from_token_id != 0.into(), 'ERC3525: invalid from token id');
-            assert(value != 0.into(), 'ERC3525: invalid value');
+            assert(!caller.is_zero(), Errors::INVALID_CALLER);
+            assert(from_token_id != 0.into(), Errors::INVALID_FROM_TOKEN_ID);
+            assert(value != 0.into(), Errors::INVALID_VALUE);
 
             // [Check] Disambiguate function call: only one of `to_token_id` and `to` must be set
-            assert(to_token_id == 0.into() || to.is_zero(), 'ERC3525: mutually excl args set');
+            assert(to_token_id == 0.into() || to.is_zero(), Errors::INVALID_EXCLUSIVE_ARGS);
 
             // [Effect] Spend allowance if possible
             self._spend_allowance(caller, from_token_id, value);
@@ -215,7 +239,7 @@ mod ERC3525 {
             if current_allowance == infinity || is_approved {
                 return ();
             }
-            assert(current_allowance >= value, 'ERC3525: insufficient allowance');
+            assert(current_allowance >= value, Errors::INSUFFICIENT_ALLOWANCE);
             let new_allowance = current_allowance - value;
             self._approve_value(token_id, spender, new_allowance);
         }
@@ -236,9 +260,9 @@ mod ERC3525 {
             self._assert_not_minted(token_id);
 
             // [Check] Receiver address, slot and antoken_id are not null
-            assert(!to.is_zero(), 'ERC3525: invalid to address');
-            assert(slot != 0, 'ERC3525: invalid slot');
-            assert(token_id != 0, 'ERC3525: invalid token_id');
+            assert(!to.is_zero(), Errors::INVALID_ADDRESS);
+            assert(slot != 0, Errors::INVALID_SLOT);
+            assert(token_id != 0, Errors::INVALID_TOKEN_ID);
 
             // [Effect] Mint token and value
             self._mint_token(to, token_id, slot);
@@ -282,18 +306,17 @@ mod ERC3525 {
             // [Check] Tokens exist and not null
             self._assert_minted(from_token_id);
             self._assert_minted(to_token_id);
-            assert(from_token_id != 0, 'ERC3525: invalid from_token_id');
-            assert(to_token_id != 0, 'ERC3525: invalid to_token_id');
+            assert(from_token_id != 0, Errors::INVALID_FROM_TOKEN_ID);
+            assert(to_token_id != 0, Errors::INVALID_TO_TOKEN_ID);
 
             // [Check] Tokens slot match
             assert(
-                self.slot_of(from_token_id) == self.slot_of(to_token_id),
-                'ERC3525: transfer slot mismatch'
+                self.slot_of(from_token_id) == self.slot_of(to_token_id), Errors::SLOT_MISTMATCH
             );
 
             // [Check] Transfer amount does not exceed balance
             let from_balance = self._values.read(from_token_id);
-            assert(from_balance >= value, 'ERC3525: value exceeds balance');
+            assert(from_balance >= value, Errors::VALUE_EXCEEDS_BALANCE);
 
             // [Effect] Update tokens balance
             self._values.write(from_token_id, from_balance - value);
@@ -308,7 +331,7 @@ mod ERC3525 {
                 ._check_on_erc3525_received(from_token_id, to_token_id, owner, value, data.span());
 
             // TODO: Enable when main stream accounts accept SRC6
-            // assert(success, 'ERC3525: invalid receiver');
+            // assert(success, Errors::INVALID_RECEIVER);
 
             // [Event] Emit TransferValue
             self.emit(TransferValue { from_token_id, to_token_id, value });
@@ -342,7 +365,7 @@ mod ERC3525 {
 
             // [Check] Burn value does not exceed balance
             let balance = self._values.read(token_id);
-            assert(balance >= value, 'ERC3525: value exceeds balance');
+            assert(balance >= value, Errors::VALUE_EXCEEDS_BALANCE);
 
             // [Effect] Update token and total value
             let slot = self._slots.read(token_id);
@@ -369,7 +392,7 @@ mod ERC3525 {
                 let contract = IERC3525ReceiverDispatcher { contract_address: to };
                 let selector = contract
                     .on_erc3525_received(operator, from_token_id, to_token_id, value, data);
-                assert(selector == IERC3525_RECEIVER_ID, 'ERC3525: receiver\'s rejection');
+                assert(selector == IERC3525_RECEIVER_ID, Errors::RECEIVER_REJECTION);
                 return true;
             }
             contract.supports_interface(constants::ISRC6_ID)
@@ -380,7 +403,7 @@ mod ERC3525 {
             self._assert_minted(token_id);
 
             // [Check] Amounts are not null
-            assert(amounts.len() > 1, 'ERC3525: invalid amounts');
+            assert(amounts.len() > 1, Errors::INVALID_AMOUNTS);
 
             // [Check] Amounts
             let mut total_amount: u256 = 0;
@@ -390,15 +413,15 @@ mod ERC3525 {
                     break;
                 }
                 let amount = *amounts[index];
-                assert(amount != 0, 'ERC3525: invalid amounts');
+                assert(amount != 0, Errors::INVALID_AMOUNTS);
                 total_amount += amount;
                 index += 1;
             };
-            assert(total_amount != 0.into(), 'ERC3525: invalid amounts');
+            assert(total_amount != 0.into(), Errors::INVALID_AMOUNTS);
 
             // [Check] Amounts sum does not exceed balance
             let balance = self._values.read(token_id);
-            assert(balance >= total_amount, 'ERC3525: value exceeds balance');
+            assert(balance >= total_amount, Errors::VALUE_EXCEEDS_BALANCE);
 
             // [Effect] Update token and total value
             let slot = self._slots.read(token_id);
@@ -425,7 +448,7 @@ mod ERC3525 {
 
     fn _merge(ref self: ContractState, token_ids: @Array<u256>) {
         // [Check] Token ids are not null
-        assert(token_ids.len() > 1, 'ERC3525: invalid token_ids');
+        assert(token_ids.len() > 1, Errors::INVALID_TOKEN_IDS);
 
         // [Effect] Merge token values
         let unsafe_state = ERC721::unsafe_new_contract_state();
@@ -442,13 +465,12 @@ mod ERC3525 {
             self._assert_minted(to_token_id);
             // [Check] Token ids slot match
             assert(
-                self.slot_of(from_token_id) == self.slot_of(to_token_id),
-                'ERC3525: merge slot mismatch'
+                self.slot_of(from_token_id) == self.slot_of(to_token_id), Errors::SLOT_MISTMATCH
             );
             // [Check] Owners match
             let from_owner = ERC721::ERC721Impl::owner_of(@unsafe_state, from_token_id);
             let to_owner = ERC721::ERC721Impl::owner_of(@unsafe_state, to_token_id);
-            assert(from_owner == to_owner, 'ERC3525: merge owner mismatch');
+            assert(from_owner == to_owner, Errors::OWNER_MISTMATCH);
             // [Effect] Merge tokens
             let value = self._values.read(from_token_id);
             self._transfer_value(from_token_id, to_token_id, value);
@@ -463,13 +485,13 @@ mod ERC3525 {
         fn _assert_minted(self: @ContractState, token_id: u256) {
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let exists = ERC721::InternalImpl::_exists(@unsafe_state, token_id);
-            assert(exists, 'ERC3525: token not minted');
+            assert(exists, Errors::TOKEN_NOT_MINTED);
         }
 
         fn _assert_not_minted(self: @ContractState, token_id: u256) {
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let exists = ERC721::InternalImpl::_exists(@unsafe_state, token_id);
-            assert(!exists, 'ERC3525: token already minted');
+            assert(!exists, Errors::TOKEN_ALREADY_MINTED);
         }
     }
 }
