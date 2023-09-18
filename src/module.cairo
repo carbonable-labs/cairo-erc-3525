@@ -14,9 +14,9 @@ mod ERC3525 {
     use openzeppelin::introspection::src5::SRC5;
     use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::token::erc721::erc721::ERC721;
+    use openzeppelin::utils::constants::ISRC6_ID;
 
     // Local deps
-    use cairo_erc_3525::constants;
     use cairo_erc_3525::interface::{
         IERC3525_ID, IERC3525_RECEIVER_ID, IERC3525, IERC3525ReceiverDispatcher,
         IERC3525ReceiverDispatcherTrait
@@ -395,7 +395,7 @@ mod ERC3525 {
                 assert(selector == IERC3525_RECEIVER_ID, Errors::RECEIVER_REJECTION);
                 return true;
             }
-            contract.supports_interface(constants::ISRC6_ID)
+            contract.supports_interface(ISRC6_ID)
         }
 
         fn _split(ref self: ContractState, token_id: u256, amounts: @Array<u256>) -> Array<u256> {
