@@ -126,7 +126,9 @@ mod ERC3525SlotApprovable {
             assert(value != 0.into(), ERC3525::Errors::INVALID_VALUE);
 
             // [Check] Disambiguate function call: only one of `to_token_id` and `to` must be set
-            assert(to_token_id == 0.into() || to.is_zero(), ERC3525::Errors::INVALID_EXCLUSIVE_ARGS);
+            assert(
+                to_token_id == 0.into() || to.is_zero(), ERC3525::Errors::INVALID_EXCLUSIVE_ARGS
+            );
 
             // [Effect] Spend allowance if possible
             self._spend_allowance(caller, from_token_id, value);
