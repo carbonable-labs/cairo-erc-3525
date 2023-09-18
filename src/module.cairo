@@ -151,6 +151,7 @@ mod ERC3525 {
 
             // [Check] Disambiguate function call: only one of `to_token_id` and `to` must be set
             assert(to_token_id == 0.into() || to.is_zero(), Errors::INVALID_EXCLUSIVE_ARGS);
+            assert(to_token_id != 0.into() || !to.is_zero(), Errors::INVALID_EXCLUSIVE_ARGS);
 
             // [Effect] Spend allowance if possible
             self._spend_allowance(caller, from_token_id, value);

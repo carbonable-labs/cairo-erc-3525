@@ -1,3 +1,5 @@
+// Local imports
+
 use cairo_erc_3525::module::ERC3525;
 use cairo_erc_3525::tests::unit::constants::{STATE, VALUE_DECIMALS};
 
