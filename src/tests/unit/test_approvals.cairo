@@ -1,5 +1,13 @@
+// Starknet imports
+
 use starknet::testing::set_caller_address;
+
+// External imports
+
 use openzeppelin::token::erc721::erc721::ERC721;
+
+// Local imports
+
 use cairo_erc_3525::module::ERC3525;
 use cairo_erc_3525::tests::unit::constants::{
     STATE, VALUE_DECIMALS, TOKEN_ID_1, INVALID_TOKEN, SLOT_1, VALUE, ZERO, OWNER, OPERATOR, SOMEONE,

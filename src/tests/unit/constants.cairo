@@ -1,12 +1,35 @@
+// Core imports
+
+use zeroable::Zeroable;
+
+// Starknet imports
+
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use zeroable::Zeroable;
+
+// Local imports
+
 use cairo_erc_3525::module::ERC3525;
+use cairo_erc_3525::extensions::metadata::module::ERC3525Metadata;
+use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovable;
+use cairo_erc_3525::extensions::slotenumerable::module::ERC3525SlotEnumerable;
 
 // State
 
 fn STATE() -> ERC3525::ContractState {
     ERC3525::unsafe_new_contract_state()
+}
+
+fn STATE_METADATA() -> ERC3525Metadata::ContractState {
+    ERC3525Metadata::unsafe_new_contract_state()
+}
+
+fn STATE_SLOT_APPROVABLE() -> ERC3525SlotApprovable::ContractState {
+    ERC3525SlotApprovable::unsafe_new_contract_state()
+}
+
+fn STATE_SLOT_ENUMERABLE() -> ERC3525SlotEnumerable::ContractState {
+    ERC3525SlotEnumerable::unsafe_new_contract_state()
 }
 
 // Constants
