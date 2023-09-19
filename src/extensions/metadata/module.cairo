@@ -11,18 +11,18 @@ mod ERC3525Metadata {
 
     #[storage]
     struct Storage {
-        _contract_uri: felt252,
-        _slot_uri: LegacyMap<u256, felt252>,
+        _erc3525_contract_uri: felt252,
+        _erc3525_slot_uri: LegacyMap<u256, felt252>,
     }
 
     #[external(v0)]
     impl ERC3525MetadataImpl of IERC3525Metadata<ContractState> {
         fn contract_uri(self: @ContractState) -> felt252 {
-            self._contract_uri.read()
+            self._erc3525_contract_uri.read()
         }
 
         fn slot_uri(self: @ContractState, slot: u256) -> felt252 {
-            self._slot_uri.read(slot)
+            self._erc3525_slot_uri.read(slot)
         }
     }
 
@@ -36,12 +36,12 @@ mod ERC3525Metadata {
 
         fn _set_contract_uri(ref self: ContractState, uri: felt252) {
             // [Effect] Store uri
-            self._contract_uri.write(uri);
+            self._erc3525_contract_uri.write(uri);
         }
 
         fn _set_slot_uri(ref self: ContractState, slot: u256, uri: felt252) {
             // [Effect] Store uri
-            self._slot_uri.write(slot, uri);
+            self._erc3525_slot_uri.write(slot, uri);
         }
     }
 }

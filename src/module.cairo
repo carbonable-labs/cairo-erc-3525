@@ -24,14 +24,12 @@ mod ERC3525 {
 
     #[storage]
     struct Storage {
-        _value_decimals: u8,
-        _values: LegacyMap::<u256, u256>,
-        _approved_values: LegacyMap::<(ContractAddress, u256, ContractAddress), u256>,
-        _slots: LegacyMap::<u256, u256>,
-        _slot_uri: LegacyMap::<u256, felt252>,
-        _contract_uri: felt252,
-        _total_minted: u256,
-        _total_value: LegacyMap::<u256, u256>,
+        _erc3525_value_decimals: u8,
+        _erc3525_values: LegacyMap::<u256, u256>,
+        _erc3525_approved_values: LegacyMap::<(ContractAddress, u256, ContractAddress), u256>,
+        _erc3525_slots: LegacyMap::<u256, u256>,
+        _erc3525_total_minted: u256,
+        _erc3525_total_value: LegacyMap::<u256, u256>,
     }
 
     #[event]
@@ -91,7 +89,7 @@ mod ERC3525 {
     impl ERC3525Impl of IERC3525<ContractState> {
         fn value_decimals(self: @ContractState) -> u8 {
             // [Compute] Value decimals
-            self._value_decimals.read()
+            self._erc3525_value_decimals.read()
         }
 
         fn value_of(self: @ContractState, token_id: u256) -> u256 {
@@ -99,13 +97,13 @@ mod ERC3525 {
             self._assert_minted(token_id);
 
             // [Compute] Token value
-            self._values.read(token_id)
+            self._erc3525_values.read(token_id)
         }
 
         fn slot_of(self: @ContractState, token_id: u256) -> u256 {
             // [Check] Token exists
             self._assert_minted(token_id);
-            self._slots.read(token_id)
+            self._erc3525_slots.read(token_id)
         }
 
         fn approve_value(
@@ -133,7 +131,7 @@ mod ERC3525 {
             // [Check] 
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
-            self._approved_values.read((owner, token_id, operator))
+            self._erc3525_approved_values.read((owner, token_id, operator))
         }
 
         fn transfer_value_from(
@@ -178,7 +176,7 @@ mod ERC3525 {
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState, value_decimals: u8) {
             // [Effect] Store value decimals
-            self._value_decimals.write(value_decimals);
+            self._erc3525_value_decimals.write(value_decimals);
 
             // [Effect] Register interfaces
             let mut unsafe_state = SRC5::unsafe_new_contract_state();
@@ -186,11 +184,11 @@ mod ERC3525 {
         }
 
         fn _get_new_token_id(self: @ContractState) -> u256 {
-            self._total_minted.read() + 1
+            self._erc3525_total_minted.read() + 1
         }
 
         fn _total_value(self: @ContractState, slot: u256) -> u256 {
-            self._total_value.read(slot)
+            self._erc3525_total_value.read(slot)
         }
 
         fn _approve_value(
@@ -199,7 +197,7 @@ mod ERC3525 {
             // [Effect] Store approved value
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
-            self._approved_values.write((owner, token_id, operator), value);
+            self._erc3525_approved_values.write((owner, token_id, operator), value);
 
             // [Event] Emit ApprovalValue
             self.emit(ApprovalValue { token_id, operator, value });
@@ -230,7 +228,7 @@ mod ERC3525 {
             // [Compute] Spender allowance
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
-            let current_allowance = self._approved_values.read((owner, token_id, spender));
+            let current_allowance = self._erc3525_approved_values.read((owner, token_id, spender));
             let infinity: u256 = BoundedInt::max();
             let is_approved = ERC721::InternalImpl::_is_approved_or_owner(
                 @unsafe_state, spender, token_id
@@ -276,10 +274,10 @@ mod ERC3525 {
             ERC721::InternalImpl::_mint(ref unsafe_state, to, token_id);
 
             // [Effect] Store slot
-            self._slots.write(token_id, slot);
+            self._erc3525_slots.write(token_id, slot);
 
             // [Effect] Update new total minted
-            self._total_minted.write(self._total_minted.read() + 1);
+            self._erc3525_total_minted.write(self._erc3525_total_minted.read() + 1);
 
             // [Event] Emit SlotChanged
             self.emit(SlotChanged { token_id, old_slot: 0.into(), new_slot: slot });
@@ -290,12 +288,12 @@ mod ERC3525 {
             self._assert_minted(token_id);
 
             // [Effect] Update token value
-            self._values.write(token_id, self._values.read(token_id) + value);
+            self._erc3525_values.write(token_id, self._erc3525_values.read(token_id) + value);
 
             // [Effect] Update total value
             let slot = self.slot_of(token_id);
-            let total = self._total_value.read(slot);
-            self._total_value.write(slot, self._total_value.read(slot) + value);
+            let total = self._erc3525_total_value.read(slot);
+            self._erc3525_total_value.write(slot, self._erc3525_total_value.read(slot) + value);
 
             // [Event] Emit TransferValue
             self.emit(TransferValue { from_token_id: 0.into(), to_token_id: token_id, value });
@@ -316,13 +314,13 @@ mod ERC3525 {
             );
 
             // [Check] Transfer amount does not exceed balance
-            let from_balance = self._values.read(from_token_id);
+            let from_balance = self._erc3525_values.read(from_token_id);
             assert(from_balance >= value, Errors::VALUE_EXCEEDS_BALANCE);
 
             // [Effect] Update tokens balance
-            self._values.write(from_token_id, from_balance - value);
-            let to_balance = self._values.read(to_token_id);
-            self._values.write(to_token_id, to_balance + value);
+            self._erc3525_values.write(from_token_id, from_balance - value);
+            let to_balance = self._erc3525_values.read(to_token_id);
+            self._erc3525_values.write(to_token_id, to_balance + value);
 
             // [Interaction] Receiver
             let unsafe_state = ERC721::unsafe_new_contract_state();
@@ -347,13 +345,13 @@ mod ERC3525 {
             ERC721::InternalImpl::_burn(ref unsafe_state, token_id);
 
             // [Effect] Update token and total value
-            let value = self._values.read(token_id);
-            let slot = self._slots.read(token_id);
-            self._values.write(token_id, 0.into());
-            self._total_value.write(slot, self._total_value.read(slot) - value);
+            let value = self._erc3525_values.read(token_id);
+            let slot = self._erc3525_slots.read(token_id);
+            self._erc3525_values.write(token_id, 0.into());
+            self._erc3525_total_value.write(slot, self._erc3525_total_value.read(slot) - value);
 
             // [Effect] Update slot
-            self._slots.write(token_id, 0.into());
+            self._erc3525_slots.write(token_id, 0.into());
 
             // [Event] Emit TransferValue and SlotChanged
             self.emit(TransferValue { from_token_id: token_id, to_token_id: 0.into(), value });
@@ -365,13 +363,13 @@ mod ERC3525 {
             self._assert_minted(token_id);
 
             // [Check] Burn value does not exceed balance
-            let balance = self._values.read(token_id);
+            let balance = self._erc3525_values.read(token_id);
             assert(balance >= value, Errors::VALUE_EXCEEDS_BALANCE);
 
             // [Effect] Update token and total value
-            let slot = self._slots.read(token_id);
-            self._values.write(token_id, balance - value);
-            self._total_value.write(slot, self._total_value.read(slot) - value);
+            let slot = self._erc3525_slots.read(token_id);
+            self._erc3525_values.write(token_id, balance - value);
+            self._erc3525_total_value.write(slot, self._erc3525_total_value.read(slot) - value);
 
             // [Event] Emit TransferValue
             self.emit(TransferValue { from_token_id: token_id, to_token_id: 0.into(), value });
@@ -421,14 +419,14 @@ mod ERC3525 {
             assert(total_amount != 0.into(), Errors::INVALID_AMOUNTS);
 
             // [Check] Amounts sum does not exceed balance
-            let balance = self._values.read(token_id);
+            let balance = self._erc3525_values.read(token_id);
             assert(balance >= total_amount, Errors::VALUE_EXCEEDS_BALANCE);
 
             // [Effect] Update token and total value
-            let slot = self._slots.read(token_id);
+            let slot = self._erc3525_slots.read(token_id);
             let unsafe_state = ERC721::unsafe_new_contract_state();
             let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, token_id);
-            self._values.write(token_id, balance - total_amount);
+            self._erc3525_values.write(token_id, balance - total_amount);
 
             // [Effect] Mint new tokens
             let mut new_token_ids = ArrayTrait::new();
@@ -473,7 +471,7 @@ mod ERC3525 {
             let to_owner = ERC721::ERC721Impl::owner_of(@unsafe_state, to_token_id);
             assert(from_owner == to_owner, Errors::OWNER_MISTMATCH);
             // [Effect] Merge tokens
-            let value = self._values.read(from_token_id);
+            let value = self._erc3525_values.read(from_token_id);
             self._transfer_value(from_token_id, to_token_id, value);
             // [Effect] Burn from token
             self._burn(from_token_id);

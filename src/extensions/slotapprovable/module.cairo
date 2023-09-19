@@ -21,7 +21,7 @@ mod ERC3525SlotApprovable {
 
     #[storage]
     struct Storage {
-        _slot_approvals: LegacyMap::<(ContractAddress, u256, ContractAddress), bool>,
+        _erc3525_slot_approvals: LegacyMap::<(ContractAddress, u256, ContractAddress), bool>,
     }
 
     #[event]
@@ -67,7 +67,7 @@ mod ERC3525SlotApprovable {
             assert(caller != operator, Errors::SELF_APPROVAL);
 
             // [Effect] Store approval
-            self._slot_approvals.write((owner, slot, operator), approved);
+            self._erc3525_slot_approvals.write((owner, slot, operator), approved);
 
             // [Event] Emit ApprovalForSlot
             self.emit(ApprovalForSlot { owner, slot, operator, approved });
@@ -76,7 +76,7 @@ mod ERC3525SlotApprovable {
         fn is_approved_for_slot(
             self: @ContractState, owner: ContractAddress, slot: u256, operator: ContractAddress
         ) -> bool {
-            self._slot_approvals.read((owner, slot, operator))
+            self._erc3525_slot_approvals.read((owner, slot, operator))
         }
     }
 
