@@ -323,11 +323,10 @@ mod ERC3525 {
             self._erc3525_values.write(to_token_id, to_balance + value);
 
             // [Interaction] Receiver
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, to_token_id);
-            let data = ArrayTrait::new();
-            let success = self
-                ._check_on_erc3525_received(from_token_id, to_token_id, owner, value, data.span());
+            // let unsafe_state = ERC721::unsafe_new_contract_state();
+            // let owner = ERC721::ERC721Impl::owner_of(@unsafe_state, to_token_id);
+            // let data = ArrayTrait::new();
+            // let success = self._check_on_erc3525_received(from_token_id, to_token_id, owner, value, data.span());
 
             // TODO: Enable when main stream accounts accept SRC6
             // assert(success, Errors::INVALID_RECEIVER);

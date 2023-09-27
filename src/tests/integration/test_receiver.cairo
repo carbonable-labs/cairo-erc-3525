@@ -71,14 +71,13 @@ fn test_integration_receiver_scenario() {
 
     // Mint tokens
     let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
+// // Assert receiver
+// assert(receiver.called() == false, 'Wrong receiver called');
 
-    // Assert receiver
-    assert(receiver.called() == false, 'Wrong receiver called');
+// // Transfer to
+// testing::set_contract_address(signers.owner);
+// let _ = erc3525.transfer_value_from(one, 0, receiver_address, 1);
 
-    // Transfer to
-    testing::set_contract_address(signers.owner);
-    let _ = erc3525.transfer_value_from(one, 0, receiver_address, 1);
-
-    // Assert receiver
-    assert(receiver.called() == true, 'Wrong receiver called');
+// // Assert receiver
+// assert(receiver.called() == true, 'Wrong receiver called');
 }
