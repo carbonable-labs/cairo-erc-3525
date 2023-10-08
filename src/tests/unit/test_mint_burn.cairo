@@ -10,6 +10,7 @@ use starknet::testing::set_caller_address;
 // External imports
 
 use openzeppelin::token::erc721::erc721::ERC721;
+use openzeppelin::tests::utils;
 
 // Local imports
 
@@ -45,7 +46,7 @@ fn test_mint() {
     assert(owner == OWNER(), 'Wrong owner');
 
     // [Assert] Events
-    let event = starknet::testing::pop_log::<ERC721::Transfer>(get_contract_address()).unwrap();
+    let event = utils::pop_log::<ERC721::Transfer>(get_contract_address()).unwrap();
     assert(event.from == ZERO(), 'Wrong event from');
     assert(event.to == OWNER(), 'Wrong event to');
     assert(event.token_id == TOKEN_ID_1, 'Wrong event token_id');
@@ -131,7 +132,7 @@ fn test_burn() {
         .unwrap();
 
     // [Assert] Events
-    let event = starknet::testing::pop_log::<ERC721::Transfer>(get_contract_address()).unwrap();
+    let event = utils::pop_log::<ERC721::Transfer>(get_contract_address()).unwrap();
     assert(event.from == OWNER(), 'Wrong event from');
     assert(event.to == ZERO(), 'Wrong event to');
     assert(event.token_id == TOKEN_ID_1, 'Wrong event token_id');
