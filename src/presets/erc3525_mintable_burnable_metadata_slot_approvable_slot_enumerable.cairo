@@ -19,210 +19,130 @@ mod ERC3525MintableBurnableMSASE {
 
     // SRC5
     use openzeppelin::introspection::interface::{ISRC5, ISRC5Camel};
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component;
 
     // ERC721
-    use openzeppelin::token::erc721::erc721::ERC721;
+    use openzeppelin::token::erc721::erc721::ERC721Component;
     use openzeppelin::token::erc721::interface::{
         IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly
     };
 
     // ERC3525
-    use cairo_erc_3525::module::ERC3525;
+    use cairo_erc_3525::module::ERC3525Component;
     use cairo_erc_3525::interface::{IERC3525, IERC3525CamelOnly};
 
     // ERC3525 - Metadata
-    use cairo_erc_3525::extensions::metadata::module::ERC3525Metadata;
+    use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent;
     use cairo_erc_3525::extensions::metadata::interface::{
         IERC3525Metadata, IERC3525MetadataCamelOnly
     };
 
     // ERC3525 - SlotAprovable
-    use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovable;
+    use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovableComponent;
     use cairo_erc_3525::extensions::slotapprovable::interface::{
         IERC3525SlotApprovable, IERC3525SlotApprovableCamelOnly
     };
 
     // ERC3525 - SlotEnumerable
-    use cairo_erc_3525::extensions::slotenumerable::module::ERC3525SlotEnumerable;
+    use cairo_erc_3525::extensions::slotenumerable::module::ERC3525SlotEnumerableComponent;
     use cairo_erc_3525::extensions::slotenumerable::interface::{
         IERC3525SlotEnumerable, IERC3525SlotEnumerableCamelOnly
     };
 
+    // Declare components
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: ERC3525Component, storage: erc3525, event: ERC3525Event);
+    component!(path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent);
+    component!(path: ERC3525SlotApprovableComponent, storage: erc3525_slot_approvable, event: ERC3525SlotApprovableEvent);
+    component!(path: ERC3525SlotEnumerableComponent, storage: erc3525_slot_enumerable, event: ERC3525SlotEnumerableEvent);
+
+    // Component implementations
+    // TODO embed missing ABIs
+    #[abi(embed_v0)]
+    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+    impl ERC3525InternalImpl = ERC3525Component::InternalImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525MetadataImpl = ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525MetadataCamelOnlyImpl = ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
+    impl ERC3525MetadataInternalImpl = ERC3525MetadataComponent::InternalImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525SlotApprovableImpl = ERC3525SlotApprovableComponent::ERC3525SlotApprovableImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525SlotApprovableCamelOnlyImpl = ERC3525SlotApprovableComponent::ERC3525SlotApprovableCamelOnlyImpl<ContractState>;
+    impl ERC3525SlotApprovableInternalImpl = ERC3525SlotApprovableComponent::InternalImpl<ContractState>;
+    impl ERC3525SlotApprovableExternalImpl = ERC3525SlotApprovableComponent::ExternalImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525SlotEnumerableImpl = ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525SlotEnumerableCamelOnlyImpl = ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableCamelOnlyImpl<ContractState>;
+    impl ERC3525SlotEnumerableInternalImpl = ERC3525SlotEnumerableComponent::InternalImpl<ContractState>;
+
+    // TODO check that mixin impl knows correct interface IDs
+
     #[storage]
-    struct Storage {}
+    struct Storage {
+        #[substorage(v0)]
+        src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        erc3525: ERC3525Component::Storage,
+        #[substorage(v0)]
+        erc3525_metadata: ERC3525MetadataComponent::Storage,
+        #[substorage(v0)]
+        erc3525_slot_approvable: ERC3525SlotApprovableComponent::Storage,
+        #[substorage(v0)]
+        erc3525_slot_enumerable: ERC3525SlotEnumerableComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        ERC3525Event: ERC3525Component::Event,
+        #[flat]
+        ERC3525MetadataEvent: ERC3525MetadataComponent::Event,
+        #[flat]
+        ERC3525SlotApprovableEvent: ERC3525SlotApprovableComponent::Event,
+        #[flat]
+        ERC3525SlotEnumerableEvent: ERC3525SlotEnumerableComponent::Event,
+    }
+
 
     #[constructor]
-    fn constructor(ref self: ContractState, name: felt252, symbol: felt252, value_decimals: u8) {
+    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, value_decimals: u8) {
         self.initializer(name, symbol, value_decimals);
     }
 
-    #[external(v0)]
-    impl SRC5Impl of ISRC5<ContractState> {
-        fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
-        }
-    }
-
-    #[external(v0)]
-    impl SRC5CamelOnlyImpl of ISRC5Camel<ContractState> {
-        fn supportsInterface(self: @ContractState, interfaceId: felt252) -> bool {
-            self.supports_interface(interfaceId)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC721Impl of IERC721<ContractState> {
-        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::balance_of(@unsafe_state, account)
-        }
-
-        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::owner_of(@unsafe_state, token_id)
-        }
-
-        fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::get_approved(@unsafe_state, token_id)
-        }
-
-        fn is_approved_for_all(
-            self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) -> bool {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::is_approved_for_all(@unsafe_state, owner, operator)
-        }
-
-        fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::approve(ref unsafe_state, to, token_id)
-        }
-
-        fn set_approval_for_all(
-            ref self: ContractState, operator: ContractAddress, approved: bool
-        ) {
-            let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::set_approval_for_all(ref unsafe_state, operator, approved)
-        }
-
-        fn transfer_from(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
-        ) {
-            let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::transfer_from(ref unsafe_state, from, to, token_id)
-        }
-
-        fn safe_transfer_from(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            token_id: u256,
-            data: Span<felt252>
-        ) {
-            let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721Impl::safe_transfer_from(ref unsafe_state, from, to, token_id, data)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC721CamelOnlyImpl of IERC721CamelOnly<ContractState> {
-        fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
-            self.balance_of(account)
-        }
-
-        fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
-            self.owner_of(tokenId)
-        }
-
-        fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
-            self.get_approved(tokenId)
-        }
-
-        fn isApprovedForAll(
-            self: @ContractState, owner: ContractAddress, operator: ContractAddress
-        ) -> bool {
-            self.is_approved_for_all(owner, operator)
-        }
-
-        fn setApprovalForAll(ref self: ContractState, operator: ContractAddress, approved: bool) {
-            self.set_approval_for_all(operator, approved)
-        }
-
-        fn transferFrom(
-            ref self: ContractState, from: ContractAddress, to: ContractAddress, tokenId: u256
-        ) {
-            self.transfer_from(from, to, tokenId)
-        }
-
-        fn safeTransferFrom(
-            ref self: ContractState,
-            from: ContractAddress,
-            to: ContractAddress,
-            tokenId: u256,
-            data: Span<felt252>
-        ) {
-            self.safe_transfer_from(from, to, tokenId, data)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC721MetadataImpl of IERC721Metadata<ContractState> {
-        fn name(self: @ContractState) -> felt252 {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721MetadataImpl::name(@unsafe_state)
-        }
-
-        fn symbol(self: @ContractState) -> felt252 {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721MetadataImpl::symbol(@unsafe_state)
-        }
-
-        fn token_uri(self: @ContractState, token_id: u256) -> felt252 {
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::ERC721MetadataImpl::token_uri(@unsafe_state, token_id)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC721MetadataCamelOnlyImpl of IERC721MetadataCamelOnly<ContractState> {
-        fn tokenURI(self: @ContractState, tokenId: u256) -> felt252 {
-            self.token_uri(tokenId)
-        }
-    }
-
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC3525Impl of IERC3525<ContractState> {
         fn value_decimals(self: @ContractState) -> u8 {
-            let unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::ERC3525Impl::value_decimals(@unsafe_state)
+            self.erc3525.value_decimals()
         }
 
         fn value_of(self: @ContractState, token_id: u256) -> u256 {
-            let unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::ERC3525Impl::value_of(@unsafe_state, token_id)
+            self.erc3525.value_of(token_id)
         }
 
         fn slot_of(self: @ContractState, token_id: u256) -> u256 {
-            let unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::ERC3525Impl::slot_of(@unsafe_state, token_id)
+            self.erc3525.slot_of(token_id)
         }
 
         fn approve_value(
             ref self: ContractState, token_id: u256, operator: ContractAddress, value: u256
         ) {
-            // Overwrite ERC3525 Impl with ERC3525 SlotApprovable Impl
-            let mut unsafe_state = ERC3525SlotApprovable::unsafe_new_contract_state();
-            ERC3525SlotApprovable::ExternalImpl::approve_value(
-                ref unsafe_state, token_id, operator, value
-            )
+            self.erc3525_slot_approvable.approve_value(token_id, operator, value)
         }
 
         fn allowance(self: @ContractState, token_id: u256, operator: ContractAddress) -> u256 {
-            let unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::ERC3525Impl::allowance(@unsafe_state, token_id, operator)
+            self.erc3525.allowance(token_id, operator)
         }
 
         fn transfer_value_from(
@@ -233,14 +153,10 @@ mod ERC3525MintableBurnableMSASE {
             value: u256
         ) -> u256 {
             // Overwrite ERC3525 Impl with ERC3525 SlotApprovable Impl
-            let mut unsafe_state = ERC3525SlotApprovable::unsafe_new_contract_state();
-            let token_id = ERC3525SlotApprovable::ExternalImpl::transfer_value_from(
-                ref unsafe_state, from_token_id, to_token_id, to, value
+            let token_id = self.erc3525_slot_approvable.transfer_value_from(
+                from_token_id, to_token_id, to, value
             );
-            let mut unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::InternalImpl::_after_transfer_value_from(
-                ref unsafe_state, token_id
-            );
+            self.erc3525_slot_enumerable._after_transfer_value_from(token_id);
             token_id
         }
     }
@@ -276,182 +192,60 @@ mod ERC3525MintableBurnableMSASE {
         }
     }
 
-    #[external(v0)]
-    impl ERC3525MetadataImpl of IERC3525Metadata<ContractState> {
-        fn contract_uri(self: @ContractState) -> felt252 {
-            let unsafe_state = ERC3525Metadata::unsafe_new_contract_state();
-            ERC3525Metadata::ERC3525MetadataImpl::contract_uri(@unsafe_state)
-        }
-
-        fn slot_uri(self: @ContractState, slot: u256) -> felt252 {
-            let unsafe_state = ERC3525Metadata::unsafe_new_contract_state();
-            ERC3525Metadata::ERC3525MetadataImpl::slot_uri(@unsafe_state, slot)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC3525MetadataCamelOnlyImpl of IERC3525MetadataCamelOnly<ContractState> {
-        fn contractURI(self: @ContractState) -> felt252 {
-            self.contract_uri()
-        }
-
-        fn slotURI(self: @ContractState, slot: u256) -> felt252 {
-            self.slot_uri(slot)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC3525SlotApprovableImpl of IERC3525SlotApprovable<ContractState> {
-        fn set_approval_for_slot(
-            ref self: ContractState,
-            owner: ContractAddress,
-            slot: u256,
-            operator: ContractAddress,
-            approved: bool
-        ) {
-            let mut unsafe_state = ERC3525SlotApprovable::unsafe_new_contract_state();
-            ERC3525SlotApprovable::ERC3525SlotApprovableImpl::set_approval_for_slot(
-                ref unsafe_state, owner, slot, operator, approved
-            )
-        }
-
-        fn is_approved_for_slot(
-            self: @ContractState, owner: ContractAddress, slot: u256, operator: ContractAddress
-        ) -> bool {
-            let unsafe_state = ERC3525SlotApprovable::unsafe_new_contract_state();
-            ERC3525SlotApprovable::ERC3525SlotApprovableImpl::is_approved_for_slot(
-                @unsafe_state, owner, slot, operator
-            )
-        }
-    }
-
-    #[external(v0)]
-    impl ERC3525SlotApprovableCamelOnlyImpl of IERC3525SlotApprovableCamelOnly<ContractState> {
-        fn setApprovalForSlot(
-            ref self: ContractState,
-            owner: ContractAddress,
-            slot: u256,
-            operator: ContractAddress,
-            approved: bool
-        ) {
-            self.set_approval_for_slot(owner, slot, operator, approved)
-        }
-
-        fn isApprovedForSlot(
-            self: @ContractState, owner: ContractAddress, slot: u256, operator: ContractAddress
-        ) -> bool {
-            self.is_approved_for_slot(owner, slot, operator)
-        }
-    }
-
-    #[external(v0)]
-    impl ERC3525SlotEnumerableImpl of IERC3525SlotEnumerable<ContractState> {
-        fn slot_count(self: @ContractState) -> u256 {
-            let unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::ERC3525SlotEnumerableImpl::slot_count(@unsafe_state)
-        }
-        fn slot_by_index(self: @ContractState, index: u256) -> u256 {
-            let unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::ERC3525SlotEnumerableImpl::slot_by_index(@unsafe_state, index)
-        }
-        fn token_supply_in_slot(self: @ContractState, slot: u256) -> u256 {
-            let unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::ERC3525SlotEnumerableImpl::token_supply_in_slot(
-                @unsafe_state, slot
-            )
-        }
-        fn token_in_slot_by_index(self: @ContractState, slot: u256, index: u256) -> u256 {
-            let unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::ERC3525SlotEnumerableImpl::token_in_slot_by_index(
-                @unsafe_state, slot, index
-            )
-        }
-    }
-
-    #[external(v0)]
-    impl ERC3525SlotEnumerableCamelOnlyImpl of IERC3525SlotEnumerableCamelOnly<ContractState> {
-        fn slotCount(self: @ContractState) -> u256 {
-            self.slot_count()
-        }
-        fn slotByIndex(self: @ContractState, index: u256) -> u256 {
-            self.slot_by_index(index)
-        }
-        fn tokenSupplyInSlot(self: @ContractState, slot: u256) -> u256 {
-            self.token_supply_in_slot(slot)
-        }
-        fn tokenInSlotByIndex(self: @ContractState, slot: u256, index: u256) -> u256 {
-            self.token_in_slot_by_index(slot, index)
-        }
-    }
-
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ExternalImpl of super::IExternal<ContractState> {
         fn total_value(self: @ContractState, slot: u256) -> u256 {
-            let unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::InternalImpl::_total_value(@unsafe_state, slot)
+            self.erc3525._total_value(slot)
         }
 
         fn mint(ref self: ContractState, to: ContractAddress, slot: u256, value: u256) -> u256 {
-            let mut unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::InternalImpl::_mint_new(ref unsafe_state, to, slot, value)
+            self.erc3525_slot_enumerable._mint_new(to, slot, value)
         }
 
         fn mint_value(ref self: ContractState, token_id: u256, value: u256) {
-            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::InternalImpl::_mint_value(ref unsafe_state, token_id, value)
+            self.erc3525._mint_value(token_id, value)
         }
 
         fn burn(ref self: ContractState, token_id: u256) {
             // [Check] Ensure that the caller is the owner of the token
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            let owner = ERC721::InternalImpl::_owner_of(@unsafe_state, token_id);
+            let owner = self.erc721._owner_of(token_id);
             assert(get_caller_address() == owner, 'ERC721Burnable: wrong caller');
             // [Effect] Burn the token
-            let mut unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::InternalImpl::_burn(ref unsafe_state, token_id)
+            self.erc3525_slot_enumerable._burn(token_id)
         }
 
         fn burn_value(ref self: ContractState, token_id: u256, value: u256) {
             // [Check] Ensure that the caller is the owner of the token
-            let unsafe_state = ERC721::unsafe_new_contract_state();
-            let owner = ERC721::InternalImpl::_owner_of(@unsafe_state, token_id);
+            let owner = self.erc721._owner_of(token_id);
             assert(get_caller_address() == owner, 'ERC3525Burnable: wrong caller');
             // [Effect] Burn the token
-            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::InternalImpl::_burn_value(ref unsafe_state, token_id, value)
+            self.erc3525._burn_value(token_id, value)
         }
 
         fn set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
-            let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::InternalImpl::_set_token_uri(ref unsafe_state, token_id, token_uri);
+            // TODO remove ability to set token uris or implement it outside of ERC721
+            // self.erc721._set_token_uri(token_id, token_uri)
         }
 
         fn set_contract_uri(ref self: ContractState, uri: felt252) {
-            let mut unsafe_state = ERC3525Metadata::unsafe_new_contract_state();
-            ERC3525Metadata::InternalImpl::_set_contract_uri(ref unsafe_state, uri)
+            self.erc3525_metadata._set_contract_uri(uri)
         }
 
         fn set_slot_uri(ref self: ContractState, slot: u256, uri: felt252) {
-            let mut unsafe_state = ERC3525Metadata::unsafe_new_contract_state();
-            ERC3525Metadata::InternalImpl::_set_slot_uri(ref unsafe_state, slot, uri)
+            self.erc3525_metadata._set_slot_uri(slot, uri)
         }
     }
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(
-            ref self: ContractState, name: felt252, symbol: felt252, value_decimals: u8
+            ref self: ContractState, name: ByteArray, symbol: ByteArray, value_decimals: u8
         ) {
-            let mut unsafe_state = ERC721::unsafe_new_contract_state();
-            ERC721::InternalImpl::initializer(ref unsafe_state, name, symbol);
-            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::InternalImpl::initializer(ref unsafe_state, value_decimals);
-            let mut unsafe_state = ERC3525Metadata::unsafe_new_contract_state();
-            ERC3525Metadata::InternalImpl::initializer(ref unsafe_state);
-            let mut unsafe_state = ERC3525SlotApprovable::unsafe_new_contract_state();
-            ERC3525SlotApprovable::InternalImpl::initializer(ref unsafe_state);
-            let mut unsafe_state = ERC3525SlotEnumerable::unsafe_new_contract_state();
-            ERC3525SlotEnumerable::InternalImpl::initializer(ref unsafe_state);
+            self.erc721.initializer(name, symbol, ""); // TODO
+            self.erc3525.initializer(value_decimals);
+            self.erc3525_metadata.initializer();
+            self.erc3525_slot_approvable.initializer();
+            self.erc3525_slot_enumerable.initializer();
         }
     }
 }
