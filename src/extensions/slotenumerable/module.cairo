@@ -1,5 +1,5 @@
-#[starknet::contract]
-mod ERC3525SlotEnumerable {
+#[starknet::component]
+mod ERC3525SlotEnumerableComponent {
     // Core deps
     use traits::Into;
     use zeroable::Zeroable;
@@ -9,13 +9,21 @@ mod ERC3525SlotEnumerable {
     use starknet::{get_caller_address, ContractAddress};
 
     // External deps
-    use openzeppelin::introspection::src5::SRC5;
-    use openzeppelin::token::erc721::erc721::ERC721;
+    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
+    use openzeppelin::introspection::src5::SRC5Component;
+
+    use openzeppelin::token::erc721::erc721::ERC721Component::InternalTrait as ERC721InternalTrait;
+    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721; // TODO remove all unused imports
+    use openzeppelin::token::erc721::erc721::ERC721Component;
 
     // Local deps
-    use cairo_erc_3525::module::ERC3525;
+    use cairo_erc_3525::module::ERC3525Component::AssertTrait as ERC3525AssertTrait;
+    use cairo_erc_3525::module::ERC3525Component::InternalTrait as ERC3525InternalTrait;
+    use cairo_erc_3525::module::ERC3525Component::ERC3525;
+    use cairo_erc_3525::module::ERC3525Component;
     use cairo_erc_3525::extensions::slotenumerable::interface::{
-        IERC3525SlotEnumerable, IERC3525_SLOT_ENUMERABLE_ID
+        IERC3525SlotEnumerable, IERC3525SlotEnumerableCamelOnly, IERC3525_SLOT_ENUMERABLE_ID
     };
 
     #[storage]
@@ -34,22 +42,29 @@ mod ERC3525SlotEnumerable {
         const SLOT_DOES_NOT_EXIST: felt252 = 'ERC3525: slot does not exist';
     }
 
-    #[external(v0)]
-    impl ERC3525SlotEnumerableImpl of IERC3525SlotEnumerable<ContractState> {
-        fn slot_count(self: @ContractState) -> u256 {
+    #[embeddable_as(ERC3525SlotEnumerableImpl)]
+    impl ERC3525SlotEnumerable<
+        TContractState,
+        +HasComponent<TContractState>,
+        +Drop<TContractState>,
+        impl ERC3525Comp: ERC3525Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl ERC721Comp: ERC721Component::HasComponent<TContractState>
+    > of IERC3525SlotEnumerable<ComponentState<TContractState>> {
+        fn slot_count(self: @ComponentState<TContractState>) -> u256 {
             self._erc3525_slot_enumerables_len.read()
         }
 
-        fn slot_by_index(self: @ContractState, index: u256) -> u256 {
+        fn slot_by_index(self: @ComponentState<TContractState>, index: u256) -> u256 {
             // [Check] Index is in range
             let count = self._erc3525_slot_enumerables_len.read();
             assert(index < count, Errors::INDEX_OUT_OF_BOUNDS);
             self._erc3525_slot_enumerables.read(index)
         }
-        fn token_supply_in_slot(self: @ContractState, slot: u256) -> u256 {
+        fn token_supply_in_slot(self: @ComponentState<TContractState>, slot: u256) -> u256 {
             self._erc3525_slot_tokens_len.read(slot)
         }
-        fn token_in_slot_by_index(self: @ContractState, slot: u256, index: u256) -> u256 {
+        fn token_in_slot_by_index(self: @ComponentState<TContractState>, slot: u256, index: u256) -> u256 {
             // [Check] Index is in range
             let supply = self._erc3525_slot_tokens_len.read(slot);
             assert(index < supply, Errors::INDEX_OUT_OF_BOUNDS);
@@ -57,31 +72,61 @@ mod ERC3525SlotEnumerable {
         }
     }
 
+    #[embeddable_as(ERC3525SlotEnumerableCamelOnlyImpl)]
+    impl ERC3525SlotEnumerableCamelOnly<
+        TContractState,
+        +HasComponent<TContractState>,
+        +Drop<TContractState>,
+        impl ERC3525Comp: ERC3525Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl ERC721Comp: ERC721Component::HasComponent<TContractState>
+    > of IERC3525SlotEnumerableCamelOnly<ComponentState<TContractState>> {
+        fn slotCount(self: @ComponentState<TContractState>) -> u256 {
+            self.slot_count()
+        }
+        fn slotByIndex(self: @ComponentState<TContractState>, index: u256) -> u256 {
+            self.slot_by_index(index)
+        }
+        fn tokenSupplyInSlot(self: @ComponentState<TContractState>, slot: u256) -> u256 {
+            self.token_supply_in_slot(slot)
+        }
+        fn tokenInSlotByIndex(self: @ComponentState<TContractState>, slot: u256, index: u256) -> u256 {
+            self.token_in_slot_by_index(slot, index)
+        }
+    }
+
     #[generate_trait]
-    impl InternalImpl of InternalTrait {
-        fn initializer(ref self: ContractState) {
+    impl InternalImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +Drop<TContractState>,
+        impl ERC3525Comp: ERC3525Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl ERC721Comp: ERC721Component::HasComponent<TContractState>
+    > of InternalTrait<TContractState> {
+        fn initializer(ref self: ComponentState<TContractState>) {
             // [Effect] Register interfaces
-            let mut unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::InternalImpl::register_interface(ref unsafe_state, IERC3525_SLOT_ENUMERABLE_ID);
+            let mut src5_comp = get_dep_component_mut!(ref self, SRC5);
+            src5_comp.register_interface(IERC3525_SLOT_ENUMERABLE_ID);
         }
 
-        fn _slot_exists(self: @ContractState, slot: u256) -> bool {
+        fn _slot_exists(self: @ComponentState<TContractState>, slot: u256) -> bool {
             let index = self._erc3525_slot_enumerables_index.read(slot);
             self._erc3525_slot_enumerables.read(index) == slot && slot != 0
         }
 
-        fn _token_exists(self: @ContractState, slot: u256, token_id: u256) -> bool {
+        fn _token_exists(self: @ComponentState<TContractState>, slot: u256, token_id: u256) -> bool {
             let index = self._erc3525_slot_tokens_index.read((slot, token_id));
             self._erc3525_slot_tokens.read((slot, index)) == token_id && token_id != 0
         }
 
-        fn _after_transfer_value_from(ref self: ContractState, token_id: u256) {
+        fn _after_transfer_value_from(ref self: ComponentState<TContractState>, token_id: u256) {
             // [Check] Token exists
-            let unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::AssertImpl::_assert_minted(@unsafe_state, token_id);
+            let erc3525_comp = get_dep_component!(@self, ERC3525Comp);
+            erc3525_comp._assert_minted(token_id);
 
             // [Effect] Add token to enumeration if new
-            let slot = ERC3525::ERC3525Impl::slot_of(@unsafe_state, token_id);
+            let slot = erc3525_comp.slot_of(token_id);
             if self._token_exists(slot, token_id) {
                 return ();
             }
@@ -89,11 +134,11 @@ mod ERC3525SlotEnumerable {
         }
 
         fn _mint_new(
-            ref self: ContractState, to: ContractAddress, slot: u256, value: u256
+            ref self: ComponentState<TContractState>, to: ContractAddress, slot: u256, value: u256
         ) -> u256 {
             // [Effect] Mint new
-            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            let token_id = ERC3525::InternalImpl::_mint_new(ref unsafe_state, to, slot, value);
+            let mut erc3525_comp = get_dep_component_mut!(ref self, ERC3525Comp);
+            let token_id = erc3525_comp._mint_new(to, slot, value);
 
             // [Effect] Add slot to enumeration if new
             if !self._slot_exists(slot) {
@@ -106,11 +151,11 @@ mod ERC3525SlotEnumerable {
         }
 
         fn _mint(
-            ref self: ContractState, to: ContractAddress, token_id: u256, slot: u256, value: u256
+            ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256, slot: u256, value: u256
         ) {
             // [Effect] Mint
-            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::InternalImpl::_mint(ref unsafe_state, to, token_id, slot, value);
+            let mut erc3525_comp = get_dep_component_mut!(ref self, ERC3525Comp);
+            erc3525_comp._mint(to, token_id, slot, value);
 
             // [Effect] Add slot to enumeration if new
             if !self._slot_exists(slot) {
@@ -121,18 +166,18 @@ mod ERC3525SlotEnumerable {
             self._add_token_to_slot_enumeration(slot, token_id);
         }
 
-        fn _burn(ref self: ContractState, token_id: u256) {
+        fn _burn(ref self: ComponentState<TContractState>, token_id: u256) {
             // [Effect] Remove token from enumeration
-            let unsafe_state = ERC3525::unsafe_new_contract_state();
-            let slot = ERC3525::ERC3525Impl::slot_of(@unsafe_state, token_id);
+            let erc3525_comp = get_dep_component!(@self, ERC3525Comp);
+            let slot = erc3525_comp.slot_of(token_id);
             self._remove_token_from_slot_enumeration(slot, token_id);
 
             // [Effect] Burn
-            let mut unsafe_state = ERC3525::unsafe_new_contract_state();
-            ERC3525::InternalImpl::_burn(ref unsafe_state, token_id)
+            let mut erc3525_comp = get_dep_component_mut!(ref self, ERC3525Comp);
+            erc3525_comp._burn(token_id)
         }
 
-        fn _add_slot_to_slots_enumeration(ref self: ContractState, slot: u256) {
+        fn _add_slot_to_slots_enumeration(ref self: ComponentState<TContractState>, slot: u256) {
             // [Effect] Store new slot
             let index = self._erc3525_slot_enumerables_len.read();
             self._erc3525_slot_enumerables_len.write(index + 1);
@@ -140,7 +185,7 @@ mod ERC3525SlotEnumerable {
             self._erc3525_slot_enumerables_index.write(slot, index);
         }
 
-        fn _add_token_to_slot_enumeration(ref self: ContractState, slot: u256, token_id: u256) {
+        fn _add_token_to_slot_enumeration(ref self: ComponentState<TContractState>, slot: u256, token_id: u256) {
             // [Effect] Store new token
             let index = self._erc3525_slot_tokens_len.read(slot);
             self._erc3525_slot_tokens_len.write(slot, index + 1);
@@ -149,7 +194,7 @@ mod ERC3525SlotEnumerable {
         }
 
         fn _remove_token_from_slot_enumeration(
-            ref self: ContractState, slot: u256, token_id: u256
+            ref self: ComponentState<TContractState>, slot: u256, token_id: u256
         ) {
             // [Compute] Read last token
             let supply = self._erc3525_slot_tokens_len.read(slot);
@@ -171,12 +216,19 @@ mod ERC3525SlotEnumerable {
     }
 
     #[generate_trait]
-    impl AssertImpl of AssertTrait {
-        fn _assert_slot_exists(self: @ContractState, slot: u256) {
+    impl AssertImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +Drop<TContractState>,
+        impl ERC3525Comp: ERC3525Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl ERC721Comp: ERC721Component::HasComponent<TContractState>
+    > of AssertTrait<TContractState> {
+        fn _assert_slot_exists(self: @ComponentState<TContractState>, slot: u256) {
             // [Check] Slot exists
             assert(self._slot_exists(slot), Errors::SLOT_DOES_NOT_EXIST);
         }
-        fn _assert_slot_not_exists(self: @ContractState, slot: u256) {
+        fn _assert_slot_not_exists(self: @ComponentState<TContractState>, slot: u256) {
             // [Check] Slot not exists
             assert(!self._slot_exists(slot), Errors::SLOT_ALREADY_EXISTS);
         }
