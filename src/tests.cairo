@@ -15,6 +15,7 @@ mod unit {
 mod mocks {
     mod account;
     mod receiver;
+    mod contracts;
 }
 
 #[cfg(test)]

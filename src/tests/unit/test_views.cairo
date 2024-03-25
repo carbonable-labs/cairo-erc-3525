@@ -10,20 +10,23 @@ use starknet::testing::set_caller_address;
 
 // External imports
 
-use openzeppelin::token::erc721::erc721::ERC721;
+use openzeppelin::token::erc721::erc721::ERC721Component::{ ERC721Impl, InternalImpl as ERC721InternalImpl };
+use openzeppelin::token::erc721::erc721::ERC721Component;
 
 // Local imports
 
-use cairo_erc_3525::module::ERC3525;
+use cairo_erc_3525::module::ERC3525Component::{ ERC3525Impl, InternalImpl };
+use cairo_erc_3525::module::ERC3525Component;
 use cairo_erc_3525::tests::unit::constants::{
-    STATE, VALUE_DECIMALS, TOKEN_ID_1, TOKEN_ID_2, SLOT_1, SLOT_2, VALUE, OWNER
+    ERC3525ComponentState,
+    COMPONENT_STATE, CONTRACT_STATE, VALUE_DECIMALS, TOKEN_ID_1, TOKEN_ID_2, SLOT_1, SLOT_2, VALUE, OWNER
 };
 
 // Settings
 
-fn setup() -> ERC3525::ContractState {
-    let mut state = STATE();
-    ERC3525::InternalImpl::initializer(ref state, VALUE_DECIMALS);
+fn setup() -> ERC3525ComponentState {
+    let mut state = COMPONENT_STATE();
+    state.initializer(VALUE_DECIMALS);
     state
 }
 
@@ -31,13 +34,13 @@ fn setup() -> ERC3525::ContractState {
 #[available_gas(20000000)]
 fn test_value_of() {
     let mut state = setup();
+    let mut mock_state = CONTRACT_STATE();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    let value = ERC3525::ERC3525Impl::value_of(@state, TOKEN_ID_1);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    let value = state.value_of(TOKEN_ID_1);
     assert(value == VALUE, 'Wrong value');
     // ERC721 setup
-    let erc721_state = ERC721::unsafe_new_contract_state();
-    let balance = ERC721::ERC721Impl::balance_of(@erc721_state, OWNER());
+    let balance = mock_state.balance_of(OWNER());
     assert(balance == 1, 'Wrong balance');
 }
 
@@ -46,7 +49,7 @@ fn test_value_of() {
 #[should_panic(expected: ('ERC3525: token not minted',))]
 fn test_value_of_revert_token_not_minted() {
     let mut state = setup();
-    ERC3525::ERC3525Impl::value_of(@state, TOKEN_ID_1);
+    state.value_of(TOKEN_ID_1);
 }
 
 #[test]
@@ -54,8 +57,8 @@ fn test_value_of_revert_token_not_minted() {
 fn test_slot_of() {
     let mut state = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    let slot = ERC3525::ERC3525Impl::slot_of(@state, TOKEN_ID_1);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    let slot = state.slot_of(TOKEN_ID_1);
     assert(slot == SLOT_1, 'Wrong slot');
 }
 
@@ -65,7 +68,7 @@ fn test_slot_of() {
 fn test_slot_of_revert_token_not_minted() {
     let mut state = setup();
     set_caller_address(OWNER());
-    ERC3525::ERC3525Impl::slot_of(@state, TOKEN_ID_1);
+    state.slot_of(TOKEN_ID_1);
 }
 
 #[test]
@@ -73,10 +76,10 @@ fn test_slot_of_revert_token_not_minted() {
 fn test_total_value() {
     let mut state = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), 1, SLOT_1, 1 * VALUE);
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), 2, SLOT_1, 2 * VALUE);
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), 3, SLOT_2, 3 * VALUE);
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), 4, SLOT_2, 4 * VALUE);
-    assert(ERC3525::InternalImpl::_total_value(@state, SLOT_1) == 3 * VALUE, 'Wrong total value');
-    assert(ERC3525::InternalImpl::_total_value(@state, SLOT_2) == 7 * VALUE, 'Wrong total value');
+    state._mint(OWNER(), 1, SLOT_1, 1 * VALUE);
+    state._mint(OWNER(), 2, SLOT_1, 2 * VALUE);
+    state._mint(OWNER(), 3, SLOT_2, 3 * VALUE);
+    state._mint(OWNER(), 4, SLOT_2, 4 * VALUE);
+    assert(state._total_value(SLOT_1) == 3 * VALUE, 'Wrong total value');
+    assert(state._total_value(SLOT_2) == 7 * VALUE, 'Wrong total value');
 }

@@ -10,14 +10,17 @@ use starknet::testing::set_caller_address;
 
 // External imports
 
-use openzeppelin::token::erc721::erc721::ERC721;
+use openzeppelin::token::erc721::erc721::ERC721Component::{ ERC721Impl, InternalImpl as ERC721InternalImpl };
+use openzeppelin::token::erc721::erc721::ERC721Component;
 
 // Local imports
 
 use cairo_erc_3525::tests::mocks::account::Account;
-use cairo_erc_3525::module::ERC3525;
+use cairo_erc_3525::module::ERC3525Component::{ ERC3525Impl, InternalImpl };
+use cairo_erc_3525::module::ERC3525Component;
 use cairo_erc_3525::tests::unit::constants::{
-    STATE, VALUE_DECIMALS, TOKEN_ID_1, TOKEN_ID_2, SLOT_1, VALUE, ZERO, OWNER, OPERATOR
+    ERC3525ComponentState,
+    COMPONENT_STATE, CONTRACT_STATE, VALUE_DECIMALS, TOKEN_ID_1, TOKEN_ID_2, SLOT_1, VALUE, ZERO, OWNER, OPERATOR
 };
 
 // Settings
@@ -30,11 +33,11 @@ fn deploy_account(
     address
 }
 
-fn setup() -> (ERC3525::ContractState, ContractAddress) {
-    let mut state = STATE();
+fn setup() -> (ERC3525ComponentState, ContractAddress) {
+    let mut state = COMPONENT_STATE();
     let class_hash = Account::TEST_CLASS_HASH.try_into().unwrap();
     let receiver = deploy_account(class_hash, 'RECEIVER');
-    ERC3525::InternalImpl::initializer(ref state, VALUE_DECIMALS);
+    state.initializer(VALUE_DECIMALS);
     (state, receiver)
 }
 
@@ -43,12 +46,12 @@ fn setup() -> (ERC3525::ContractState, ContractAddress) {
 fn test_transfer_to_token() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
-    let from_value = ERC3525::ERC3525Impl::value_of(@state, TOKEN_ID_1);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    let from_value = state.value_of(TOKEN_ID_1);
     assert(from_value == 0, 'Wrong value');
-    let to_value = ERC3525::ERC3525Impl::value_of(@state, TOKEN_ID_2);
+    let to_value = state.value_of(TOKEN_ID_2);
     assert(to_value == VALUE, 'Wrong value');
 }
 
@@ -56,15 +59,15 @@ fn test_transfer_to_token() {
 #[available_gas(20000000)]
 fn test_transfer_to_token_approved_can_transfer() {
     let (mut state, receiver) = setup();
+    let mut mock_state = CONTRACT_STATE();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
     // ERC721 setup
-    let mut erc721_state = ERC721::unsafe_new_contract_state();
-    ERC721::ERC721Impl::approve(ref erc721_state, OPERATOR(), TOKEN_ID_1);
+    mock_state.erc721.approve(OPERATOR(), TOKEN_ID_1);
     // ERC3525 
     set_caller_address(OPERATOR());
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
 }
 
 #[test]
@@ -72,14 +75,14 @@ fn test_transfer_to_token_approved_can_transfer() {
 fn test_transfer_to_token_value_approved_can_transfer() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
-    ERC3525::ERC3525Impl::approve_value(ref state, TOKEN_ID_1, OPERATOR(), 2 * VALUE);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
+    state.approve_value(TOKEN_ID_1, OPERATOR(), 2 * VALUE);
     // // ERC3525
-    let initial_allowance = ERC3525::ERC3525Impl::allowance(@state, TOKEN_ID_1, OPERATOR());
+    let initial_allowance = state.allowance(TOKEN_ID_1, OPERATOR());
     set_caller_address(OPERATOR());
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
-    let final_allowance = ERC3525::ERC3525Impl::allowance(@state, TOKEN_ID_1, OPERATOR());
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    let final_allowance = state.allowance(TOKEN_ID_1, OPERATOR());
     assert(initial_allowance == VALUE + final_allowance, 'Wrong allowance');
 }
 
@@ -88,13 +91,13 @@ fn test_transfer_to_token_value_approved_can_transfer() {
 fn test_transfer_to_token_unlimited_value_approved_can_transfer() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
-    ERC3525::ERC3525Impl::approve_value(ref state, TOKEN_ID_1, OPERATOR(), BoundedInt::max());
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
+    state.approve_value(TOKEN_ID_1, OPERATOR(), BoundedInt::max());
     // // ERC3525
     set_caller_address(OPERATOR());
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
-    let final_allowance = ERC3525::ERC3525Impl::allowance(@state, TOKEN_ID_1, OPERATOR());
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    let final_allowance = state.allowance(TOKEN_ID_1, OPERATOR());
     assert(final_allowance == BoundedInt::max(), 'Wrong allowance');
 }
 
@@ -102,15 +105,15 @@ fn test_transfer_to_token_unlimited_value_approved_can_transfer() {
 #[available_gas(20000000)]
 fn test_transfer_to_token_approved_for_all_can_transfer() {
     let (mut state, receiver) = setup();
+    let mut mock_state = CONTRACT_STATE();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
     // ERC721 setup
-    let mut erc721_state = ERC721::unsafe_new_contract_state();
-    ERC721::ERC721Impl::set_approval_for_all(ref erc721_state, OPERATOR(), true);
+    mock_state.erc721.set_approval_for_all(OPERATOR(), true);
     // // ERC3525
     set_caller_address(OPERATOR());
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
 }
 
 #[test]
@@ -118,11 +121,11 @@ fn test_transfer_to_token_approved_for_all_can_transfer() {
 fn test_transfer_to_token_owner_can_transfer_value_to_himself() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
+    state._mint(receiver, TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
     // // ERC3525
     set_caller_address(receiver);
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
 }
 
 #[test]
@@ -131,11 +134,11 @@ fn test_transfer_to_token_owner_can_transfer_value_to_himself() {
 fn test_transfer_to_token_not_approved_cannot_transfer_value() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
     // // ERC3525
     set_caller_address(OPERATOR());
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
 }
 
 #[test]
@@ -144,10 +147,10 @@ fn test_transfer_to_token_not_approved_cannot_transfer_value() {
 fn test_transfer_to_token_revert_value_exceeds_balance() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
     // // ERC3525
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE + 1);
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE + 1);
 }
 
 #[test]
@@ -156,12 +159,12 @@ fn test_transfer_to_token_revert_value_exceeds_balance() {
 fn test_transfer_to_token_revert_insufficient_allowance() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
-    ERC3525::ERC3525Impl::approve_value(ref state, TOKEN_ID_1, OPERATOR(), VALUE - 1);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
+    state.approve_value(TOKEN_ID_1, OPERATOR(), VALUE - 1);
     // // ERC3525
     set_caller_address(OPERATOR());
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
 }
 
 #[test]
@@ -170,7 +173,7 @@ fn test_transfer_to_token_revert_insufficient_allowance() {
 fn test_transfer_to_token_revert_invalid_from_token_id() {
     let (mut state, receiver) = setup();
     set_caller_address(OWNER());
-    ERC3525::InternalImpl::_mint(ref state, OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    ERC3525::InternalImpl::_mint(ref state, receiver, TOKEN_ID_2, SLOT_1, 0);
-    ERC3525::ERC3525Impl::transfer_value_from(ref state, 0, TOKEN_ID_2, ZERO(), VALUE);
+    state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
+    state._mint(receiver, TOKEN_ID_2, SLOT_1, 0);
+    state.transfer_value_from(0, TOKEN_ID_2, ZERO(), VALUE);
 }
