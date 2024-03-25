@@ -32,9 +32,10 @@ struct Signers {
 }
 
 fn deploy_contract(class_hash: starknet::class_hash::ClassHash) -> ContractAddress {
-    let calldata: Array<felt252> = array![
-        constants::NAME, constants::SYMBOL, constants::VALUE_DECIMALS.into()
-    ];
+    let mut calldata: Array<felt252> = ArrayTrait::new();
+    constants::NAME().serialize(ref calldata);
+    constants::SYMBOL().serialize(ref calldata);
+    constants::VALUE_DECIMALS.serialize(ref calldata);
     let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false).unwrap();
     address
 }
