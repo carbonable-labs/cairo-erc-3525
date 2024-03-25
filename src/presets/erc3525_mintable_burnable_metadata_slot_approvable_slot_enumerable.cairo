@@ -161,7 +161,7 @@ mod ERC3525MintableBurnableMSASE {
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC3525CamelOnlyImpl of IERC3525CamelOnly<ContractState> {
         fn valueDecimals(self: @ContractState) -> u8 {
             self.value_decimals()

@@ -15,11 +15,13 @@ const TRANSACTION_VERSION: felt252 = 1;
 // 2**128 + TRANSACTION_VERSION
 const QUERY_VERSION: felt252 = 340282366920938463463374607431768211457;
 
+#[starknet::interface]
 trait PublicKeyTrait<TState> {
     fn set_public_key(ref self: TState, new_public_key: felt252);
     fn get_public_key(self: @TState) -> felt252;
 }
 
+#[starknet::interface]
 trait PublicKeyCamelTrait<TState> {
     fn setPublicKey(ref self: TState, newPublicKey: felt252);
     fn getPublicKey(self: @TState) -> felt252;

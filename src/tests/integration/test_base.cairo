@@ -80,8 +80,8 @@ fn test_integration_base_scenario() {
     let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
     let two = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
     let three = external.mint(signers.someone, constants::SLOT_1, constants::VALUE);
-    let four = external.mint(signers.anyone, constants::SLOT_1, constants::VALUE);
-    let five = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
+    let _four = external.mint(signers.anyone, constants::SLOT_1, constants::VALUE);
+    let _five = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
     let six = external.mint(signers.owner, constants::SLOT_2, constants::VALUE);
     let seven = external.mint(signers.someone, constants::SLOT_2, constants::VALUE);
     let height = external.mint(signers.someone, constants::SLOT_2, constants::VALUE);

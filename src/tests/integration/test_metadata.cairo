@@ -79,13 +79,13 @@ fn test_integration_metadata_scenario() {
     // Setup
     let (contract_address, signers) = __setup__();
     let external = IExternalDispatcher { contract_address };
-    let erc3525 = IERC3525Dispatcher { contract_address };
+    let _erc3525 = IERC3525Dispatcher { contract_address };
     let erc3525_metadata = IERC3525MetadataDispatcher { contract_address };
-    let erc721 = IERC721Dispatcher { contract_address };
+    let _erc721 = IERC721Dispatcher { contract_address };
 
     // Mint tokens
-    let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
-    let two = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
+    let _one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
+    let _two = external.mint(signers.operator, constants::SLOT_1, constants::VALUE);
 
     // Assert metadata
     assert(erc3525_metadata.contract_uri() == 0, 'Wrong contract uri');

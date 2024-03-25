@@ -42,21 +42,21 @@ mod Receiver {
         self.initializer();
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
             self.src5.supports_interface(interface_id)
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ReceiverImpl of IReceiver<ContractState> {
         fn called(self: @ContractState) -> bool {
             self._called.read()
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC3525ReceiverImpl of IERC3525Receiver<ContractState> {
         fn on_erc3525_received(
             ref self: ContractState,
