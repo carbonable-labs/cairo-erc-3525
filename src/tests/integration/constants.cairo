@@ -4,8 +4,6 @@ use zeroable::Zeroable;
 
 // Constants
 
-const NAME: felt252 = 'NAME';
-const SYMBOL: felt252 = 'SYMBOL';
 const VALUE_DECIMALS: u8 = 6;
 const TOKEN_ID_1: u256 = 1;
 const TOKEN_ID_2: u256 = 2;
@@ -44,4 +42,12 @@ fn SOMEONE() -> ContractAddress {
 
 fn ANYONE() -> ContractAddress {
     contract_address_const::<'ANYONE'>()
+}
+
+fn NAME() -> ByteArray {
+    "NAME"
+}
+
+fn SYMBOL() -> ByteArray {
+    "SYMBOL"
 }
