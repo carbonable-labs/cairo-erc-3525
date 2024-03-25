@@ -188,7 +188,7 @@ fn test_slot_enumerable_token_in_slot_by_index() {
 #[available_gas(20000000)]
 #[should_panic(expected: ('ERC3525: index out of bounds',))]
 fn test_slot_enumerable_token_in_slot_by_index_revert_out_of_bounds() {
-    let (mut state, receiver) = setup();
+    let (mut state, _) = setup();
     // [Assert] Token in slot by index
     state.token_in_slot_by_index(SLOT_1, 0);
 }
@@ -197,7 +197,7 @@ fn test_slot_enumerable_token_in_slot_by_index_revert_out_of_bounds() {
 #[available_gas(20000000)]
 #[should_panic(expected: ('ERC3525: index out of bounds',))]
 fn test_slot_enumerable_token_in_slot_by_index_revert_overflow() {
-    let (mut state, receiver) = setup();
+    let (mut state, _) = setup();
     // [Assert] Token in slot by index
     state.token_in_slot_by_index(SLOT_1, BoundedInt::max()
     );

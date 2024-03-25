@@ -308,7 +308,7 @@ mod ERC3525Component {
 
             // [Effect] Update total value
             let slot = self.slot_of(token_id);
-            let total = self._erc3525_total_value.read(slot);
+            let _total = self._erc3525_total_value.read(slot);
             self._erc3525_total_value.write(slot, self._erc3525_total_value.read(slot) + value);
 
             // [Event] Emit TransferValue

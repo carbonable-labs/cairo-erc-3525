@@ -64,13 +64,13 @@ fn __setup__() -> (ContractAddress, Signers, ContractAddress) {
 fn test_integration_receiver_scenario() {
     // Setup
     let (contract_address, signers, receiver_address) = __setup__();
-    let receiver = IReceiverDispatcher { contract_address: receiver_address };
+    let _receiver = IReceiverDispatcher { contract_address: receiver_address };
     let external = IExternalDispatcher { contract_address };
-    let erc3525 = IERC3525Dispatcher { contract_address };
-    let erc721 = IERC721Dispatcher { contract_address };
+    let _erc3525 = IERC3525Dispatcher { contract_address };
+    let _erc721 = IERC721Dispatcher { contract_address };
 
     // Mint tokens
-    let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
+    let _one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
 // // Assert receiver
 // assert(receiver.called() == false, 'Wrong receiver called');
 

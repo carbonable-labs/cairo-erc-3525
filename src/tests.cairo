@@ -18,6 +18,8 @@ mod mocks {
     mod contracts;
 }
 
+mod utils;
+
 #[cfg(test)]
 mod integration {
     mod constants;

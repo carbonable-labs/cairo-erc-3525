@@ -168,7 +168,7 @@ fn test_transfer_to_address_revert_invalid_from_token_id() {
 #[available_gas(20000000)]
 #[should_panic(expected: ('ERC3525: mutually excl args set',))]
 fn test_transfer_to_address_revert_both_unset() {
-    let (mut state, receiver) = setup();
+    let (mut state, _) = setup();
     set_caller_address(OWNER());
     state._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
     state.transfer_value_from(TOKEN_ID_1, 0, ZERO(), VALUE);

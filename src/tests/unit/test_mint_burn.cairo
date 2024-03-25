@@ -11,12 +11,12 @@ use starknet::testing::set_caller_address;
 
 use openzeppelin::token::erc721::erc721::ERC721Component::{ ERC721Impl, InternalImpl as ERC721InternalImpl };
 use openzeppelin::token::erc721::erc721::ERC721Component;
-use openzeppelin::tests::utils;
 
 // Local imports
 
 use cairo_erc_3525::module::ERC3525Component::{ ERC3525Impl, InternalImpl };
 use cairo_erc_3525::module::ERC3525Component;
+use cairo_erc_3525::tests::utils;
 use cairo_erc_3525::tests::unit::constants::{
     ERC3525ComponentState,
     COMPONENT_STATE, CONTRACT_STATE, VALUE_DECIMALS, TOKEN_ID_1, SLOT_1, VALUE, ZERO, OWNER
@@ -129,9 +129,9 @@ fn test_burn() {
     state._burn(TOKEN_ID_1);
 
     // [Setup] mint Transfer, SlotChanged and TransferValue events
-    let event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
-    let event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
-    let event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
+    let _event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
+    let _event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
+    let _event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
         .unwrap();
 
     // [Assert] Events
@@ -150,7 +150,7 @@ fn test_burn() {
     assert(event.new_slot == 0, 'Wrong new_slot value');
 
     // [Assert] Token does not exist anymore
-    let value = state.value_of(TOKEN_ID_1);
+    let _value = state.value_of(TOKEN_ID_1);
 }
 
 #[test]
@@ -163,9 +163,9 @@ fn test_burn_value() {
     state._burn_value(TOKEN_ID_1, VALUE);
 
     // [Setup] mint Transfer, SlotChanged and TransferValue events
-    let event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
-    let event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
-    let event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
+    let _event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
+    let _event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
+    let _event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
         .unwrap();
 
     // [Assert] Events

@@ -85,7 +85,7 @@ fn test_integration_slot_enumerable_scenario() {
     let external = IExternalDispatcher { contract_address };
     let erc3525 = IERC3525Dispatcher { contract_address };
     let erc3525_se = IERC3525SlotEnumerableDispatcher { contract_address };
-    let erc721 = IERC721Dispatcher { contract_address };
+    let _erc721 = IERC721Dispatcher { contract_address };
 
     // Mint tokens
     let one = external.mint(signers.owner, constants::SLOT_1, constants::VALUE);
