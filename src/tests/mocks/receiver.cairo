@@ -10,16 +10,32 @@ mod Receiver {
 
     // External deps
     use openzeppelin::introspection::interface::{ISRC5, ISRC5Dispatcher, ISRC5DispatcherTrait};
-    use openzeppelin::introspection::src5::SRC5;
+    use openzeppelin::introspection::src5::SRC5Component;
     use cairo_erc_3525::interface::{IERC3525Receiver, IERC3525_RECEIVER_ID};
 
     // Local deps
     use super::IReceiver;
 
+    // Components
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // Component implementations
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        src5: SRC5Component::Storage,
         _called: bool
     }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+    }
+
 
     #[constructor]
     fn constructor(ref self: ContractState) {
@@ -29,8 +45,7 @@ mod Receiver {
     #[external(v0)]
     impl SRC5Impl of ISRC5<ContractState> {
         fn supports_interface(self: @ContractState, interface_id: felt252) -> bool {
-            let unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::SRC5Impl::supports_interface(@unsafe_state, interface_id)
+            self.src5.supports_interface(interface_id)
         }
     }
 
@@ -60,8 +75,7 @@ mod Receiver {
     impl InternalImpl of InternalTrait {
         fn initializer(ref self: ContractState) {
             // [Effect] Register interfaces
-            let mut unsafe_state = SRC5::unsafe_new_contract_state();
-            SRC5::InternalImpl::register_interface(ref unsafe_state, IERC3525_RECEIVER_ID);
+            self.src5.register_interface(IERC3525_RECEIVER_ID);
         }
     }
 }

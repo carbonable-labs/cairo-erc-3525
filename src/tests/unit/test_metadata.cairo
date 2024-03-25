@@ -10,20 +10,24 @@ use starknet::testing::set_caller_address;
 
 // External imports
 
-use openzeppelin::token::erc721::erc721::ERC721;
+use openzeppelin::token::erc721::erc721::ERC721Component;
 
 // Local imports
 
 use cairo_erc_3525::tests::mocks::account::Account;
-use cairo_erc_3525::module::ERC3525;
-use cairo_erc_3525::extensions::metadata::module::ERC3525Metadata;
-use cairo_erc_3525::tests::unit::constants::{STATE, STATE_METADATA, VALUE_DECIMALS, SLOT_1, SLOT_2};
+use cairo_erc_3525::module::ERC3525Component;
+use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent::{ ERC3525MetadataImpl, InternalImpl };
+use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent;
+use cairo_erc_3525::tests::unit::constants::{
+    ERC3525MetadataComponentState,
+    COMPONENT_STATE, COMPONENT_STATE_METADATA, VALUE_DECIMALS, SLOT_1, SLOT_2
+};
 
 // Settings
 
-fn setup() -> ERC3525Metadata::ContractState {
-    let mut state_metadata = STATE_METADATA();
-    ERC3525Metadata::InternalImpl::initializer(ref state_metadata);
+fn setup() -> ERC3525MetadataComponentState {
+    let mut state_metadata = COMPONENT_STATE_METADATA();
+    state_metadata.initializer();
     state_metadata
 }
 
@@ -31,11 +35,11 @@ fn setup() -> ERC3525Metadata::ContractState {
 #[available_gas(20000000)]
 fn test_metadata_contract_uri() {
     let mut state_metadata = setup();
-    let uri = ERC3525Metadata::ERC3525MetadataImpl::contract_uri(@state_metadata);
+    let uri = state_metadata.contract_uri();
     assert(uri == 0, 'Wrong contract URI');
     let new_uri = 'https://example.com';
-    ERC3525Metadata::InternalImpl::_set_contract_uri(ref state_metadata, new_uri);
-    let uri = ERC3525Metadata::ERC3525MetadataImpl::contract_uri(@state_metadata);
+    state_metadata._set_contract_uri(new_uri);
+    let uri = state_metadata.contract_uri();
     assert(uri == new_uri, 'Wrong contract URI');
 }
 
@@ -43,12 +47,12 @@ fn test_metadata_contract_uri() {
 #[available_gas(20000000)]
 fn test_metadata_slot_uri() {
     let mut state_metadata = setup();
-    let uri = ERC3525Metadata::ERC3525MetadataImpl::slot_uri(@state_metadata, SLOT_1);
+    let uri = state_metadata.slot_uri(SLOT_1);
     assert(uri == 0, 'Wrong contract URI');
     let new_uri = 'https://example.com';
-    ERC3525Metadata::InternalImpl::_set_slot_uri(ref state_metadata, SLOT_1, new_uri);
-    let uri = ERC3525Metadata::ERC3525MetadataImpl::slot_uri(@state_metadata, SLOT_1);
+    state_metadata._set_slot_uri(SLOT_1, new_uri);
+    let uri = state_metadata.slot_uri(SLOT_1);
     assert(uri == new_uri, 'Wrong contract URI');
-    let uri = ERC3525Metadata::ERC3525MetadataImpl::slot_uri(@state_metadata, SLOT_2);
+    let uri = state_metadata.slot_uri(SLOT_2);
     assert(uri == 0, 'Wrong contract URI');
 }

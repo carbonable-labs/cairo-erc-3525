@@ -1,13 +1,6 @@
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 use zeroable::Zeroable;
-use cairo_erc_3525::module::ERC3525;
-
-// State
-
-fn STATE() -> ERC3525::ContractState {
-    ERC3525::contract_state_for_testing()
-}
 
 // Constants
 
