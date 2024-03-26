@@ -10,16 +10,18 @@ use starknet::testing::set_caller_address;
 
 // External imports
 
-use openzeppelin::token::erc721::erc721::ERC721Component::{ ERC721Impl, InternalImpl as ERC721InternalImpl };
+use openzeppelin::token::erc721::erc721::ERC721Component::{
+    ERC721Impl, InternalImpl as ERC721InternalImpl
+};
 use openzeppelin::token::erc721::erc721::ERC721Component;
 
 // Local imports
 
-use cairo_erc_3525::module::ERC3525Component::{ ERC3525Impl, InternalImpl };
+use cairo_erc_3525::module::ERC3525Component::{ERC3525Impl, InternalImpl};
 use cairo_erc_3525::module::ERC3525Component;
 use cairo_erc_3525::tests::unit::constants::{
-    ERC3525ComponentState,
-    COMPONENT_STATE, CONTRACT_STATE, VALUE_DECIMALS, TOKEN_ID_1, TOKEN_ID_2, SLOT_1, SLOT_2, VALUE, OWNER
+    ERC3525ComponentState, COMPONENT_STATE, CONTRACT_STATE, VALUE_DECIMALS, TOKEN_ID_1, TOKEN_ID_2,
+    SLOT_1, SLOT_2, VALUE, OWNER
 };
 
 // Settings

@@ -77,7 +77,9 @@ mod DualCaseERC3525MetadataMock {
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC3525Component, storage: erc3525, event: ERC3525Event);
-    component!(path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent);
+    component!(
+        path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent
+    );
 
     // ERC721
     #[abi(embed_v0)]
@@ -103,9 +105,11 @@ mod DualCaseERC3525MetadataMock {
 
     // ERC3525Metadata
     #[abi(embed_v0)]
-    impl ERC3525MetadataImpl = ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
+    impl ERC3525MetadataImpl =
+        ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525MetadataCamelOnlyImpl = ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
+    impl ERC3525MetadataCamelOnlyImpl =
+        ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
     impl ERC3525MetadataInternalImpl = ERC3525MetadataComponent::InternalImpl<ContractState>;
 
     #[storage]
@@ -159,7 +163,11 @@ mod DualCaseERC3525SlotApprovableMock {
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC3525Component, storage: erc3525, event: ERC3525Event);
-    component!(path: ERC3525SlotApprovableComponent, storage: erc3525_slot_approvable, event: ERC3525SlotApprovableEvent);
+    component!(
+        path: ERC3525SlotApprovableComponent,
+        storage: erc3525_slot_approvable,
+        event: ERC3525SlotApprovableEvent
+    );
 
     // ERC721
     #[abi(embed_v0)]
@@ -185,10 +193,13 @@ mod DualCaseERC3525SlotApprovableMock {
 
     // ERC3525SlotApprovable
     #[abi(embed_v0)]
-    impl ERC3525SlotApprovableImpl = ERC3525SlotApprovableComponent::ERC3525SlotApprovableImpl<ContractState>;
+    impl ERC3525SlotApprovableImpl =
+        ERC3525SlotApprovableComponent::ERC3525SlotApprovableImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525SlotApprovableCamelOnlyImpl = ERC3525SlotApprovableComponent::ERC3525SlotApprovableCamelOnlyImpl<ContractState>;
-    impl ERC3525SlotApprovableInternalImpl = ERC3525SlotApprovableComponent::InternalImpl<ContractState>;
+    impl ERC3525SlotApprovableCamelOnlyImpl =
+        ERC3525SlotApprovableComponent::ERC3525SlotApprovableCamelOnlyImpl<ContractState>;
+    impl ERC3525SlotApprovableInternalImpl =
+        ERC3525SlotApprovableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -241,7 +252,11 @@ mod DualCaseERC3525SlotEnumerableMock {
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC3525Component, storage: erc3525, event: ERC3525Event);
-    component!(path: ERC3525SlotEnumerableComponent, storage: erc3525_slot_enumerable, event: ERC3525SlotEnumerableEvent);
+    component!(
+        path: ERC3525SlotEnumerableComponent,
+        storage: erc3525_slot_enumerable,
+        event: ERC3525SlotEnumerableEvent
+    );
 
     // ERC721
     #[abi(embed_v0)]
@@ -267,10 +282,13 @@ mod DualCaseERC3525SlotEnumerableMock {
 
     // ERC3525SlotEnumerable
     #[abi(embed_v0)]
-    impl ERC3525SlotEnumerableImpl = ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableImpl<ContractState>;
+    impl ERC3525SlotEnumerableImpl =
+        ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525SlotEnumerableCamelOnlyImpl = ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableCamelOnlyImpl<ContractState>;
-    impl ERC3525SlotEnumerableInternalImpl = ERC3525SlotEnumerableComponent::InternalImpl<ContractState>;
+    impl ERC3525SlotEnumerableCamelOnlyImpl =
+        ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableCamelOnlyImpl<ContractState>;
+    impl ERC3525SlotEnumerableInternalImpl =
+        ERC3525SlotEnumerableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {

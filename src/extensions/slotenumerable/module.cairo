@@ -61,7 +61,9 @@ mod ERC3525SlotEnumerableComponent {
         fn token_supply_in_slot(self: @ComponentState<TContractState>, slot: u256) -> u256 {
             self._erc3525_slot_tokens_len.read(slot)
         }
-        fn token_in_slot_by_index(self: @ComponentState<TContractState>, slot: u256, index: u256) -> u256 {
+        fn token_in_slot_by_index(
+            self: @ComponentState<TContractState>, slot: u256, index: u256
+        ) -> u256 {
             // [Check] Index is in range
             let supply = self._erc3525_slot_tokens_len.read(slot);
             assert(index < supply, Errors::INDEX_OUT_OF_BOUNDS);
@@ -87,7 +89,9 @@ mod ERC3525SlotEnumerableComponent {
         fn tokenSupplyInSlot(self: @ComponentState<TContractState>, slot: u256) -> u256 {
             self.token_supply_in_slot(slot)
         }
-        fn tokenInSlotByIndex(self: @ComponentState<TContractState>, slot: u256, index: u256) -> u256 {
+        fn tokenInSlotByIndex(
+            self: @ComponentState<TContractState>, slot: u256, index: u256
+        ) -> u256 {
             self.token_in_slot_by_index(slot, index)
         }
     }
@@ -112,7 +116,9 @@ mod ERC3525SlotEnumerableComponent {
             self._erc3525_slot_enumerables.read(index) == slot && slot != 0
         }
 
-        fn _token_exists(self: @ComponentState<TContractState>, slot: u256, token_id: u256) -> bool {
+        fn _token_exists(
+            self: @ComponentState<TContractState>, slot: u256, token_id: u256
+        ) -> bool {
             let index = self._erc3525_slot_tokens_index.read((slot, token_id));
             self._erc3525_slot_tokens.read((slot, index)) == token_id && token_id != 0
         }
@@ -148,7 +154,11 @@ mod ERC3525SlotEnumerableComponent {
         }
 
         fn _mint(
-            ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256, slot: u256, value: u256
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            slot: u256,
+            value: u256
         ) {
             // [Effect] Mint
             let mut erc3525_comp = get_dep_component_mut!(ref self, ERC3525Comp);
@@ -182,7 +192,9 @@ mod ERC3525SlotEnumerableComponent {
             self._erc3525_slot_enumerables_index.write(slot, index);
         }
 
-        fn _add_token_to_slot_enumeration(ref self: ComponentState<TContractState>, slot: u256, token_id: u256) {
+        fn _add_token_to_slot_enumeration(
+            ref self: ComponentState<TContractState>, slot: u256, token_id: u256
+        ) {
             // [Effect] Store new token
             let index = self._erc3525_slot_tokens_len.read(slot);
             self._erc3525_slot_tokens_len.write(slot, index + 1);

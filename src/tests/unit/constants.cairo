@@ -14,15 +14,24 @@ use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent;
 use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovableComponent;
 use cairo_erc_3525::extensions::slotenumerable::module::ERC3525SlotEnumerableComponent;
 use cairo_erc_3525::tests::mocks::contracts::{
-    DualCaseERC3525Mock, DualCaseERC3525MetadataMock, DualCaseERC3525SlotApprovableMock, DualCaseERC3525SlotEnumerableMock
+    DualCaseERC3525Mock, DualCaseERC3525MetadataMock, DualCaseERC3525SlotApprovableMock,
+    DualCaseERC3525SlotEnumerableMock
 };
 
 // Setup
 
-pub type ERC3525ComponentState = ERC3525Component::ComponentState<DualCaseERC3525Mock::ContractState>;
-pub type ERC3525MetadataComponentState = ERC3525MetadataComponent::ComponentState<DualCaseERC3525MetadataMock::ContractState>;
-pub type ERC3525SlotApprovableComponentState = ERC3525SlotApprovableComponent::ComponentState<DualCaseERC3525SlotApprovableMock::ContractState>;
-pub type ERC3525SlotEnumerableComponentState = ERC3525SlotEnumerableComponent::ComponentState<DualCaseERC3525SlotEnumerableMock::ContractState>;
+pub type ERC3525ComponentState =
+    ERC3525Component::ComponentState<DualCaseERC3525Mock::ContractState>;
+pub type ERC3525MetadataComponentState =
+    ERC3525MetadataComponent::ComponentState<DualCaseERC3525MetadataMock::ContractState>;
+pub type ERC3525SlotApprovableComponentState =
+    ERC3525SlotApprovableComponent::ComponentState<
+        DualCaseERC3525SlotApprovableMock::ContractState
+    >;
+pub type ERC3525SlotEnumerableComponentState =
+    ERC3525SlotEnumerableComponent::ComponentState<
+        DualCaseERC3525SlotEnumerableMock::ContractState
+    >;
 
 // State
 

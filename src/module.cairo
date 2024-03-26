@@ -117,7 +117,10 @@ mod ERC3525Component {
         }
 
         fn approve_value(
-            ref self: ComponentState<TContractState>, token_id: u256, operator: ContractAddress, value: u256
+            ref self: ComponentState<TContractState>,
+            token_id: u256,
+            operator: ContractAddress,
+            value: u256
         ) {
             // [Check] Caller and operator are not null addresses
             let caller = get_caller_address();
@@ -128,16 +131,15 @@ mod ERC3525Component {
             let erc721_comp = get_dep_component!(@self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             assert(owner != operator, Errors::APPROVAL_TO_OWNER);
-            assert(
-                erc721_comp._is_approved_or_owner(caller, token_id),
-                Errors::CALLER_NOT_ALLOWED
-            );
+            assert(erc721_comp._is_approved_or_owner(caller, token_id), Errors::CALLER_NOT_ALLOWED);
 
             // [Effect] Store approved value
             self._approve_value(token_id, operator, value);
         }
 
-        fn allowance(self: @ComponentState<TContractState>, token_id: u256, operator: ContractAddress) -> u256 {
+        fn allowance(
+            self: @ComponentState<TContractState>, token_id: u256, operator: ContractAddress
+        ) -> u256 {
             // [Check] 
             let erc721_comp = get_dep_component!(self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
@@ -200,7 +202,10 @@ mod ERC3525Component {
             ERC3525::slot_of(self, tokenId)
         }
         fn approveValue(
-            ref self: ComponentState<TContractState>, tokenId: u256, operator: ContractAddress, value: u256
+            ref self: ComponentState<TContractState>,
+            tokenId: u256,
+            operator: ContractAddress,
+            value: u256
         ) {
             ERC3525::approve_value(ref self, tokenId, operator, value)
         }
@@ -241,7 +246,10 @@ mod ERC3525Component {
         }
 
         fn _approve_value(
-            ref self: ComponentState<TContractState>, token_id: u256, operator: ContractAddress, value: u256
+            ref self: ComponentState<TContractState>,
+            token_id: u256,
+            operator: ContractAddress,
+            value: u256
         ) {
             // [Effect] Store approved value
             let erc721_comp = get_dep_component!(@self, ERC721);
@@ -253,7 +261,10 @@ mod ERC3525Component {
         }
 
         fn _transfer_value_to(
-            ref self: ComponentState<TContractState>, from_token_id: u256, to: ContractAddress, value: u256
+            ref self: ComponentState<TContractState>,
+            from_token_id: u256,
+            to: ContractAddress,
+            value: u256
         ) -> u256 {
             // [Effect] Mint new token and transfer value
             let token_id = self._get_new_token_id();
@@ -264,7 +275,10 @@ mod ERC3525Component {
         }
 
         fn _transfer_value_to_token(
-            ref self: ComponentState<TContractState>, from_token_id: u256, to_token_id: u256, value: u256
+            ref self: ComponentState<TContractState>,
+            from_token_id: u256,
+            to_token_id: u256,
+            value: u256
         ) -> u256 {
             // [Effect] Transfer value
             self._transfer_value(from_token_id, to_token_id, value);
@@ -272,16 +286,17 @@ mod ERC3525Component {
         }
 
         fn _spend_allowance(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, token_id: u256, value: u256
+            ref self: ComponentState<TContractState>,
+            spender: ContractAddress,
+            token_id: u256,
+            value: u256
         ) {
             // [Compute] Spender allowance
             let erc721_comp = get_dep_component!(@self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             let current_allowance = self._erc3525_approved_values.read((owner, token_id, spender));
             let infinity: u256 = BoundedInt::max();
-            let is_approved = erc721_comp._is_approved_or_owner(
-                spender, token_id
-            );
+            let is_approved = erc721_comp._is_approved_or_owner(spender, token_id);
 
             // [Effect] Update allowance if the rights are limited
             if current_allowance == infinity || is_approved {
@@ -302,7 +317,11 @@ mod ERC3525Component {
         }
 
         fn _mint(
-            ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256, slot: u256, value: u256
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            slot: u256,
+            value: u256
         ) {
             // [Check] Token id not already exists
             self._assert_not_minted(token_id);
@@ -317,7 +336,12 @@ mod ERC3525Component {
             self._mint_value(token_id, value);
         }
 
-        fn _mint_token(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256, slot: u256) {
+        fn _mint_token(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            slot: u256
+        ) {
             // [Effect] Mint a new enumerable token if supported, standard token otherwise
             let mut erc721_comp = get_dep_component_mut!(ref self, ERC721);
             erc721_comp._mint(to, token_id);
@@ -349,7 +373,10 @@ mod ERC3525Component {
         }
 
         fn _transfer_value(
-            ref self: ComponentState<TContractState>, from_token_id: u256, to_token_id: u256, value: u256
+            ref self: ComponentState<TContractState>,
+            from_token_id: u256,
+            to_token_id: u256,
+            value: u256
         ) {
             // [Check] Tokens exist and not null
             self._assert_minted(from_token_id);
@@ -445,7 +472,9 @@ mod ERC3525Component {
             contract.supports_interface(ISRC6_ID)
         }
 
-        fn _split(ref self: ComponentState<TContractState>, token_id: u256, amounts: @Array<u256>) -> Array<u256> {
+        fn _split(
+            ref self: ComponentState<TContractState>, token_id: u256, amounts: @Array<u256>
+        ) -> Array<u256> {
             // [Check] Token exists
             self._assert_minted(token_id);
 
