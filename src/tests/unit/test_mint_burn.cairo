@@ -49,10 +49,15 @@ fn test_mint() {
     assert(owner == OWNER(), 'Wrong owner');
 
     // [Assert] Events
-    let event = utils::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
-    assert(event.from == ZERO(), 'Wrong event from');
-    assert(event.to == OWNER(), 'Wrong event to');
-    assert(event.token_id == TOKEN_ID_1, 'Wrong event token_id');
+    let event = utils::pop_log::<ERC721Component::Event>(get_contract_address()).unwrap();
+    match event {
+        ERC721Component::Event::Transfer(event) => {
+            assert(event.from == ZERO(), 'Wrong event from');
+            assert(event.to == OWNER(), 'Wrong event to');
+            assert(event.token_id == TOKEN_ID_1, 'Wrong event token_id');
+        },
+        _ => panic!("Wrong event type"),
+    }
     let event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
     assert(event.token_id == TOKEN_ID_1, 'Wrong event from_token_id');
     assert(event.old_slot == 0, 'Wrong event old_slot');
@@ -135,10 +140,15 @@ fn test_burn() {
         .unwrap();
 
     // [Assert] Events
-    let event = utils::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
-    assert(event.from == OWNER(), 'Wrong event from');
-    assert(event.to == ZERO(), 'Wrong event to');
-    assert(event.token_id == TOKEN_ID_1, 'Wrong event token_id');
+    let event = utils::pop_log::<ERC721Component::Event>(get_contract_address()).unwrap();
+    match event {
+        ERC721Component::Event::Transfer(event) => {
+            assert(event.from == OWNER(), 'Wrong event from');
+            assert(event.to == ZERO(), 'Wrong event to');
+            assert(event.token_id == TOKEN_ID_1, 'Wrong event token_id');
+        },
+        _ => panic!("Wrong event type"),
+    }
     let event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
         .unwrap();
     assert(event.from_token_id == TOKEN_ID_1, 'Wrong event from_token_id');
