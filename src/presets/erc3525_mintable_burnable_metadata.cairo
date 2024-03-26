@@ -7,7 +7,7 @@ trait IExternal<TContractState> {
     fn mint_value(ref self: TContractState, token_id: u256, value: u256);
     fn burn(ref self: TContractState, token_id: u256);
     fn burn_value(ref self: TContractState, token_id: u256, value: u256);
-    fn set_token_uri(ref self: TContractState, token_id: u256, token_uri: felt252);
+    fn set_base_uri(ref self: TContractState, base_uri: ByteArray);
     fn set_contract_uri(ref self: TContractState, uri: felt252);
     fn set_slot_uri(ref self: TContractState, slot: u256, uri: felt252);
 }
@@ -44,15 +44,18 @@ mod ERC3525MintableBurnableMetadata {
     component!(path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent);
 
     // Component implementations
-    // TODO embed missing ABIs
     #[abi(embed_v0)]
     impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC3525Impl = ERC3525Component::ERC3525Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525CamelOnlyImpl = ERC3525Component::ERC3525CamelOnlyImpl<ContractState>;
     impl ERC3525InternalImpl = ERC3525Component::InternalImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC3525MetadataImpl = ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525MetadataCamelOnlyImpl = ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
     impl ERC3525MetadataInternalImpl = ERC3525MetadataComponent::InternalImpl<ContractState>;
 
     #[storage]
@@ -81,24 +84,9 @@ mod ERC3525MintableBurnableMetadata {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, value_decimals: u8) {
-        self.initializer(name, symbol, value_decimals);
+    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8) {
+        self.initializer(name, symbol, base_uri, value_decimals);
     }
-
-    // TODO check support of these implementations
-    // ERC721Mixin:
-    // impl SRC5Impl of ISRC5<ContractState> {
-    // impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-    // impl ERC721Impl of IERC721<ContractState> {
-    // impl ERC721CamelOnlyImpl of IERC721CamelOnly<ContractState> {
-    // impl ERC721MetadataImpl of IERC721Metadata<ContractState> {
-    // impl ERC721MetadataCamelOnlyImpl of IERC721MetadataCamelOnly<ContractState> {
-    // ERC3525:
-    // impl ERC3525Impl of IERC3525<ContractState> {
-    // impl ERC3525CamelOnlyImpl of IERC3525CamelOnly<ContractState> {
-    // ERC3525Metadata:
-    // impl ERC3525MetadataImpl of IERC3525Metadata<ContractState> {
-    // impl ERC3525MetadataCamelOnlyImpl of IERC3525MetadataCamelOnly<ContractState> {
 
     #[abi(embed_v0)]
     impl ExternalImpl of super::IExternal<ContractState> {
@@ -130,9 +118,8 @@ mod ERC3525MintableBurnableMetadata {
             self.erc3525._burn_value(token_id, value)
         }
 
-        fn set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
-            // TODO
-            // self.erc721._set_token_uri(token_id, token_uri)
+        fn set_base_uri(ref self: ContractState, base_uri: ByteArray) {
+            self.erc721._set_base_uri(base_uri)
         }
 
         fn set_contract_uri(ref self: ContractState, uri: felt252) {
@@ -147,9 +134,9 @@ mod ERC3525MintableBurnableMetadata {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(
-            ref self: ContractState, name: ByteArray, symbol: ByteArray, value_decimals: u8
+            ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8
         ) {
-            self.erc721.initializer(name, symbol, "");
+            self.erc721.initializer(name, symbol, base_uri);
             self.erc3525.initializer(value_decimals);
             self.erc3525_metadata.initializer();
         }

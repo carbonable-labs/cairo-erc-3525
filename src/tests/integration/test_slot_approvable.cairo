@@ -34,6 +34,7 @@ fn deploy_contract(class_hash: starknet::class_hash::ClassHash) -> ContractAddre
     let mut calldata: Array<felt252> = ArrayTrait::new();
     constants::NAME().serialize(ref calldata);
     constants::SYMBOL().serialize(ref calldata);
+    constants::BASE_URI().serialize(ref calldata);
     constants::VALUE_DECIMALS.serialize(ref calldata);
     let (address, _) = starknet::deploy_syscall(class_hash, 0, calldata.span(), false)
         .expect('Deploy contract failed');

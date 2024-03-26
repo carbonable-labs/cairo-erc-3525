@@ -10,11 +10,8 @@ mod ERC3525SlotEnumerableComponent {
 
     // External deps
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
 
-    use openzeppelin::token::erc721::erc721::ERC721Component::InternalTrait as ERC721InternalTrait;
-    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721; // TODO remove all unused imports
     use openzeppelin::token::erc721::erc721::ERC721Component;
 
     // Local deps
