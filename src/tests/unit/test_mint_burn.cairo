@@ -9,17 +9,19 @@ use starknet::testing::set_caller_address;
 
 // External imports
 
-use openzeppelin::token::erc721::erc721::ERC721Component::{ ERC721Impl, InternalImpl as ERC721InternalImpl };
+use openzeppelin::token::erc721::erc721::ERC721Component::{
+    ERC721Impl, InternalImpl as ERC721InternalImpl
+};
 use openzeppelin::token::erc721::erc721::ERC721Component;
 
 // Local imports
 
-use cairo_erc_3525::module::ERC3525Component::{ ERC3525Impl, InternalImpl };
+use cairo_erc_3525::module::ERC3525Component::{ERC3525Impl, InternalImpl};
 use cairo_erc_3525::module::ERC3525Component;
 use cairo_erc_3525::tests::utils;
 use cairo_erc_3525::tests::unit::constants::{
-    ERC3525ComponentState,
-    COMPONENT_STATE, CONTRACT_STATE, VALUE_DECIMALS, TOKEN_ID_1, SLOT_1, VALUE, ZERO, OWNER
+    ERC3525ComponentState, COMPONENT_STATE, CONTRACT_STATE, VALUE_DECIMALS, TOKEN_ID_1, SLOT_1,
+    VALUE, ZERO, OWNER
 };
 
 // Settings
@@ -58,11 +60,14 @@ fn test_mint() {
         },
         _ => panic!("Wrong event type"),
     }
-    let event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
+    let event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address())
+        .unwrap();
     assert(event.token_id == TOKEN_ID_1, 'Wrong event from_token_id');
     assert(event.old_slot == 0, 'Wrong event old_slot');
     assert(event.new_slot == SLOT_1, 'Wrong new_slot value');
-    let event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
+    let event = starknet::testing::pop_log::<
+        ERC3525Component::TransferValue
+    >(get_contract_address())
         .unwrap();
     assert(event.from_token_id == 0, 'Wrong event from_token_id');
     assert(event.to_token_id == TOKEN_ID_1, 'Wrong event to_token_id');
@@ -134,9 +139,13 @@ fn test_burn() {
     state._burn(TOKEN_ID_1);
 
     // [Setup] mint Transfer, SlotChanged and TransferValue events
-    let _event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
-    let _event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
-    let _event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
+    let _event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address())
+        .unwrap();
+    let _event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address())
+        .unwrap();
+    let _event = starknet::testing::pop_log::<
+        ERC3525Component::TransferValue
+    >(get_contract_address())
         .unwrap();
 
     // [Assert] Events
@@ -149,12 +158,15 @@ fn test_burn() {
         },
         _ => panic!("Wrong event type"),
     }
-    let event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
+    let event = starknet::testing::pop_log::<
+        ERC3525Component::TransferValue
+    >(get_contract_address())
         .unwrap();
     assert(event.from_token_id == TOKEN_ID_1, 'Wrong event from_token_id');
     assert(event.to_token_id == 0, 'Wrong event to_token_id');
     assert(event.value == VALUE, 'Wrong event value');
-    let event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
+    let event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address())
+        .unwrap();
     assert(event.token_id == TOKEN_ID_1, 'Wrong event from_token_id');
     assert(event.old_slot == SLOT_1, 'Wrong event old_slot');
     assert(event.new_slot == 0, 'Wrong new_slot value');
@@ -173,13 +185,19 @@ fn test_burn_value() {
     state._burn_value(TOKEN_ID_1, VALUE);
 
     // [Setup] mint Transfer, SlotChanged and TransferValue events
-    let _event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address()).unwrap();
-    let _event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address()).unwrap();
-    let _event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
+    let _event = starknet::testing::pop_log::<ERC721Component::Transfer>(get_contract_address())
+        .unwrap();
+    let _event = starknet::testing::pop_log::<ERC3525Component::SlotChanged>(get_contract_address())
+        .unwrap();
+    let _event = starknet::testing::pop_log::<
+        ERC3525Component::TransferValue
+    >(get_contract_address())
         .unwrap();
 
     // [Assert] Events
-    let event = starknet::testing::pop_log::<ERC3525Component::TransferValue>(get_contract_address())
+    let event = starknet::testing::pop_log::<
+        ERC3525Component::TransferValue
+    >(get_contract_address())
         .unwrap();
     assert(event.from_token_id == TOKEN_ID_1, 'Wrong event from_token_id');
     assert(event.to_token_id == 0, 'Wrong event to_token_id');

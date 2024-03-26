@@ -9,7 +9,9 @@ mod ERC3525MetadataComponent {
     use openzeppelin::introspection::src5::SRC5Component;
 
     // Local deps
-    use cairo_erc_3525::extensions::metadata::interface::{IERC3525_METADATA_ID, IERC3525Metadata, IERC3525MetadataCamelOnly};
+    use cairo_erc_3525::extensions::metadata::interface::{
+        IERC3525_METADATA_ID, IERC3525Metadata, IERC3525MetadataCamelOnly
+    };
 
     #[storage]
     struct Storage {

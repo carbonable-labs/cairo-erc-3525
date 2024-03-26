@@ -41,7 +41,9 @@ mod ERC3525MintableBurnableMetadata {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: ERC3525Component, storage: erc3525, event: ERC3525Event);
-    component!(path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent);
+    component!(
+        path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent
+    );
 
     // Component implementations
     #[abi(embed_v0)]
@@ -50,12 +52,15 @@ mod ERC3525MintableBurnableMetadata {
     #[abi(embed_v0)]
     impl ERC3525Impl = ERC3525Component::ERC3525Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525CamelOnlyImpl = ERC3525Component::ERC3525CamelOnlyImpl<ContractState>;
+    impl ERC3525CamelOnlyImpl =
+        ERC3525Component::ERC3525CamelOnlyImpl<ContractState>;
     impl ERC3525InternalImpl = ERC3525Component::InternalImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525MetadataImpl = ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
+    impl ERC3525MetadataImpl =
+        ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525MetadataCamelOnlyImpl = ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
+    impl ERC3525MetadataCamelOnlyImpl =
+        ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
     impl ERC3525MetadataInternalImpl = ERC3525MetadataComponent::InternalImpl<ContractState>;
 
     #[storage]
@@ -84,7 +89,13 @@ mod ERC3525MintableBurnableMetadata {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8) {
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        value_decimals: u8
+    ) {
         self.initializer(name, symbol, base_uri, value_decimals);
     }
 
@@ -134,7 +145,11 @@ mod ERC3525MintableBurnableMetadata {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(
-            ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8
+            ref self: ContractState,
+            name: ByteArray,
+            symbol: ByteArray,
+            base_uri: ByteArray,
+            value_decimals: u8
         ) {
             self.erc721.initializer(name, symbol, base_uri);
             self.erc3525.initializer(value_decimals);

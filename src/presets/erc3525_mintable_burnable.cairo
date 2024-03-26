@@ -36,7 +36,8 @@ mod ERC3525MintableBurnable {
     #[abi(embed_v0)]
     impl ERC3525Impl = ERC3525Component::ERC3525Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525CamelOnlyImpl = ERC3525Component::ERC3525CamelOnlyImpl<ContractState>;
+    impl ERC3525CamelOnlyImpl =
+        ERC3525Component::ERC3525CamelOnlyImpl<ContractState>;
     impl ERC3525InternalImpl = ERC3525Component::InternalImpl<ContractState>;
 
     #[storage]

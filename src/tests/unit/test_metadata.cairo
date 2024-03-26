@@ -16,11 +16,13 @@ use openzeppelin::presets::Account;
 // Local imports
 
 use cairo_erc_3525::module::ERC3525Component;
-use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent::{ ERC3525MetadataImpl, InternalImpl };
+use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent::{
+    ERC3525MetadataImpl, InternalImpl
+};
 use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent;
 use cairo_erc_3525::tests::unit::constants::{
-    ERC3525MetadataComponentState,
-    COMPONENT_STATE, COMPONENT_STATE_METADATA, VALUE_DECIMALS, SLOT_1, SLOT_2
+    ERC3525MetadataComponentState, COMPONENT_STATE, COMPONENT_STATE_METADATA, VALUE_DECIMALS,
+    SLOT_1, SLOT_2
 };
 
 // Settings

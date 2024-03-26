@@ -12,11 +12,10 @@ use openzeppelin::token::erc721::erc721::ERC721Component;
 
 // Local imports
 
-use cairo_erc_3525::module::ERC3525Component::{ InternalTrait, ERC3525Impl };
+use cairo_erc_3525::module::ERC3525Component::{InternalTrait, ERC3525Impl};
 use cairo_erc_3525::module::ERC3525Component;
 use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovableComponent::{
-    ERC3525SlotApprovableImpl,
-    InternalTrait as ERC3525SlotApprovableInternalTrait,
+    ERC3525SlotApprovableImpl, InternalTrait as ERC3525SlotApprovableInternalTrait,
     ExternalTrait as ERC3525SlotApprovableExternalTrait
 };
 use cairo_erc_3525::extensions::slotapprovable::module::ERC3525SlotApprovableComponent;
@@ -49,9 +48,7 @@ fn setup() -> ERC3525SlotApprovableComponentState {
 fn test_slot_approvable_owner_can_approve_slot() {
     let mut state = setup();
     set_caller_address(OWNER());
-    state.set_approval_for_slot(
-        OWNER(), SLOT_1, OPERATOR(), true
-    );
+    state.set_approval_for_slot(OWNER(), SLOT_1, OPERATOR(), true);
 }
 
 #[test]
@@ -61,13 +58,9 @@ fn test_slot_approvable_operator_can_approve_value() {
     let mut mock_state = CONTRACT_STATE();
     set_caller_address(OWNER());
     mock_state.erc3525._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    state.set_approval_for_slot(
-        OWNER(), SLOT_1, OPERATOR(), true
-    );
+    state.set_approval_for_slot(OWNER(), SLOT_1, OPERATOR(), true);
     set_caller_address(OPERATOR());
-    state.approve_value(
-        TOKEN_ID_1, OPERATOR(), VALUE
-    );
+    state.approve_value(TOKEN_ID_1, OPERATOR(), VALUE);
 }
 
 #[test]
@@ -78,13 +71,9 @@ fn test_slot_approvable_operator_cannot_approve_any_token() {
     let mut mock_state = CONTRACT_STATE();
     set_caller_address(OWNER());
     mock_state.erc3525._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    state.set_approval_for_slot(
-        OWNER(), SLOT_2, OPERATOR(), true
-    );
+    state.set_approval_for_slot(OWNER(), SLOT_2, OPERATOR(), true);
     set_caller_address(OPERATOR());
-    state.approve_value(
-        TOKEN_ID_1, OPERATOR(), VALUE
-    );
+    state.approve_value(TOKEN_ID_1, OPERATOR(), VALUE);
 }
 
 #[test]
@@ -96,13 +85,9 @@ fn test_slot_approvable_operator_cannot_transfer_anyones_value() {
     set_caller_address(OWNER());
     mock_state.erc3525._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
     mock_state.erc3525._mint(SOMEONE(), TOKEN_ID_2, SLOT_1, VALUE);
-    state.set_approval_for_slot(
-        OWNER(), SLOT_1, OPERATOR(), true
-    );
+    state.set_approval_for_slot(OWNER(), SLOT_1, OPERATOR(), true);
     set_caller_address(OPERATOR());
-    state.transfer_value_from(
-        TOKEN_ID_2, 0, OPERATOR(), VALUE
-    );
+    state.transfer_value_from(TOKEN_ID_2, 0, OPERATOR(), VALUE);
 }
 
 #[test]
@@ -114,13 +99,9 @@ fn test_slot_approvable_operator_transfer_value_revert_slot_mismatch() {
     set_caller_address(OWNER());
     mock_state.erc3525._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
     mock_state.erc3525._mint(SOMEONE(), TOKEN_ID_2, SLOT_2, VALUE);
-    state.set_approval_for_slot(
-        OWNER(), SLOT_1, OPERATOR(), true
-    );
+    state.set_approval_for_slot(OWNER(), SLOT_1, OPERATOR(), true);
     set_caller_address(OPERATOR());
-    state.transfer_value_from(
-        TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE
-    );
+    state.transfer_value_from(TOKEN_ID_1, TOKEN_ID_2, ZERO(), VALUE);
 }
 
 #[test]
@@ -131,14 +112,8 @@ fn test_slot_approvable_revoked_slot_operator_cannot_approve() {
     let mut mock_state = CONTRACT_STATE();
     set_caller_address(OWNER());
     mock_state.erc3525._mint(OWNER(), TOKEN_ID_1, SLOT_1, VALUE);
-    state.set_approval_for_slot(
-        OWNER(), SLOT_1, OPERATOR(), true
-    );
-    state.set_approval_for_slot(
-        OWNER(), SLOT_1, OPERATOR(), false
-    );
+    state.set_approval_for_slot(OWNER(), SLOT_1, OPERATOR(), true);
+    state.set_approval_for_slot(OWNER(), SLOT_1, OPERATOR(), false);
     set_caller_address(OPERATOR());
-    state.approve_value(
-        TOKEN_ID_1, OPERATOR(), VALUE
-    );
+    state.approve_value(TOKEN_ID_1, OPERATOR(), VALUE);
 }

@@ -53,9 +53,19 @@ mod ERC3525MintableBurnableMSASE {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: ERC3525Component, storage: erc3525, event: ERC3525Event);
-    component!(path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent);
-    component!(path: ERC3525SlotApprovableComponent, storage: erc3525_slot_approvable, event: ERC3525SlotApprovableEvent);
-    component!(path: ERC3525SlotEnumerableComponent, storage: erc3525_slot_enumerable, event: ERC3525SlotEnumerableEvent);
+    component!(
+        path: ERC3525MetadataComponent, storage: erc3525_metadata, event: ERC3525MetadataEvent
+    );
+    component!(
+        path: ERC3525SlotApprovableComponent,
+        storage: erc3525_slot_approvable,
+        event: ERC3525SlotApprovableEvent
+    );
+    component!(
+        path: ERC3525SlotEnumerableComponent,
+        storage: erc3525_slot_enumerable,
+        event: ERC3525SlotEnumerableEvent
+    );
 
     // Component implementations
     #[abi(embed_v0)]
@@ -63,21 +73,30 @@ mod ERC3525MintableBurnableMSASE {
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
     impl ERC3525InternalImpl = ERC3525Component::InternalImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525MetadataImpl = ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
+    impl ERC3525MetadataImpl =
+        ERC3525MetadataComponent::ERC3525MetadataImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525MetadataCamelOnlyImpl = ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
+    impl ERC3525MetadataCamelOnlyImpl =
+        ERC3525MetadataComponent::ERC3525MetadataCamelOnlyImpl<ContractState>;
     impl ERC3525MetadataInternalImpl = ERC3525MetadataComponent::InternalImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525SlotApprovableImpl = ERC3525SlotApprovableComponent::ERC3525SlotApprovableImpl<ContractState>;
+    impl ERC3525SlotApprovableImpl =
+        ERC3525SlotApprovableComponent::ERC3525SlotApprovableImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525SlotApprovableCamelOnlyImpl = ERC3525SlotApprovableComponent::ERC3525SlotApprovableCamelOnlyImpl<ContractState>;
-    impl ERC3525SlotApprovableInternalImpl = ERC3525SlotApprovableComponent::InternalImpl<ContractState>;
-    impl ERC3525SlotApprovableExternalImpl = ERC3525SlotApprovableComponent::ExternalImpl<ContractState>;
+    impl ERC3525SlotApprovableCamelOnlyImpl =
+        ERC3525SlotApprovableComponent::ERC3525SlotApprovableCamelOnlyImpl<ContractState>;
+    impl ERC3525SlotApprovableInternalImpl =
+        ERC3525SlotApprovableComponent::InternalImpl<ContractState>;
+    impl ERC3525SlotApprovableExternalImpl =
+        ERC3525SlotApprovableComponent::ExternalImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525SlotEnumerableImpl = ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableImpl<ContractState>;
+    impl ERC3525SlotEnumerableImpl =
+        ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableImpl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC3525SlotEnumerableCamelOnlyImpl = ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableCamelOnlyImpl<ContractState>;
-    impl ERC3525SlotEnumerableInternalImpl = ERC3525SlotEnumerableComponent::InternalImpl<ContractState>;
+    impl ERC3525SlotEnumerableCamelOnlyImpl =
+        ERC3525SlotEnumerableComponent::ERC3525SlotEnumerableCamelOnlyImpl<ContractState>;
+    impl ERC3525SlotEnumerableInternalImpl =
+        ERC3525SlotEnumerableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -114,7 +133,13 @@ mod ERC3525MintableBurnableMSASE {
 
 
     #[constructor]
-    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8) {
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        value_decimals: u8
+    ) {
         self.initializer(name, symbol, base_uri, value_decimals);
     }
 
@@ -150,9 +175,9 @@ mod ERC3525MintableBurnableMSASE {
             value: u256
         ) -> u256 {
             // Overwrite ERC3525 Impl with ERC3525 SlotApprovable Impl
-            let token_id = self.erc3525_slot_approvable.transfer_value_from(
-                from_token_id, to_token_id, to, value
-            );
+            let token_id = self
+                .erc3525_slot_approvable
+                .transfer_value_from(from_token_id, to_token_id, to, value);
             self.erc3525_slot_enumerable._after_transfer_value_from(token_id);
             token_id
         }
@@ -235,7 +260,11 @@ mod ERC3525MintableBurnableMSASE {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(
-            ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8
+            ref self: ContractState,
+            name: ByteArray,
+            symbol: ByteArray,
+            base_uri: ByteArray,
+            value_decimals: u8
         ) {
             self.erc721.initializer(name, symbol, base_uri);
             self.erc3525.initializer(value_decimals);
