@@ -63,7 +63,6 @@ mod DualCaseERC3525Mock {
     ) {
         self.erc3525.initializer(value_decimals);
         self.erc721.initializer(name, symbol, base_uri);
-        // TODO figure out correct initial args for setting up the testing contract
     }
 }
 
@@ -146,7 +145,6 @@ mod DualCaseERC3525MetadataMock {
         self.erc3525_metadata.initializer();
         self.erc3525.initializer(value_decimals);
         self.erc721.initializer(name, symbol, base_uri);
-        // TODO figure out correct initial args for setting up the testing contract
     }
 }
 
@@ -229,7 +227,6 @@ mod DualCaseERC3525SlotApprovableMock {
         self.erc3525_slot_approvable.initializer();
         self.erc3525.initializer(value_decimals);
         self.erc721.initializer(name, symbol, base_uri);
-        // TODO figure out correct initial args for setting up the testing contract
     }
 }
 
@@ -312,6 +309,5 @@ mod DualCaseERC3525SlotEnumerableMock {
         self.erc3525_slot_enumerable.initializer();
         self.erc3525.initializer(value_decimals);
         self.erc721.initializer(name, symbol, base_uri);
-        // TODO figure out correct initial args for setting up the testing contract
     }
 }

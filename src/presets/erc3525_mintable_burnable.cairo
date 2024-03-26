@@ -20,13 +20,9 @@ mod ERC3525MintableBurnable {
 
     // ERC721
     use openzeppelin::token::erc721::erc721::ERC721Component;
-    use openzeppelin::token::erc721::interface::{
-        IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly
-    };
 
     // ERC3525
     use cairo_erc_3525::module::ERC3525Component;
-    use cairo_erc_3525::interface::{IERC3525, IERC3525CamelOnly};
 
     // Declare components
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -34,12 +30,13 @@ mod ERC3525MintableBurnable {
     component!(path: ERC3525Component, storage: erc3525, event: ERC3525Event);
 
     // Component implementations
-    // TODO embed missing ABIs
     #[abi(embed_v0)]
     impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC3525Impl = ERC3525Component::ERC3525Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC3525CamelOnlyImpl = ERC3525Component::ERC3525CamelOnlyImpl<ContractState>;
     impl ERC3525InternalImpl = ERC3525Component::InternalImpl<ContractState>;
 
     #[storage]
@@ -67,12 +64,6 @@ mod ERC3525MintableBurnable {
     fn constructor(ref self: ContractState, value_decimals: u8) {
         self.initializer(value_decimals);
     }
-
-    // TODO check support for the following impls:
-    // impl SRC5Impl of ISRC5<ContractState> {
-    // impl SRC5CamelImpl of ISRC5Camel<ContractState> {
-    // impl ERC721Impl of IERC721<ContractState> {
-    // impl ERC3525Impl of IERC3525<ContractState> {
 
     #[abi(embed_v0)]
     impl ExternalImpl of super::IExternal<ContractState> {

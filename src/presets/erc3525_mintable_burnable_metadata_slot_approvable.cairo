@@ -7,7 +7,7 @@ trait IExternal<TContractState> {
     fn mint_value(ref self: TContractState, token_id: u256, value: u256);
     fn burn(ref self: TContractState, token_id: u256);
     fn burn_value(ref self: TContractState, token_id: u256, value: u256);
-    fn set_token_uri(ref self: TContractState, token_id: u256, token_uri: felt252);
+    fn set_base_uri(ref self: TContractState, base_uri: ByteArray);
     fn set_contract_uri(ref self: TContractState, uri: felt252);
     fn set_slot_uri(ref self: TContractState, slot: u256, uri: felt252);
 }
@@ -104,8 +104,8 @@ mod ERC3525MintableBurnableMSA {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, value_decimals: u8) {
-        self.initializer(name, symbol, value_decimals);
+    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8) {
+        self.initializer(name, symbol, base_uri, value_decimals);
     }
 
     #[abi(embed_v0)]
@@ -156,7 +156,6 @@ mod ERC3525MintableBurnableMSA {
         }
     }
 
-    // TODO think about it
     #[abi(embed_v0)]
     impl ERC721CamelOnlyImpl of IERC721CamelOnly<ContractState> {
         fn balanceOf(self: @ContractState, account: ContractAddress) -> u256 {
@@ -296,9 +295,8 @@ mod ERC3525MintableBurnableMSA {
             self.erc3525._burn_value(token_id, value)
         }
 
-        fn set_token_uri(ref self: ContractState, token_id: u256, token_uri: felt252) {
-            // TODO
-            // self.erc721._set_token_uri(token_id, token_uri)
+        fn set_base_uri(ref self: ContractState, base_uri: ByteArray) {
+            self.erc721._set_base_uri(base_uri)
         }
 
         fn set_contract_uri(ref self: ContractState, uri: felt252) {
@@ -313,9 +311,9 @@ mod ERC3525MintableBurnableMSA {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
         fn initializer(
-            ref self: ContractState, name: ByteArray, symbol: ByteArray, value_decimals: u8
+            ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray, value_decimals: u8
         ) {
-            self.erc721.initializer(name, symbol, ""); // TODO
+            self.erc721.initializer(name, symbol, base_uri);
             self.erc3525.initializer(value_decimals);
             self.erc3525_metadata.initializer();
             self.erc3525_slot_approvable.initializer();

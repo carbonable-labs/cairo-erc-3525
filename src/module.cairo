@@ -16,13 +16,13 @@ mod ERC3525Component {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin::token::erc721::erc721::ERC721Component::InternalTrait as ERC721InternalTrait;
-    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721; // TODO remove all unused imports
+    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721;
     use openzeppelin::token::erc721::erc721::ERC721Component;
     use openzeppelin::account::interface::ISRC6_ID;
 
     // Local deps
     use cairo_erc_3525::interface::{
-        IERC3525_ID, IERC3525_RECEIVER_ID, IERC3525, IERC3525ReceiverDispatcher,
+        IERC3525_ID, IERC3525_RECEIVER_ID, IERC3525, IERC3525CamelOnly, IERC3525ReceiverDispatcher,
         IERC3525ReceiverDispatcherTrait
     };
 
@@ -95,7 +95,7 @@ mod ERC3525Component {
         +HasComponent<TContractState>,
         +Drop<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        impl ERC721Comp: ERC721Component::HasComponent<TContractState>
+        impl ERC721: ERC721Component::HasComponent<TContractState>
     > of IERC3525<ComponentState<TContractState>> {
         fn value_decimals(self: @ComponentState<TContractState>) -> u8 {
             // [Compute] Value decimals
@@ -125,7 +125,7 @@ mod ERC3525Component {
             assert(!operator.is_zero(), Errors::INVALID_OPERATOR);
 
             // [Check] Operator is not owner and caller is approved or owner
-            let erc721_comp = get_dep_component!(@self, ERC721Comp);
+            let erc721_comp = get_dep_component!(@self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             assert(owner != operator, Errors::APPROVAL_TO_OWNER);
             assert(
@@ -139,7 +139,7 @@ mod ERC3525Component {
 
         fn allowance(self: @ComponentState<TContractState>, token_id: u256, operator: ContractAddress) -> u256 {
             // [Check] 
-            let erc721_comp = get_dep_component!(self, ERC721Comp);
+            let erc721_comp = get_dep_component!(self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             self._erc3525_approved_values.read((owner, token_id, operator))
         }
@@ -182,13 +182,46 @@ mod ERC3525Component {
         }
     }
 
+    #[embeddable_as(ERC3525CamelOnlyImpl)]
+    impl ERC3525CamelOnly<
+        TContractState,
+        +HasComponent<TContractState>,
+        +Drop<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl ERC721: ERC721Component::HasComponent<TContractState>
+    > of IERC3525CamelOnly<ComponentState<TContractState>> {
+        fn valueDecimals(self: @ComponentState<TContractState>) -> u8 {
+            ERC3525::value_decimals(self)
+        }
+        fn valueOf(self: @ComponentState<TContractState>, tokenId: u256) -> u256 {
+            ERC3525::value_of(self, tokenId)
+        }
+        fn slotOf(self: @ComponentState<TContractState>, tokenId: u256) -> u256 {
+            ERC3525::slot_of(self, tokenId)
+        }
+        fn approveValue(
+            ref self: ComponentState<TContractState>, tokenId: u256, operator: ContractAddress, value: u256
+        ) {
+            ERC3525::approve_value(ref self, tokenId, operator, value)
+        }
+        fn transferValueFrom(
+            ref self: ComponentState<TContractState>,
+            fromTokenId: u256,
+            toTokenId: u256,
+            to: ContractAddress,
+            value: u256
+        ) -> u256 {
+            ERC3525::transfer_value_from(ref self, fromTokenId, toTokenId, to, value)
+        }
+    }
+
     #[generate_trait]
     impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         +Drop<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        impl ERC721Comp: ERC721Component::HasComponent<TContractState>
+        impl ERC721: ERC721Component::HasComponent<TContractState>
     > of InternalTrait<TContractState> {
         fn initializer(ref self: ComponentState<TContractState>, value_decimals: u8) {
             // [Effect] Store value decimals
@@ -211,7 +244,7 @@ mod ERC3525Component {
             ref self: ComponentState<TContractState>, token_id: u256, operator: ContractAddress, value: u256
         ) {
             // [Effect] Store approved value
-            let erc721_comp = get_dep_component!(@self, ERC721Comp);
+            let erc721_comp = get_dep_component!(@self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             self._erc3525_approved_values.write((owner, token_id, operator), value);
 
@@ -242,7 +275,7 @@ mod ERC3525Component {
             ref self: ComponentState<TContractState>, spender: ContractAddress, token_id: u256, value: u256
         ) {
             // [Compute] Spender allowance
-            let erc721_comp = get_dep_component!(@self, ERC721Comp);
+            let erc721_comp = get_dep_component!(@self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             let current_allowance = self._erc3525_approved_values.read((owner, token_id, spender));
             let infinity: u256 = BoundedInt::max();
@@ -286,7 +319,7 @@ mod ERC3525Component {
 
         fn _mint_token(ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256, slot: u256) {
             // [Effect] Mint a new enumerable token if supported, standard token otherwise
-            let mut erc721_comp = get_dep_component_mut!(ref self, ERC721Comp);
+            let mut erc721_comp = get_dep_component_mut!(ref self, ERC721);
             erc721_comp._mint(to, token_id);
 
             // [Effect] Store slot
@@ -356,7 +389,7 @@ mod ERC3525Component {
             self._assert_minted(token_id);
 
             // [Effect] Burn token
-            let mut erc721_comp = get_dep_component_mut!(ref self, ERC721Comp);
+            let mut erc721_comp = get_dep_component_mut!(ref self, ERC721);
             erc721_comp._burn(token_id);
 
             // [Effect] Update token and total value
@@ -439,7 +472,7 @@ mod ERC3525Component {
 
             // [Effect] Update token and total value
             let slot = self._erc3525_slots.read(token_id);
-            let erc721_comp = get_dep_component!(@self, ERC721Comp);
+            let erc721_comp = get_dep_component!(@self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             self._erc3525_values.write(token_id, balance - total_amount);
 
@@ -463,7 +496,7 @@ mod ERC3525Component {
             assert(token_ids.len() > 1, Errors::INVALID_TOKEN_IDS);
 
             // [Effect] Merge token values
-            let erc721_comp = get_dep_component!(@self, ERC721Comp);
+            let erc721_comp = get_dep_component!(@self, ERC721);
             let mut index = 0;
             loop {
                 if index + 1 >= token_ids.len() {
@@ -500,16 +533,16 @@ mod ERC3525Component {
         +HasComponent<TContractState>,
         +Drop<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        impl ERC721Comp: ERC721Component::HasComponent<TContractState> // TODO
+        impl ERC721: ERC721Component::HasComponent<TContractState>
     > of AssertTrait<TContractState> {
         fn _assert_minted(self: @ComponentState<TContractState>, token_id: u256) {
-            let erc721_comp = get_dep_component!(self, ERC721Comp);
+            let erc721_comp = get_dep_component!(self, ERC721);
             let exists = erc721_comp._exists(token_id);
             assert(exists, Errors::TOKEN_NOT_MINTED);
         }
 
         fn _assert_not_minted(self: @ComponentState<TContractState>, token_id: u256) {
-            let erc721_comp = get_dep_component!(self, ERC721Comp);
+            let erc721_comp = get_dep_component!(self, ERC721);
             let exists = erc721_comp._exists(token_id);
             assert(!exists, Errors::TOKEN_ALREADY_MINTED);
         }

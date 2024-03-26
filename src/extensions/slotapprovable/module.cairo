@@ -15,7 +15,7 @@ mod ERC3525SlotApprovableComponent {
     use openzeppelin::introspection::src5::SRC5Component;
 
     use openzeppelin::token::erc721::erc721::ERC721Component::InternalTrait as ERC721InternalTrait;
-    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721; // TODO remove all unused imports
+    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721;
     use openzeppelin::token::erc721::erc721::ERC721Component;
 
     // Local deps
@@ -180,24 +180,23 @@ mod ERC3525SlotApprovableComponent {
 
             // [Effect] Transfer value to address
             let mut erc3525_comp = get_dep_component_mut!(ref self, ERC3525Comp);
-            match to_token_id.try_into() { // TODO maybe if let
+            if let Option::Some(token_id) = to_token_id.try_into() {
                 // Into felt252 works
-                Option::Some(token_id) => {
-                    match token_id {
-                        // If token_id is zero, transfer value to address
-                        0 => erc3525_comp._transfer_value_to(
-                            from_token_id, to, value
-                        ),
-                        // Otherwise, transfer value to token
-                        _ => erc3525_comp._transfer_value_to_token(
-                            from_token_id, to_token_id, value
-                        ),
-                    }
-                },
+                match token_id {
+                    // If token_id is zero, transfer value to address
+                    0 => erc3525_comp._transfer_value_to(
+                        from_token_id, to, value
+                    ),
+                    // Otherwise, transfer value to token
+                    _ => erc3525_comp._transfer_value_to_token(
+                        from_token_id, to_token_id, value
+                    ),
+                }
+            } else {
                 // Into felt252 fails, so token_id is not zero
-                Option::None(()) => erc3525_comp._transfer_value_to_token(
+                erc3525_comp._transfer_value_to_token(
                     from_token_id, to_token_id, value
-                ),
+                )
             }
         }
     }
@@ -211,7 +210,7 @@ mod ERC3525SlotApprovableComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl ERC721Comp: ERC721Component::HasComponent<TContractState>
     > of InternalTrait<TContractState> {
-        fn initializer(ref self: ComponentState<TContractState>) { // TODO initializable
+        fn initializer(ref self: ComponentState<TContractState>) {
             // [Effect] Register interfaces
             let mut src5_comp = get_dep_component_mut!(ref self, SRC5);
             src5_comp.register_interface(IERC3525_SLOT_APPROVABLE_ID);

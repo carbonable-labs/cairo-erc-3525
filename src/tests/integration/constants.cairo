@@ -51,3 +51,7 @@ fn NAME() -> ByteArray {
 fn SYMBOL() -> ByteArray {
     "SYMBOL"
 }
+
+fn BASE_URI() -> ByteArray {
+    "BASE_URI"
+}
