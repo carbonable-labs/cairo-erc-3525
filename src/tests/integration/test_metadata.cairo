@@ -11,6 +11,7 @@ use starknet::testing;
 // External deps
 use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
 use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait, IERC721_ID};
+use openzeppelin::presets::Account;
 
 // Local deps
 use cairo_erc_3525::interface::{IERC3525Dispatcher, IERC3525DispatcherTrait, IERC3525_ID};
@@ -21,7 +22,6 @@ use cairo_erc_3525::extensions::metadata::interface::{
     IERC3525MetadataDispatcher, IERC3525MetadataDispatcherTrait, IERC3525_METADATA_ID
 };
 use cairo_erc_3525::tests::integration::constants;
-use cairo_erc_3525::tests::mocks::account::Account;
 
 #[derive(Drop)]
 struct Signers {
