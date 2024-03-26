@@ -11,10 +11,10 @@ use starknet::testing::set_caller_address;
 // External imports
 
 use openzeppelin::token::erc721::erc721::ERC721Component;
+use openzeppelin::presets::Account;
 
 // Local imports
 
-use cairo_erc_3525::tests::mocks::account::Account;
 use cairo_erc_3525::module::ERC3525Component;
 use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent::{ ERC3525MetadataImpl, InternalImpl };
 use cairo_erc_3525::extensions::metadata::module::ERC3525MetadataComponent;

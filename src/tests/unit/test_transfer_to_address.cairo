@@ -12,10 +12,10 @@ use starknet::testing::set_caller_address;
 
 use openzeppelin::token::erc721::erc721::ERC721Component::{ ERC721Impl, InternalImpl as ERC721InternalImpl };
 use openzeppelin::token::erc721::erc721::ERC721Component;
+use openzeppelin::presets::Account;
 
 // Local imports
 
-use cairo_erc_3525::tests::mocks::account::Account;
 use cairo_erc_3525::module::ERC3525Component::{ ERC3525Impl, InternalImpl };
 use cairo_erc_3525::module::ERC3525Component;
 use cairo_erc_3525::tests::unit::constants::{
