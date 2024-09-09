@@ -7,13 +7,14 @@ cairo-version = "2.6.3"
 [lib]
 
 [dependencies]
-starknet = ">=2.6.3"
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.10.0" }
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.19.0" }
+starknet = "2.6.4"
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.14.0" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.27.0" }
 
 [[target.starknet-contract]]
 sierra = true
 casm = true
+build-external-contracts = ["openzeppelin::presets::AccountUpgradeable"]
 
 [tool.snforge]
 exit_first = false

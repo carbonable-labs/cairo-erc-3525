@@ -18,14 +18,10 @@ mod ERC3525MintableBurnableMSA {
     use starknet::{get_caller_address, ContractAddress};
 
     // SRC5
-    use openzeppelin::introspection::interface::{ISRC5, ISRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
 
     // ERC721
-    use openzeppelin::token::erc721::erc721::ERC721Component;
-    use openzeppelin::token::erc721::interface::{
-        IERC721, IERC721CamelOnly, IERC721Metadata, IERC721MetadataCamelOnly
-    };
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl, interface::{IERC721, IERC721CamelOnly}};
 
     // ERC3525
     use cairo_erc_3525::module::ERC3525Component;
@@ -59,8 +55,8 @@ mod ERC3525MintableBurnableMSA {
     // Component implementations
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    #[abi(embed_v0)]
-    impl SRC5CamelImpl = SRC5Component::SRC5CamelImpl<ContractState>;
+    // #[abi(embed_v0)]
+    // impl SRC5CamelImpl = SRC5Component::SRC5CamelImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
     #[abi(embed_v0)]

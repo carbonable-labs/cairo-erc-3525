@@ -15,11 +15,10 @@ mod ERC3525MintableBurnable {
     use starknet::{get_caller_address, ContractAddress};
 
     // SRC5
-    use openzeppelin::introspection::interface::{ISRC5, ISRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
 
     // ERC721
-    use openzeppelin::token::erc721::erc721::ERC721Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
 
     // ERC3525
     use cairo_erc_3525::module::ERC3525Component;

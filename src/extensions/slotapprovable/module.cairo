@@ -1,6 +1,7 @@
 #[starknet::component]
 mod ERC3525SlotApprovableComponent {
     // Core deps
+    use openzeppelin::token::erc721::interface::IERC721;
     use traits::{Into, TryInto};
     use option::OptionTrait;
     use zeroable::Zeroable;
@@ -10,13 +11,12 @@ mod ERC3525SlotApprovableComponent {
     use starknet::{get_caller_address, ContractAddress};
 
     // External deps
-    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
-    use openzeppelin::introspection::src5::SRC5Component;
-
-    use openzeppelin::token::erc721::erc721::ERC721Component::InternalTrait as ERC721InternalTrait;
-    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721;
-    use openzeppelin::token::erc721::erc721::ERC721Component;
+    use openzeppelin::introspection::src5::{
+        SRC5Component, SRC5Component::InternalTrait as SRC5InternalTrait
+    };
+    use openzeppelin::token::erc721::{
+        ERC721Component, ERC721HooksEmptyImpl, ERC721Component::InternalTrait as ERC721InternalTrait
+    };
 
     // Local deps
     use cairo_erc_3525::module::ERC3525Component::InternalTrait as ERC3525InternalTrait;
@@ -143,7 +143,7 @@ mod ERC3525SlotApprovableComponent {
 
             // [Effect] Store approval
             let mut erc721_comp = get_dep_component_mut!(ref self, ERC721Comp);
-            erc721_comp._approve(to, token_id);
+            erc721_comp.approve(to, token_id);
         }
 
         fn approve_value(
@@ -249,7 +249,7 @@ mod ERC3525SlotApprovableComponent {
             // [Compute] Operator is owner or approved for all
             let erc721_comp = get_dep_component!(self, ERC721Comp);
             let owner = erc721_comp.owner_of(token_id);
-            let is_owner_or_approved = erc721_comp._is_approved_or_owner(operator, token_id);
+            let is_owner_or_approved = erc721_comp.get_approved(token_id) == operator;
 
             // [Compute] Operator is approved for slot
             let erc3525_comp = get_dep_component!(self, ERC3525Comp);

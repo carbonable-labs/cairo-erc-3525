@@ -1,6 +1,7 @@
 #[starknet::component]
 mod ERC3525Component {
     // Core deps
+    use openzeppelin::token::erc721::interface::IERC721;
     use array::{ArrayTrait, SpanTrait};
     use option::OptionTrait;
     use traits::{Into, TryInto};
@@ -12,12 +13,12 @@ mod ERC3525Component {
 
     // External deps
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
+    // use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
-    use openzeppelin::token::erc721::erc721::ERC721Component::InternalTrait as ERC721InternalTrait;
-    use openzeppelin::token::erc721::erc721::ERC721Component::ERC721;
-    use openzeppelin::token::erc721::erc721::ERC721Component;
+    use openzeppelin::token::erc721::{
+        ERC721Component, ERC721HooksEmptyImpl, ERC721Component::InternalTrait as ERC721InternalTrait
+    };
     use openzeppelin::account::interface::ISRC6_ID;
 
     // Local deps
@@ -131,7 +132,7 @@ mod ERC3525Component {
             let erc721_comp = get_dep_component!(@self, ERC721);
             let owner = erc721_comp.owner_of(token_id);
             assert(owner != operator, Errors::APPROVAL_TO_OWNER);
-            assert(erc721_comp._is_approved_or_owner(caller, token_id), Errors::CALLER_NOT_ALLOWED);
+            assert(erc721_comp.get_approved(token_id) == caller, Errors::CALLER_NOT_ALLOWED);
 
             // [Effect] Store approved value
             self._approve_value(token_id, operator, value);
@@ -296,7 +297,7 @@ mod ERC3525Component {
             let owner = erc721_comp.owner_of(token_id);
             let current_allowance = self._erc3525_approved_values.read((owner, token_id, spender));
             let infinity: u256 = BoundedInt::max();
-            let is_approved = erc721_comp._is_approved_or_owner(spender, token_id);
+            let is_approved = erc721_comp.get_approved(token_id) == spender;
 
             // [Effect] Update allowance if the rights are limited
             if current_allowance == infinity || is_approved {
@@ -344,7 +345,7 @@ mod ERC3525Component {
         ) {
             // [Effect] Mint a new enumerable token if supported, standard token otherwise
             let mut erc721_comp = get_dep_component_mut!(ref self, ERC721);
-            erc721_comp._mint(to, token_id);
+            erc721_comp.mint(to, token_id);
 
             // [Effect] Store slot
             self._erc3525_slots.write(token_id, slot);
@@ -417,7 +418,7 @@ mod ERC3525Component {
 
             // [Effect] Burn token
             let mut erc721_comp = get_dep_component_mut!(ref self, ERC721);
-            erc721_comp._burn(token_id);
+            erc721_comp.burn(token_id);
 
             // [Effect] Update token and total value
             let value = self._erc3525_values.read(token_id);
@@ -566,13 +567,13 @@ mod ERC3525Component {
     > of AssertTrait<TContractState> {
         fn _assert_minted(self: @ComponentState<TContractState>, token_id: u256) {
             let erc721_comp = get_dep_component!(self, ERC721);
-            let exists = erc721_comp._exists(token_id);
+            let exists = erc721_comp.exists(token_id);
             assert(exists, Errors::TOKEN_NOT_MINTED);
         }
 
         fn _assert_not_minted(self: @ComponentState<TContractState>, token_id: u256) {
             let erc721_comp = get_dep_component!(self, ERC721);
-            let exists = erc721_comp._exists(token_id);
+            let exists = erc721_comp.exists(token_id);
             assert(!exists, Errors::TOKEN_ALREADY_MINTED);
         }
     }

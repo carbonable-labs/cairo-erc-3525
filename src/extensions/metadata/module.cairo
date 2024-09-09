@@ -4,9 +4,9 @@ mod ERC3525MetadataComponent {
     use starknet::ContractAddress;
 
     // External deps
-    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin::introspection::src5::SRC5Component::{SRC5, SRC5Camel};
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::introspection::src5::{
+        SRC5Component, SRC5Component::InternalTrait as SRC5InternalTrait
+    };
 
     // Local deps
     use cairo_erc_3525::extensions::metadata::interface::{
