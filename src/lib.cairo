@@ -22,3 +22,6 @@ mod presets {
     mod erc3525_mintable_burnable_metadata_slot_approvable_slot_enumerable;
 }
 
+mod test_helpers {
+    mod account;
+}
