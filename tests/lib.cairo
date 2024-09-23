@@ -13,4 +13,5 @@ mod unit {
     mod test_initialization;
     mod test_metadata;
     mod test_mint_burn;
+    mod test_slot_approvable;
 }
