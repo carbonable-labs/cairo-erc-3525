@@ -26,4 +26,5 @@ mod test_helpers {
     mod account;
     mod contracts;
     mod receiver;
+    mod utils;
 }
