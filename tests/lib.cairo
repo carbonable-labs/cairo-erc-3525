@@ -12,4 +12,5 @@ mod unit {
     mod test_approvals;
     mod test_initialization;
     mod test_metadata;
+    mod test_mint_burn;
 }
