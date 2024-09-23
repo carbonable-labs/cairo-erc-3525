@@ -10,4 +10,5 @@ mod integration {
 mod unit {
     mod constants;
     mod test_approvals;
+    mod test_initialization;
 }
