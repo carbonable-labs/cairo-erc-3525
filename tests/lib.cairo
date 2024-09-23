@@ -6,3 +6,8 @@ mod integration {
     mod test_slot_approvable;
     mod test_slot_enumerable;
 }
+
+mod unit {
+    mod constants;
+    mod test_approvals;
+}
