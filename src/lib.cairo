@@ -24,4 +24,6 @@ mod presets {
 
 mod test_helpers {
     mod account;
+    mod contracts;
+    mod receiver;
 }
