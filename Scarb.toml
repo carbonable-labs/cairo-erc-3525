@@ -2,7 +2,7 @@
 name = "cairo_erc_3525"
 version = "2.1.0"
 edition = "2023_01"
-cairo-version = "2.6.3"
+cairo-version = "2.6.4"
 
 [lib]
 
