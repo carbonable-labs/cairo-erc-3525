@@ -21,7 +21,9 @@ mod ERC3525MintableBurnableMSA {
     use openzeppelin::introspection::src5::SRC5Component;
 
     // ERC721
-    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl, interface::{IERC721, IERC721CamelOnly}};
+    use openzeppelin::token::erc721::{
+        ERC721Component, ERC721HooksEmptyImpl, interface::{IERC721, IERC721CamelOnly}
+    };
 
     // ERC3525
     use cairo_erc_3525::module::ERC3525Component;
